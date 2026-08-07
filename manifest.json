@@ -7,6 +7,18 @@
     "vault": "~/Owen's Awesome Vault/.claude/skills"
   },
   "skills": {
+    "agent-task-runner": [
+      "vault",
+      "cursor"
+    ],
+    "draft-outreach": [
+      "vault",
+      "cursor"
+    ],
+    "file-agent-issue": [
+      "vault",
+      "cursor"
+    ],
     "brain-mail-ingest": [
       "vault",
       "cursor"
@@ -29,6 +41,10 @@
     ],
     "local-routine": [
       "claude",
+      "cursor"
+    ],
+    "log-outreach": [
+      "vault",
       "cursor"
     ],
     "morning-interview": [
