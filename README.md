@@ -50,6 +50,7 @@ Not every skill belongs everywhere. Vault skills are meaningless in a coding har
 4. Reference bundled files by relative path, never absolute.
 5. Keep `SKILL.md` short; push detail into bundled `.md` files loaded on demand.
 6. Absolute vault paths are acceptable in `vault`-targeted skills only.
+7. **Never name a real third party.** This repo is pushed off the machine; the people in Owen's mail and calendar didn't agree to that. Examples use fictional stand-ins (`Dr. Vance`, `jordanm@example-corp.com`), and the real name or address gets resolved from Gmail or the vault at runtime. Owen's own addresses are fine — they're load-bearing in `draft-outreach` and `log-outreach`.
 
 ## Not managed here
 
