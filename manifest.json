@@ -1,0 +1,10 @@
+{
+  "_comment": "Maps each skill to the harnesses it should be linked into. Run ./install.sh after editing.",
+  "_targets": {
+    "claude": "~/.claude/skills",
+    "cursor": "~/.cursor/skills",
+    "codex": "~/.codex/skills",
+    "vault": "~/Owen's Awesome Vault/.claude/skills"
+  },
+  "skills": {}
+}
