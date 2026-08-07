@@ -1,2 +1,7 @@
 skills/*/.DS_Store
 .DS_Store
+**/.DS_Store
+
+# Local secrets — never commit
+**/*.local.json
+**/*.local.sh
