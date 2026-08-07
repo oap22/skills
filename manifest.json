@@ -11,6 +11,10 @@
       "vault",
       "cursor"
     ],
+    "linear-project-setup": [
+      "claude",
+      "cursor"
+    ],
     "project-sync": [
       "vault",
       "cursor"
