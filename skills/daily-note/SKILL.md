@@ -98,8 +98,18 @@ startTime / endTime / timeZone: America/Chicago
 description: <one-line reason from the Top 3> + the Linear URL
 eventType:   DEFAULT
 availability: AVAILABILITY_BUSY
-colorId:     9
+colorId:     <the Linear project's color — see below>
 ```
+
+**Color the block by its Linear project**, so a focus block is visually the same category as the fixed time around it:
+
+| Linear project | `colorId` |
+|---|---|
+| School | `9` Blueberry |
+| Research | `6` Tangerine |
+| Personal | `8` Graphite |
+
+The full scheme lives in `.system/calendar-conventions.md` and in the `calendar-block` skill. Never leave `colorId` unset — Google's default renders as Blueberry and would silently mislabel every Research and Personal block as School.
 
 Use `DEFAULT`, not `FOCUS_TIME` — focus-time events can auto-decline real invitations, which is a side effect nobody asked for.
 

@@ -82,6 +82,8 @@ Where each kind of answer files:
 | Waiting-on / context / capacity | the `<!-- interview:start -->` block |
 | A real commitment to someone | `30-Brain/Commitments/` per the Brain rules |
 
+If a piece of fixed time he mentions is genuinely load-bearing — a game, a ride, a window he can't be scheduled into — **offer to put it on Calendar** rather than only writing a Schedule row. A row in the note doesn't stop the next render from blocking over it. Use the `calendar-block` skill so it gets the right category color; ask first, never create events from a 6:30 routine unprompted.
+
 The interview block lives under its own heading, below `## Schedule`:
 
 ```markdown
