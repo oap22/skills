@@ -63,6 +63,10 @@
       "vault",
       "cursor"
     ],
+    "collaborator-sweep": [
+      "vault",
+      "cursor"
+    ],
     "publish-to-github": [
       "claude",
       "cursor",
