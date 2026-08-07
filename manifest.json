@@ -1,10 +1,16 @@
 {
-  "_comment": "Maps each skill to the harnesses it should be linked into. Run ./install.sh after editing.",
+  "_comment": "Maps each skill to the harnesses it should be linked into. Run ./install.py after editing.",
   "_targets": {
     "claude": "~/.claude/skills",
     "cursor": "~/.cursor/skills",
     "codex": "~/.codex/skills",
     "vault": "~/Owen's Awesome Vault/.claude/skills"
   },
-  "skills": {}
+  "skills": {
+    "skillify": [
+      "claude",
+      "cursor",
+      "codex"
+    ]
+  }
 }
