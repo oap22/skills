@@ -86,7 +86,15 @@ On refresh, **read it**. If it has items, offer to promote them into Linear (tha
 - **Don't create tomorrow's note ahead of time** unless asked — empty future notes clutter the folder and break the "is it rendered?" signal.
 - **Never delete vault content** to reconcile with Linear. Ask first, always.
 
+## Scheduling this
+
+Use a **local** scheduled task, never a cloud routine — see the `local-routine` skill. A cloud agent cannot reach the vault or the Linear/Calendar connectors, and fails silently every morning.
+
+The live routine is `daily-note-render`, `30 6 * * *` America/Chicago.
+
 ## Untested
 
-- **Refresh-in-place.** Built and verified on a first render (`2026-08-06`); replacing an existing marked block while preserving surrounding content has not yet been exercised against a note the user has edited by hand.
 - **In Progress issues.** The team has the status but no issue has used it yet, so its placement in the rendered tables is unverified.
+- **A day with a partially-filled Schedule table.** Verified against a full calendar day and an empty one; the merge behavior when the user has hand-added a row is unexercised.
+
+*(Refresh-in-place was verified 2026-08-06: replacing the marked block preserved Top 3, Schedule, Captured, and Notes intact.)*
