@@ -27,11 +27,12 @@
       "vault",
       "cursor"
     ],
-    "research-ingest": [
-      "vault",
-      "cursor"
+    "publish-to-github": [
+      "claude",
+      "cursor",
+      "codex"
     ],
-    "vault-to-linear": [
+    "research-ingest": [
       "vault",
       "cursor"
     ],
@@ -39,6 +40,10 @@
       "claude",
       "cursor",
       "codex"
+    ],
+    "vault-to-linear": [
+      "vault",
+      "cursor"
     ]
   }
 }
