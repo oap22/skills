@@ -7,6 +7,10 @@
     "vault": "~/Owen's Awesome Vault/.claude/skills"
   },
   "skills": {
+    "project-sync": [
+      "vault",
+      "cursor"
+    ],
     "skillify": [
       "claude",
       "cursor",
