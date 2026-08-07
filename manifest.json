@@ -11,6 +11,10 @@
       "vault",
       "cursor"
     ],
+    "calendar-block": [
+      "vault",
+      "cursor"
+    ],
     "daily-note": [
       "vault",
       "cursor"
@@ -49,7 +53,19 @@
       "cursor",
       "codex"
     ],
+    "vault-librarian": [
+      "vault",
+      "cursor"
+    ],
+    "vault-lifecycle": [
+      "vault",
+      "cursor"
+    ],
     "vault-to-linear": [
+      "vault",
+      "cursor"
+    ],
+    "vault-triage": [
       "vault",
       "cursor"
     ]
