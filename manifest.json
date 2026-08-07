@@ -11,6 +11,10 @@
       "vault",
       "cursor"
     ],
+    "daily-note": [
+      "vault",
+      "cursor"
+    ],
     "linear-project-setup": [
       "claude",
       "cursor"
