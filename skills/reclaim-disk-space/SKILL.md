@@ -17,10 +17,16 @@ outside the home directory:
 
 ```bash
 df -h | grep -v "^map"
-du -sh ~/* 2>/dev/null | sort -rh | head -20
+du -sh ~/* ~/.[!.]* 2>/dev/null | sort -rh | head -25
 du -sh ~/Library/* 2>/dev/null | sort -rh | head -15
 du -sh /Applications /Library /opt /usr/local 2>/dev/null | sort -rh
 ```
+
+**The `~/.[!.]*` glob is not optional.** A bare `~/*` skips every dotfile, and
+that is where model stores and language caches live — `~/.ollama/models` alone
+was 46 GB on a machine where the whole survey had reported nothing bigger than
+`~/Library`. Also check `~/.cache`, `~/.cargo`, `~/.rustup`, `~/.npm`,
+`~/.gradle`, `~/.pyenv`, `~/.docker`, `~/.lmstudio`.
 
 If the home total is far below the Data volume's used figure, the difference is
 in `/Applications`, `/Library`, and `/opt`. Drill into the largest hits with
@@ -40,7 +46,13 @@ turn out to be trivial, say so plainly with the sizes.
 Tier 1 — package caches (`~/Library/Caches/{Homebrew,pip,npm,node-gyp}`),
 browser caches (`Google`, `Arc`, `BraveSoftware`), `electron`, `ms-playwright`,
 wallpaper aerials (`~/Library/Application Support/com.apple.wallpaper/aerials`),
-Electron app `Cache`/`Code Cache` subdirectories.
+Electron app `Cache`/`Code Cache` subdirectories, **and downloaded model
+weights** — `~/.ollama/models`, LM Studio, Hugging Face caches. A model that
+`ollama pull` restores is regenerable, not data. Delete the stale ones; never
+archive them to a drive.
+
+Sort models by last use before proposing anything — `ollama list` reports it.
+Keep what was used this week on the internal drive, drop the rest.
 
 Tier 2 — Docker's VM image, iOS simulator runtimes, Xcode `DerivedData`,
 sandbox VM bundles. Each destroys something. Name what is lost, per item.
@@ -123,11 +135,38 @@ all — worth flagging even though it's unrelated to space.
 `/Volumes/External-Drive` mid-session. Never cache the path; check `ls /Volumes`
 or `diskutil list external` each time.
 
+**Measure the drive before proposing it as working storage.** Write speed does
+not predict read speed on USB enclosures — one drive benchmarked at 284 MB/s
+write and 92 MB/s read, a 3× gap. Working storage is read-bound, so the write
+figure flatters it badly:
+
+```bash
+dd if=/dev/zero of="$DRIVE/.st" bs=1m count=4000 conv=fsync   # write
+diskutil unmount "$DRIVE" && diskutil mount <volume>          # drop cache
+dd if="$DRIVE/.st" of=/dev/null bs=1m                         # cold read
+rm -f "$DRIVE/.st"
+```
+
+Use `conv=fsync` or the write number is buffered and inflated, and remount
+before reading or the read number is page cache (it will show absurd GB/s).
+Check `mdutil -s "$DRIVE"` first — Spotlight indexing a freshly mounted volume
+corrupts the measurement.
+
+Below ~200 MB/s read, the drive is cold storage only. Memory-mapped workloads —
+Ollama, LM Studio, anything faulting pages during use — stall rather than slow
+when the mapping lives on a slow external.
+
 ## Failure modes seen
 
 - **Acting on the stated premise.** Session opened with "migrate my documents to
   save space." Documents was 16 MB; Downloads 12 KB; Desktop empty. The 83 GB
   came from Docker and caches. Surveying first is the entire skill.
+- **Missing 46 GB by globbing `~/*`.** `~/.ollama/models` never appeared in the
+  survey because the glob skips dotfiles. Caught only when the user asked an
+  unrelated question about Ollama. Always include `~/.[!.]*`.
+- **Recommending offload before measuring the drive.** Advised moving datasets
+  and models to an external, then measured it at 92 MB/s read and had to walk
+  the advice back. Benchmark first, recommend second.
 - **Assuming the home directory is the disk.** Home was 123 GB against 388 GB
   used. `/Applications` (36 GB), `/Library` (26 GB), and `/opt` (18 GB) were
   invisible to `du -sh ~/*`.
