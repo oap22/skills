@@ -110,16 +110,35 @@ Log the estimate alongside the actual afterward. An agent whose estimates are ch
 Every logged run goes through `log_run.py`, which lives beside this file. It creates the results directory, captures the git SHA and dirty state, records the environment, tees stdout, and times the run. Reading it is the fastest way to understand the layout.
 
 ```bash
-python /path/to/research-loop/log_run.py run \
+LOG_RUN=~/.claude/skills/research-loop/log_run.py   # see § Invoking log_run.py
+
+python3 "$LOG_RUN" run \
   --name lr-sweep-cosine \
   --config configs/sweep.yaml \
   --estimate-minutes 45 \
   -- python train.py --config configs/sweep.yaml
 ```
 
+Everything after `--` is the experiment's own command, run unmodified — use whatever interpreter that project uses there (`python`, `uv run`, `srun`, a binary). The `python3` at the front is only for the wrapper itself.
+
 The wrapper exists so a run can't be *half*-logged. Do not hand-roll the directory, and do not run the experiment bare and reconstruct the record afterward — a reconstructed record is a guess wearing a timestamp.
 
 **A dirty git tree at run time is recorded and flagged.** Commit before a run that matters. `log_run.py` will warn; it won't stop you.
+
+#### Invoking log_run.py
+
+The script sits next to this file, which is a symlink into Owen's skills repo. Resolve it once at the start of the session and reuse the variable:
+
+```bash
+LOG_RUN=$(ls ~/.claude/skills/research-loop/log_run.py \
+             ~/.cursor/skills/research-loop/log_run.py \
+             ~/Developer/active/skills/skills/research-loop/log_run.py \
+             2>/dev/null | head -1)
+```
+
+**Invoke it with `python3`, never `python`** — `python` is not on PATH on Owen's Mac, and a bare `python` inside an activated project venv may be a different interpreter than the one that can read the repo. `log_run.py` is stdlib-only and version-agnostic, so the system `python3` is always the right choice for the wrapper; the experiment's own interpreter goes after `--` and is untouched.
+
+On a cluster (ROSIE, SLURM) the skills repo usually isn't checked out. Copy `log_run.py` into the repo — it's a single stdlib file with no imports beyond the standard library, which is why it's built that way — and commit it. It picks up `SLURM_JOB_ID` and `SLURM_ARRAY_TASK_ID` into `run.json` automatically.
 
 ### 5. Verify — attack the result
 
