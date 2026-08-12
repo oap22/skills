@@ -91,6 +91,11 @@
       "cursor",
       "codex"
     ],
+    "rosie-run": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
     "skillify": [
       "claude",
       "cursor",
