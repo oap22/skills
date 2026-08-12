@@ -72,6 +72,11 @@
       "cursor",
       "codex"
     ],
+    "reclaim-disk-space": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
     "research-ingest": [
       "vault",
       "cursor"
