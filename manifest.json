@@ -86,6 +86,11 @@
       "cursor",
       "vault"
     ],
+    "research-loop": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
     "skillify": [
       "claude",
       "cursor",
