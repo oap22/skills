@@ -22,6 +22,8 @@ Relentless means persistent, not rapid-fire. Keep going past the point of social
 
 **One question per message. Never batch.** A list of six questions gets six shallow answers. Keep the preamble short too.
 
+**Use the structured question tool when the harness has one.** In Claude Code, ask through `AskUserQuestion` — one question per call, with 2–4 concrete options when the answer space is genuinely enumerable (which partition, which baseline, which metric) so the user can tap instead of type; the built-in "Other" covers everything else. Fall back to plain chat for open-ended threads ("what would make you abandon this idea?") where options would anchor the answer. Never use the tool to batch several questions into one call — that's the same six-shallow-answers failure with buttons.
+
 **Never ask what you can read.** Before the first question, read the project's `CONTEXT.md`/`README`, prior run logs, the relevant vault project note (`02-Projects/`), and any earlier briefs. Open by *presenting what you already believe* — question, method, constraints as you understand them — and ask what's wrong with it.
 
 **Follow the thread.** Each question comes from the last answer, not a checklist. A hedge ("probably", "I think", "should be fine") is a thread — pull it.
