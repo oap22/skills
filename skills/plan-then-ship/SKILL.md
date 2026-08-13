@@ -85,7 +85,9 @@ Hard stop at **4 repair loops**: review pass 1 is the initial review; each repai
 - **Oscillation.** Round N reintroduces a critical that round N-1 had closed.
 - **Spec is the problem.** Implementer or reviewer can show the spec is contradictory, incomplete, or wrong. Looping the weak model cannot fix a bad contract — escalate to Owen.
 
-On any stop: report the remaining criticals, which stuck rule fired, and that the diff is unshipped. Do not silently lower the bar to "close enough."
+**Escalate before stopping.** When a stuck rule fires — or when Owen tests the live artifact and reports a defect still present after repairs, even with green tests (tests cannot see pixels) — the cheap implementer has hit its ceiling. Do not stop cold and do not spend another cheap pass on the same defect. Run **one escalation pass**: re-spawn the implementer on the **planner-tier model** from `models.md`, at the highest reasoning effort the harness offers, scoped to only the surviving defects, with an investigation mandate — question the standing diagnosis rather than iterating on it, research known issues in the involved libraries/platforms, and full license to re-architect the failing component within the spec's boundaries. This is the one sanctioned inversion of "never use the planner tier to implement," and Owen saying "it's still broken" after a repair pass is an automatic trigger. If the escalation pass also fails, stop and report per the rules above.
+
+On any stop: report the remaining criticals, which stuck rule fired, whether the escalation pass ran, and that the diff is unshipped. Do not silently lower the bar to "close enough."
 
 ### 7. Ship
 
