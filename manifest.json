@@ -59,6 +59,11 @@
       "vault",
       "cursor"
     ],
+    "plan-then-ship": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
     "project-sync": [
       "vault",
       "cursor"
