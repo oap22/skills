@@ -48,6 +48,8 @@ Written by `log_run.py`; never hand-edit. Records what the run *was*, as distinc
 
 Flat where possible. Scalars are the point; nested structures should be rare and deliberate.
 
+**Live streaming (Turing):** when the run happens in the Turing repo, *additionally* append per-step lines to `metrics.jsonl` in the same run directory (`{"step": n, "total_steps": N, "ts": epoch, ...numeric series}`) — the Turing desktop app tails it and charts the run live. The final `metrics.json` above stays the citable artifact; the JSONL is visibility, not evidence. See the `turing` skill.
+
 ```json
 {
   "held_out_accuracy": 0.641,
