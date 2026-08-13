@@ -13,6 +13,8 @@ This skill exists to make the quiet failures loud.
 
 **If the work is a self-improving loop — a flywheel, iterative refinement, agent-improves-agent, synthetic-data retraining, anything where round *N+1* is built from round *N* — read `driving-functions.md` too, at the design gate.** That protocol is additional to this one, not a replacement for it.
 
+**If the work lives in the Turing repo (`~/Developer/active/Turing`) — Owen's primary research-dev home — read the `turing` skill too.** It carries the desktop-app data contract: append live metrics to `research/results/<run>/metrics.jsonl` (one JSON object per step, with `step`/`total_steps`/`ts`) so Owen's charts move while the run is in flight, drop plots as SVG/PNG in the run dir, and write flywheel rounds to `loop-<slug>/trajectory.json`. The final `metrics.json` these conventions require is unchanged — the JSONL stream is additional, for live visibility.
+
 ## The Principle
 
 **A result that isn't logged didn't happen. A result that wasn't attacked isn't a result.**

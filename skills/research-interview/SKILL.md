@@ -9,6 +9,8 @@ Reach complete shared understanding of a research effort **before** any compute 
 
 **Position in the pipeline:** `research-interview` → `/research-loop` (→ `rosie-run` if the cluster is involved). If the user invokes `/research-loop` and no current brief exists, that's the cue to run this first.
 
+**When the project lives in the Turing repo** (`~/Developer/active/Turing` — Owen's primary research-dev home), also load the `turing` skill: briefs land in `research/briefs/`, and the brief should note where the run will write its live output (`research/results/<run>/metrics.jsonl` etc.) so the execution phase renders live in Owen's Turing desktop app.
+
 ## The Standard
 
 The interview is done only when *both* of these are true, and not before:
