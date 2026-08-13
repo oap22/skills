@@ -4,20 +4,29 @@ Roles are defined in `SKILL.md`. This file is only the names, and it will go sta
 
 Use the **planner** for planning and for review. Use the **implementer** for writing code. Never invert that.
 
-| Harness | Planner / reviewer | Implementer |
-|---|---|---|
-| Claude | Opus 5 (current parent if it is already Opus) | Sonnet |
-| Codex | Sol | Luna |
-| Cursor | Current parent, unless it is on the implementer deny-list below; otherwise Sol (`gpt-5.6-sol-medium`) | Composer (`composer-2.5`). Grok (`cursor-grok-4.6-low`) if Owen named Grok. |
+Pass the **id** column to spawn, not the family name. Aliases in parentheses also work on that harness. If an id is rejected, stop and tell Owen — do not silently inherit.
 
-Do not use a fuzzy "strong model" test. The implementer **deny-list** is the only classifier:
+| Harness | Role | Family | Id to spawn |
+|---|---|---|---|
+| Claude | Planner / reviewer | Opus 5 | `claude-opus-5` (`opus`) |
+| Claude | Planner / reviewer | Fable 5, if the parent already is Fable or Owen named it | `claude-fable-5` |
+| Claude | Implementer | Sonnet 5 | `claude-sonnet-5` (`sonnet`) |
+| Codex | Planner / reviewer | Sol | `gpt-5.6-sol` |
+| Codex | Implementer | Luna | `gpt-5.6-luna` |
+| Cursor | Planner / reviewer | Current parent, unless it is on the deny-list; otherwise Sol | `gpt-5.6-sol-medium` |
+| Cursor | Implementer | Composer | `composer-2.5` |
+| Cursor | Implementer | Grok, only if Owen named Grok | `cursor-grok-4.6-low` |
 
-- Sonnet (any `sonnet` / `claude-sonnet` id)
-- Luna (`gpt-5.6-luna-medium`, or the session calling itself Luna)
-- Composer (`composer-2.5`, `composer-2.5-fast`)
-- Grok (`cursor-grok-4.6-low`, or the session calling itself Grok)
+Cursor slugs are not the Codex ids: Cursor wants `gpt-5.6-sol-medium` / `gpt-5.6-luna-medium`; Codex wants `gpt-5.6-sol` / `gpt-5.6-luna`. Do not mix them.
 
-If the current session matches any of those names or ids, you are the implementer. Refuse to write a spec. Every other named model is the planner. If you cannot tell which model you are, ask once and wait. Do not guess.
+Do not use a fuzzy "strong model" test. The implementer **deny-list** is the only classifier — match name *or* id:
+
+- Sonnet — `claude-sonnet-5`, `sonnet`, any `claude-sonnet*` id
+- Luna — `gpt-5.6-luna`, `gpt-5.6-luna-medium`
+- Composer — `composer-2.5`, `composer-2.5-fast`
+- Grok — `cursor-grok-4.6-low`
+
+If the current session matches any of those, you are the implementer. Refuse to write a spec. Every other named model is the planner. If you cannot tell which model you are, ask once and wait. Do not guess.
 
 ## Spawn vs degrade
 
