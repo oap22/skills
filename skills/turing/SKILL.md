@@ -27,7 +27,8 @@ Everything the desktop app shows is a plain file. Write to these paths and Owen 
 | Final summary numbers | `research/results/<run>/metrics.json` | metrics (static) — required by research-loop conventions |
 | Flywheel / loop rounds | `research/results/loop-<slug>/trajectory.json` (+ `round-NN/round.json`) | flywheel timeline |
 | Plots / figures | `research/results/<run>/*.svg` or `*.png` | images (auto-selects newest) |
-| Rosie job metrics, live | `ssh ROSIE 'tail -n +1 -F <run>/metrics.jsonl' \| tee -a research/results/rosie-live/metrics.jsonl` (a desktop runner pre-types this) | metrics |
+| Remote job metrics, live (Rosie or any ssh host) | `ssh <HOST> 'tail -n +1 -F <run>/metrics.jsonl' \| tee -a research/results/<run>/metrics.jsonl` (desktop runner `ssh-follow-metrics` pre-types this) | metrics |
+| Remote plots/assets, live | rsync loop via desktop runner `ssh-pull-assets` into `research/results/` | images + metrics |
 
 ### metrics.jsonl line contract
 
@@ -38,6 +39,10 @@ Everything the desktop app shows is a plain file. Write to these paths and Owen 
 - Every **numeric** field becomes a chart series automatically — add whatever you measure.
 - `step` is the x-axis (falls back to line index). `total_steps` enables the ETA strip — include it. `ts` (epoch s or ms) drives the steps/sec rate.
 - Non-numeric fields are ignored; malformed lines are skipped. Append, never rewrite.
+
+### Driving the operator's view
+
+Write `research/results/.viewer.json` to point Owen's metrics pane at what he should look at — `{"series": "accuracy", "runs": ["run-42"], "titles": {"accuracy": "held-out accuracy — run 42"}}`. `series` switches the visible chart tab, `runs` selects/overlays runs, `titles` renames chart headings. Owen can edit the same file manually; unknown or malformed keys are ignored.
 
 ### Reading it back
 
