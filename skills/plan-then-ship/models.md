@@ -51,3 +51,7 @@ Review after that session returns, still as the planner/reviewer model. If that 
 Plan mode may be the planning step. Still write `.plan-then-ship/SPEC.md` before asking for approval — a Plan-mode bubble is not a file the implementer can open.
 
 When review agents named `bugbot` or `security-review` exist, launch them during the review step *in addition* to `review.md`. They do not replace running the spec's test commands.
+
+## Escalation
+
+When `SKILL.md` § Repair's escalation clause fires (a stuck rule, or Owen reports the defect still live after a repair pass), the escalation pass uses the **planner-tier model as the implementer** — Opus/Fable on Claude, Sol on Codex/Cursor — at the highest reasoning effort the harness offers, scoped to only the surviving defects. This is the single sanctioned exception to "never invert the table." A defect that survives green tests is usually a diagnosis problem, not a diligence problem; more diligence from the same tier does not fix a wrong theory.
