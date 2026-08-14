@@ -129,6 +129,16 @@
     "resume-build": [
       "vault",
       "cursor"
+    ],
+    "adversarial-review": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
+    "turing": [
+      "claude",
+      "cursor",
+      "codex"
     ]
   }
 }
