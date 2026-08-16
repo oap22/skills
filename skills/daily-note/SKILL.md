@@ -10,7 +10,14 @@ Today's note is a **rendered view**, not a task list. Linear owns issue state, C
 **Vault:** `$HOME/Owen's Awesome Vault`
 **Note path:** `School/Daily TODO/YYYY-MM-DD.md`
 **Template:** `Templates/Daily Note.md`
-**Linear:** workspace `owenp22` · team **Owen's Operations** (`OWE`) · projects School / Research / Personal
+**Linear — two workspaces, both rendered:**
+
+| Workspace | Team | Prefix | MCP server | Covers |
+|---|---|---|---|---|
+| `owenp22` | Owen's Operations | `OWE` | the default Linear server | School / Research / Personal / Agent Work |
+| `research-group-2627` | Research Group 26/27 | `RES` | `linear-research` | Recursive Self-Improvement, World Models, Diego's Project |
+
+They are **separate servers**. Querying only the first is the failure this render had for its first ten days — RES work was invisible and had to be tracked by hand through the interview.
 
 Read `.system/productivity-abstractions.md` for the tool boundary before changing how any of this files.
 
@@ -38,11 +45,22 @@ date +%Y-%m-%d
 
 If `School/Daily TODO/<date>.md` exists, you are **refreshing** — preserve everything outside the markers. If not, create it from the template, substituting `{{date}}`, `{{yesterday}}`, `{{tomorrow}}`. Links to nonexistent neighbor notes are fine.
 
-### 2. Pull Linear
+### 2. Pull Linear — both workspaces
 
-List issues for team Owen's Operations, `assignee: "me"`, `state: "Todo"`, plus anything In Progress. Request `fields: ["id","title","project","priority","status","dueDate","url"]`.
+**Owen's Operations** (default server): `assignee: "me"`, `state: "Todo"`, plus anything In Progress. Request `fields: ["id","title","project","priority","status","dueDate","url"]`.
 
-Group by project (School → Research → Personal), and within each sort by priority ascending — Linear uses **1 = Urgent, 4 = Low, 0 = None**, so a naive numeric sort puts "no priority" first. Map to glyphs:
+**Research Group 26/27** (`linear-research` server): `assignee: "me"`, same fields plus `updatedAt`. Query the **team**, not a single project — several RES issues carry no project at all and would vanish under a project filter.
+
+Two differences from OWE, both deliberate:
+
+- **Include Backlog when it is Urgent or High.** RES keeps its real queue in Backlog rather than grooming it into Todo, so a Todo-only query renders an empty section on a day with urgent work in it. Medium and Low Backlog stay out — that's genuine backlog.
+- **Report what moved.** List any RES issue whose `updatedAt` is newer than the note's previous `linear-synced` stamp, including ones now Done, as a short line under the table:
+
+  `*Moved since the 06:38 render: RES-14 → In Progress · RES-19 → Done.*`
+
+  This is the whole point of rendering RES. Owen dispatches agents on RES issues overnight, and the morning note is where he finds out what they did. A first render with no prior stamp skips this line.
+
+Group OWE by project (School → Research → Personal → Agent Work), render RES as its own section titled by project, and within each sort by priority ascending — Linear uses **1 = Urgent, 4 = Low, 0 = None**, so a naive numeric sort puts "no priority" first. Map to glyphs:
 
 | Value | Glyph |
 |---|---|
@@ -52,6 +70,10 @@ Group by project (School → Research → Personal), and within each sort by pri
 | 4 Low | ⚪ |
 
 Render one table per project with columns `P | Issue | link`. Keep the legend line at the bottom of the block.
+
+**Prefix RES ids so the two workspaces never blur** — an `OWE-14` and a `RES-14` are different issues in different Linear instances, and the link is the only thing that disambiguates them. Always write the id as its full identifier.
+
+If one workspace is reachable and the other is not, render the one that worked and say plainly which failed and when, inside the block. Never let a dead connector render as an empty section.
 
 ### 3. Pull Calendar
 
@@ -65,7 +87,9 @@ Skip `WORKING_LOCATION` and `BIRTHDAY` event types — they are noise in a day p
 
 Only if the section is empty — never overwrite a Top 3 the user already wrote.
 
-Pick exactly three, weighting: Urgent > blocks other work > at-risk (unbacked repos, expiring tokens) > due today > stale-but-active project. Give each a one-line reason and a `🔗 [OWE-nn](url)` link. Prefer items that actually fit the gaps in the Schedule table — three deep-work items on a day with seven hours of meetings is a plan that fails by 10am.
+Pick exactly three from **both** workspaces, weighting: Urgent > blocks other work > at-risk (unbacked repos, expiring tokens) > due today > stale-but-active project. Give each a one-line reason and a `🔗 [OWE-nn](url)` or `🔗 [RES-nn](url)` link.
+
+An Urgent RES issue outranks a Medium OWE one. The two workspaces are one queue for the purpose of choosing what matters; they are separate only for the purpose of rendering and linking. Prefer items that actually fit the gaps in the Schedule table — three deep-work items on a day with seven hours of meetings is a plan that fails by 10am.
 
 ### 5. Block time for the Top 3
 
@@ -108,6 +132,10 @@ colorId:     <the Linear project's color — see below>
 | School | `9` Blueberry |
 | Research | `6` Tangerine |
 | Personal | `8` Graphite |
+| Agent Work | `8` Graphite |
+| **any RES project** | `6` Tangerine |
+
+RES is research work, not a club meeting — Tangerine, not Lavender. `.system/calendar-conventions.md` reserves Lavender for AI Club org meetings, which is a different thing from the research group's actual output.
 
 The full scheme lives in `.system/calendar-conventions.md` and in the `calendar-block` skill. Never leave `colorId` unset — Google's default renders as Blueberry and would silently mislabel every Research and Personal block as School.
 
@@ -160,6 +188,8 @@ This skill is still the right thing to invoke for an on-demand render with no in
 
 ## Untested
 
+- **The RES workspace render (added 2026-08-16).** Never fired from a scheduled run. The `linear-research` server, the Urgent/High-Backlog inclusion, and the "moved since last render" diff are all unexercised at 06:38. The diff line in particular depends on the previous `linear-synced` stamp being present and parseable — a note created fresh that morning has no prior stamp and must skip the line rather than render every issue as "moved".
+- **Two connectors, one block.** Partial failure — one workspace up, one down — has never happened. The instruction to name the failed one is written but unproven.
 - **In Progress issues.** The team has the status but no issue has used it yet, so its placement in the rendered tables is unverified.
 - **A day with a partially-filled Schedule table.** Verified against a full calendar day and an empty one; the merge behavior when the user has hand-added a row is unexercised.
 - **Time-blocking (step 5) has never run.** Added 2026-08-06, first live exercise is the 2026-08-07 06:38 render. The gap math, the 15-minute buffers, and the `🎯 OWE-nn` duplicate check are all unverified against a real calendar.

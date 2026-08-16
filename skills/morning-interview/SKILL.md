@@ -12,7 +12,7 @@ This skill renders the machine-knowable half first, then asks about the rest.
 **Vault:** `$HOME/Owen's Awesome Vault`
 **Note path:** `School/Daily TODO/YYYY-MM-DD.md`
 **Template:** `Templates/Daily Note.md`
-**Linear:** workspace `owenp22` · team **Owen's Operations** (`OWE`) · projects School / Research / Personal
+**Linear:** two workspaces, both rendered — `owenp22` / team **Owen's Operations** (`OWE`) on the default server, and `research-group-2627` / team **Research Group 26/27** (`RES`) on the `linear-research` server. Separate servers; querying only the first is how RES work stayed invisible for the render's first ten days.
 **Calendar:** `America/Chicago`
 
 This absorbs the old `daily-note-render` routine — it does that render itself, then interviews. Read `.system/productivity-abstractions.md` for the tool boundary before changing how anything files.
@@ -39,12 +39,15 @@ Never hardcode, never trust a date from earlier in the conversation. If `School/
 
 This is the `daily-note` skill's job — invoke it if resolvable. Otherwise, inline:
 
-- **Linear:** issues for team Owen's Operations, `assignee: "me"`, `state: "Todo"` plus In Progress, `fields: ["id","title","project","priority","status","dueDate","url"]`. Group School → Research → Personal; sort priority ascending, remembering **1 = Urgent, 4 = Low, 0 = None** — a naive sort puts "no priority" on top. Glyphs: 🔴 Urgent · 🟠 High · 🟡 Medium · ⚪ Low. One table per project, columns `P | Issue | link`, legend at the bottom. The whole thing goes between `<!-- linear:start -->` and `<!-- linear:end -->` and nothing outside those markers is touched.
+- **Linear — OWE:** issues for team Owen's Operations, `assignee: "me"`, `state: "Todo"` plus In Progress, `fields: ["id","title","project","priority","status","dueDate","url"]`. Group School → Research → Personal → Agent Work.
+- **Linear — RES:** the `linear-research` server, team Research Group 26/27, `assignee: "me"`, same fields plus `updatedAt`. Query the **team, not a project** — several RES issues carry no project and vanish under a project filter. Include Todo and In Progress, **plus Backlog when Urgent or High**: RES keeps its real queue in Backlog, so a Todo-only query renders empty on a day with urgent work in it. Then add a line naming anything whose `updatedAt` is newer than the note's previous `linear-synced` stamp, Done included — `*Moved since the 06:38 render: RES-14 → In Progress.*` That line is the reason RES is rendered at all: Owen dispatches agents on RES issues overnight and this is where he learns what they did. Skip it when there's no prior stamp to diff against.
+
+  Sort priority ascending, remembering **1 = Urgent, 4 = Low, 0 = None** — a naive sort puts "no priority" on top. Glyphs: 🔴 Urgent · 🟠 High · 🟡 Medium · ⚪ Low. One table per project, columns `P | Issue | link`, always the full identifier (`OWE-14` and `RES-14` are different issues in different instances), legend at the bottom. The whole thing goes between `<!-- linear:start -->` and `<!-- linear:end -->` and nothing outside those markers is touched.
 - **Calendar:** today's events, `orderBy: startTime`, `timeZone: America/Chicago`. Fill `## Schedule` with `HH:MM – HH:MM`, summary, and `📆 [Calendar](htmlLink)`. Skip `WORKING_LOCATION` and `BIRTHDAY`. Events are not tasks.
 
 Stamp `linear-synced: "<ISO timestamp>"` in frontmatter.
 
-**If a connector fails, say which one, in the note.** Write `*Linear unreachable at 06:38 — this section is stale.*` inside the block. An empty section reads as "nothing to do today," which is a lie the whole routine exists to avoid.
+**If a connector fails, say which one, in the note** — including when one Linear workspace answers and the other doesn't. Write `*Linear unreachable at 06:38 — this section is stale.*` inside the block. An empty section reads as "nothing to do today," which is a lie the whole routine exists to avoid.
 
 ### 3. Show the day back before asking anything
 
@@ -156,6 +159,7 @@ Two things that surprise people, both true here:
 
 ## Untested
 
+- **The RES workspace render (added 2026-08-16).** Never fired from a scheduled run. The `linear-research` server, the Urgent/High-Backlog inclusion, and the "moved since last render" diff are all unexercised at 06:38. The diff depends on a prior `linear-synced` stamp existing — a note created fresh that morning has none and must skip the line, not render everything as moved.
 - **A live 6:30 fire.** The routine is created and the render half is inherited from a verified `daily-note`, but no morning has actually run interview-and-answer end to end yet. Expect the first real fire to pause on connector permission prompts.
 - **Re-run guarding.** `interview-done` short-circuiting a second same-day run is written but unexercised.
 - **The parked-question path** — asked at 6:30, answered at noon in a different session — is the most likely thing to be wrong.
