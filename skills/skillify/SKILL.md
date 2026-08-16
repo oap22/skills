@@ -104,7 +104,11 @@ Not:
 
 Also: relative paths for bundled files, never absolute. Absolute vault paths are fine in `vault`-targeted skills only.
 
-### 7. Install
+### 7. Run the compliance checklist
+
+Read `compliance.md` (bundled with this skill) and walk the draft through all five practices — description-as-trigger, real expertise, context economy, deterministic scripts, security/trust — plus the repo rules. **A failed check blocks install**: fix it, or record in the skill's `## Untested` section why it doesn't apply. The two checks most often failed are the P1 collision check against existing descriptions and the P5 prompt-injection posture for skills that read external content.
+
+### 8. Install
 
 1. Write to `~/Developer/skills/skills/<name>/SKILL.md`.
 2. Add to `manifest.json` under `skills`, mapping the name to its harnesses:
@@ -113,7 +117,7 @@ Also: relative paths for bundled files, never absolute. Absolute vault paths are
 3. Run `cd ~/Developer/skills && ./install.py` and confirm the links.
 4. Commit: `skillify: add <name>`.
 
-### 8. Report
+### 9. Report
 
 - Skill name and path
 - Its description, quoted — so the user can judge whether it will fire
