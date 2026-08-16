@@ -172,8 +172,14 @@ Excluding `artifacts/` by default is deliberate: checkpoints and large binaries 
 Then **validate before citing anything**:
 
 ```bash
-python3 ~/.claude/skills/research-loop/log_run.py check research/results/<run-id>
+LOG_RUN=$(ls ~/.claude/skills/research-loop/log_run.py \
+             ~/.cursor/skills/research-loop/log_run.py \
+             ~/Developer/active/skills/skills/research-loop/log_run.py \
+             2>/dev/null | head -1)
+python3 "$LOG_RUN" check research/results/<run-id>
 ```
+
+(The script's install path differs per harness — resolve it the way `research-loop` § Invoking log_run.py does, never assume one harness's path.)
 
 A run that fails `check` is not a result yet. Fix the record or label it unverified — do not write it into the journal as fact.
 
