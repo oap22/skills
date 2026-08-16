@@ -84,8 +84,8 @@ don't get re-derived from web searches that surface resume-SaaS marketing conten
 - **First compile ran two pages.** Fixed by tightening prose so bullets stop wrapping — not by
   reducing font size. After it fits, spend the reclaimed space back on leading and section gaps;
   a cramped one-pager is worse than a breathing one.
-- **`WebFetch` returned binary garbage on a career-center PDF.** It saves the file locally — extract
-  it with `pypdf` instead of re-fetching.
+- **Fetching a career-center PDF from the web returned binary garbage.** The fetch tool saves the
+  file locally regardless — extract it with `pypdf` instead of re-fetching.
 - **Vault held stale facts** — a GPA estimate that was wrong, a project misattributed to a research
   group, a stale degree program. Verify with Owen; correct the source notes, don't just work around.
 - **Voice dictation garbles numbers.** "It was 2:00, and they gated probably around 12:00" meant

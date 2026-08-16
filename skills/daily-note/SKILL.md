@@ -1,6 +1,6 @@
 ---
 name: daily-note
-description: Build or refresh today's daily note in the Obsidian vault, rendering open Linear issues and Google Calendar events into it. Use when the user says "daily note", "plan my day", "what's on today", "today's tasks", "morning review", or "refresh my daily note".
+description: Build or refresh today's daily note in the Obsidian vault, rendering open Linear issues and Google Calendar events into it. Use when the user says "daily note", "plan my day", "what's on today", "today's tasks", "morning review", or "refresh my daily note". Render only — if he wants to be interviewed about his day, that is morning-interview.
 ---
 
 # Daily Note
@@ -157,7 +157,7 @@ On refresh, **read it**. If it has items, offer to promote them into Linear (tha
 
 ### 8. Push the day
 
-Send one `PushNotification` with the Top 3 and how many blocks landed. Under 200 characters, one line, no markdown — mobile truncates and this is the only thing that reaches Owen before he opens the vault.
+Send one short notification with the Top 3 and how many blocks landed — use whatever push/desktop notification mechanism this harness provides (in Claude Code, `PushNotification`); if the harness has none, skip this step and say so in the report. Under 200 characters, one line, no markdown — mobile truncates and this is the only thing that reaches Owen before he opens the vault.
 
 ```
 Top 3: Email Dr. Vance (OWE-5) · SSH key→GitLab (OWE-9) · git remote for Design System (OWE-21) — 2 blocks on your calendar.
