@@ -29,7 +29,13 @@ This is the *triage* half of the mail story. `brain-mail-ingest` is the *memory*
 TZ=America/Chicago date +%Y-%m-%d
 ```
 
-Read `30-Brain/Sources/mail-digest-state.md` for the last run. Window is *last run → now*, floored at 24h and capped at 7d (a week-long gap shouldn't dump a week of mail; say in the digest that the window was clamped). Deliveries always look back 7d regardless — a package that shipped Monday still arrives Thursday.
+Read `30-Brain/Sources/mail-digest-state.md` for the last run. Window is *last run → now*, floored at 24h and capped at 7d (a week-long gap shouldn't dump a week of mail; say in the digest that the window was clamped). Compute the clamp — don't eyeball it (portable on macOS, unlike `date -d`):
+
+```bash
+python3 -c "from datetime import datetime as d; import sys; h=(d.now()-d.fromisoformat(sys.argv[1])).total_seconds()/3600; print(f'{min(max(h,24),168):.0f}h')" "<last-run ISO>"
+```
+
+Deliveries always look back 7d regardless — a package that shipped Monday still arrives Thursday.
 
 ### 2. Sweep, three queries in parallel
 
