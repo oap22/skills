@@ -1,6 +1,6 @@
 ---
 name: vault-to-linear
-description: Sweep the Obsidian vault for open tasks and promote them into Linear issues under the right project, without creating duplicates. Use when the user says "populate Linear from my vault", "sync my tasks to Linear", "what do I actually need to do", "pull my open tasks into Linear", or after a weekly review when vault checkboxes have piled up.
+description: Sweep the Obsidian vault for open tasks and promote them into Linear issues under the right project, without creating duplicates. Use when the user says "populate Linear from my vault", "sync my tasks to Linear", "pull my open tasks into Linear", or after a weekly review when vault checkboxes have piled up.
 ---
 
 # Vault → Linear
@@ -20,7 +20,7 @@ Linear "get user" with `me`, then list projects on the team. Confirm the three p
 
 ### 2. Read what's already in Linear
 
-List existing issues on the team **before** sweeping. This is the dedupe set — match on normalized title. Re-running this skill must not double-file tasks that were promoted last time.
+List existing issues on the team **before** sweeping. This is the dedupe set — match on normalized title: lowercase, punctuation stripped, whitespace collapsed. One fixed rule, applied the same way to both sides — an improvised looser match double-files on the next run. Re-running this skill must not double-file tasks that were promoted last time.
 
 ### 3. Sweep the vault
 
