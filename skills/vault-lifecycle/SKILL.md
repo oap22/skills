@@ -1,6 +1,6 @@
 ---
 name: vault-lifecycle
-description: Sweep project and area notes for stale status — archive what's finished, flag what's silently dead, and reconcile vault project state against Linear. Use when the user says "what am I actually working on", "archive finished projects", "is this project still alive", "clean up my projects", "sync project status", or during a monthly or end-of-term review.
+description: Sweep project and area notes for stale status — archive what's finished, flag what's silently dead, and reconcile vault project state against Linear. Use when the user says "what am I actually working on", "archive finished projects", "is this project still alive", "clean up my projects", "sync project status", or during a monthly or end-of-term review. For a read-only "what should I work on right now" question in chat, use day-check.
 ---
 
 # Vault Lifecycle
@@ -32,6 +32,12 @@ Per project note, collect:
 | Last issue activity | `updatedAt` on the newest issue |
 
 Read git, not the filesystem. A fresh checkout gives every file today's mtime and would report the whole vault as active.
+
+Compute the day-deltas the 30/60-day thresholds compare against — don't eyeball them from raw dates:
+
+```bash
+python3 -c "from datetime import date; print((date.today()-date.fromisoformat('YYYY-MM-DD')).days)"
+```
 
 ### 2. Classify each project
 
