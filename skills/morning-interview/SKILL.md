@@ -1,6 +1,6 @@
 ---
 name: morning-interview
-description: Render today's daily note from Linear and Calendar, then interview Owen one question at a time about what's actually coming up today, writing his answers into the note as they come. Use when he says "morning interview", "what's on today", "interview me about my day", "morning check-in", "plan my day", or when the 6:30 morning routine fires.
+description: Render today's daily note from Linear and Calendar, then interview Owen one question at a time about what's actually coming up today, writing his answers into the note as they come. Use when he says "morning interview", "what's on today", "interview me about my day", "morning check-in", "plan my day", or when the 6:30 morning routine fires. For a render without the interview, use daily-note.
 ---
 
 # Morning Interview
