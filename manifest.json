@@ -139,6 +139,11 @@
       "claude",
       "cursor",
       "codex"
+    ],
+    "issue-fleet": [
+      "claude",
+      "cursor",
+      "codex"
     ]
   }
 }
