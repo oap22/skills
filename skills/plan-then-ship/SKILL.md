@@ -10,6 +10,7 @@ A strong model writes a contract. A weaker model executes it. An adversarial rev
 This is **not** the default coding path. If he did not say one of the trigger phrases, do not run this skill.
 
 **Read `models.md` before spawning anyone** — that is the role → model mapping, and it goes stale.
+**Read `interview.md` before asking Owen anything.** The spec is written *from* the interview, not instead of it.
 **Read `spec-template.md` before writing the spec.**
 **Read `review.md` before the first review pass.**
 **Read `ship.md` before creating a branch or running any git write.**
@@ -38,19 +39,23 @@ If this session is already the implementer model, **do not plan**. Say so and as
 
 Read `models.md`. If the current model is the implementer for this harness, stop. Otherwise continue as planner.
 
-### 2. Write the spec
+### 2. Interview, then write the spec
 
-Read the repo until the change is concrete. Write `.plan-then-ship/SPEC.md` from `spec-template.md`. Every field is required. A vague spec is how the weak model starts designing, which is the failure this skill exists to prevent.
+Read the repo until the change is concrete. Then follow `interview.md`: one question at a time, load-bearing unknowns first, drafting `.plan-then-ship/SPEC.md` from `spec-template.md` as answers land — not after. Every field is required. A vague spec is how the weak model starts designing, which is the failure this skill exists to prevent, and a vague spec is what you get if you skip straight to writing instead of interviewing.
+
+A one-line request from Owen is the opening move of the interview, not a spec-ready brief. Do not fill a section from your own guess when a single question would replace the guess with a fact.
 
 Ensure `.plan-then-ship/` is in the repo's `.gitignore`. Do not commit the spec.
 
-Cursor Plan mode can *be* this step. The spec file is still required — it is what the rest of the pipeline reads.
+Cursor Plan mode can *be* this step. The spec file is still required — it is what the rest of the pipeline reads. The interview obligation applies inside Plan mode too; a Plan-mode session that infers instead of asking has the same failure mode.
 
-### 3. Gate — stop for approval
+### 3. Closing loop, then gate — stop for approval
 
-This is the only human gate. Show Owen the spec. Do not spawn the implementer, do not edit code, do not "start on the easy files while he reads." Wait.
+Before showing Owen anything, run the closing loop from `interview.md` § 4: restate the whole spec back to him, section by section, in your own words. Incorporate corrections, restate again. Repeat until one full pass changes nothing — an "ok looks good" that interrupts an unfinished loop does not count, keep restating.
 
-If he changes the spec, rewrite it and stop again. Approval is of the file on disk, not of a vibe.
+Only once the loop closes clean does the human gate open. Show Owen the spec file on disk. Do not spawn the implementer, do not edit code, do not "start on the easy files while he reads." Wait.
+
+If he changes the spec, rewrite it and run the closing loop again before re-presenting. Approval is of a file he has heard read back to him and confirmed unchanged, not of a vibe.
 
 ### 4. Branch, then hand off
 
@@ -96,6 +101,8 @@ Review clean and tests green. Then follow `ship.md` in full: permission check, n
 ## Rules
 
 - **Do not run this unless it was invoked.** Ordinary "add a feature" is not this skill.
+- **No spec section from inference when a question would replace the guess.** The interview exists so the implementer never has to guess either. See `interview.md`.
+- **The closing loop isn't optional because Owen seems fine with it.** Restate until a full pass survives untouched; an early "sounds good" doesn't skip the rest of the sections.
 - **The parent does not implement.** If you catch yourself editing the code the implementer was supposed to write, you have broken the pipeline.
 - **The spec is the only source of truth for the implementer.** Conversation context is not a substitute. If it is not in the spec, it does not happen.
 - **Tests were not run if the output is not pasted.** Same floor as `research-loop`. Redact secrets in the paste; do not skip the paste.
@@ -110,6 +117,8 @@ Review clean and tests green. Then follow `ship.md` in full: permission check, n
 ## Failure modes
 
 - Spec was a paragraph of intent. Weak model designed anyway. The planner failed, not the implementer.
+- Planner wrote the spec straight from Owen's one-liner without interviewing, then discovered the ambiguity at review instead of before the implementer ever ran.
+- Owen said "looks good" after the first section and the planner took that as full approval instead of finishing the closing loop.
 - Parent "helped" by writing the hard files. Cost savings gone; review is now self-review.
 - Reviewer skipped the test commands because the code "looked right."
 - Repair loop treated new nits as criticals, so the finding set never shrank.
