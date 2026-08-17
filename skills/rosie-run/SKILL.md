@@ -1,6 +1,6 @@
 ---
 name: rosie-run
-description: Dispatch work from this Mac to MSOE's Rosie cluster and bring results back — preflight the VPN and SSH, push code by git, submit an sbatch job or array sweep, poll without babysitting, then pull results into the local repo. Use when Owen says "run this on Rosie", "submit to the cluster", "sbatch this", "run the sweep on ROSIE", "check my Rosie job", or when an experiment is too large for the Mac. Pairs with research-loop, which owns the experiment discipline.
+description: Dispatch work from this Mac to MSOE's Rosie cluster and bring results back — preflight the VPN and SSH, push code by git, submit an sbatch job or array sweep, poll without babysitting, then pull results back to the Mac's shared results root. Use when Owen says "run this on Rosie", "submit to the cluster", "sbatch this", "run the sweep on ROSIE", "check my Rosie job", or when an experiment is too large for the Mac. Pairs with research-loop, which owns the experiment discipline.
 ---
 
 # Rosie Run
@@ -113,11 +113,13 @@ GitLab is different: the Revit-to-Robot repos live there and the `gitlab-rosie` 
 ssh ROSIE 'df -h /home /data'          # ALWAYS before a multi-GB transfer
 
 rsync -avzP --exclude='.git' --exclude='__pycache__' --exclude='*.pyc' \
-      --exclude='.venv' --exclude='research/results' \
+      --exclude='.venv' --exclude='research-results' \
       <local-data>/ ROSIE:/data/<...>/
 ```
 
 `-P` matters: it gives progress and resumes a partial transfer instead of restarting a multi-GB copy from zero.
+
+**Never ship the local results root up.** It lives outside every repo now (`~/research-results`), so it usually isn't inside the tree you're syncing anyway — but if you're rsyncing from `~`, exclude it. Rosie writes its own results into its own `~/research-results`; pushing the Mac's copy up would overwrite fresh cluster output with stale local output and cost you the transfer twice.
 
 There is **no `quota` command** on Rosie — capacity questions are answered with `df`. Don't reach for `du -sh ~` either; it takes over two minutes on this filesystem. Background it if you truly need it.
 
@@ -160,14 +162,16 @@ ssh ROSIE 'sacct -j <jobid> --format=JobID,JobName,State,ExitCode,Elapsed,MaxRSS
 
 ### 5. Pull results back
 
-Results land in the **local repo** — Rosie is scratch, not the archive.
+Results land in the **Mac's shared results root** — Rosie is scratch, not the archive.
 
 ```bash
 rsync -avzP --exclude='artifacts/' \
-      ROSIE:~/<repo>/research/results/ research/results/
+      ROSIE:~/research-results/ ~/research-results/
 ```
 
-Excluding `artifacts/` by default is deliberate: checkpoints and large binaries stay on the cluster until Owen asks for a specific one. The record — `run.json`, `metrics.json`, `stdout.log`, `notes.md`, `trajectory.json` — is small and comes back every time.
+Both sides use the same home-anchored path, because `log_run.py` defaults there on the cluster too. Landing in `~/research-results/` is also what makes the run appear in the Turing desktop's metrics, images and flywheel panes — pull into the repo instead and the charts stay dead. For a long job, pull mid-flight (or use the `ssh-pull-assets` / `ssh-follow-metrics` desktop runners) and Owen watches the cluster run live.
+
+Excluding `artifacts/` by default is deliberate: checkpoints and large binaries stay on the cluster until Owen asks for a specific one. The record — `run.json`, `metrics.json`, `metrics.jsonl`, `stdout.log`, `notes.md`, `trajectory.json` — plus the SVG/PNG plots the panes render is small and comes back every time.
 
 Then **validate before citing anything**:
 
@@ -176,7 +180,7 @@ LOG_RUN=$(ls ~/.claude/skills/research-loop/log_run.py \
              ~/.cursor/skills/research-loop/log_run.py \
              ~/Developer/active/skills/skills/research-loop/log_run.py \
              2>/dev/null | head -1)
-python3 "$LOG_RUN" check research/results/<run-id>
+python3 "$LOG_RUN" check ~/research-results/<run-id>
 ```
 
 (The script's install path differs per harness — resolve it the way `research-loop` § Invoking log_run.py does, never assume one harness's path.)

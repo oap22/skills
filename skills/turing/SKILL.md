@@ -19,16 +19,20 @@ Ordinary feature work on Turing's own code (gateway, desktop app, tooling) is no
 
 ## Rule 2 — expose your data where the desktop renders it
 
-Everything the desktop app shows is a plain file. Write to these paths and Owen literally watches your work live; skip them and your run is invisible.
+Everything the desktop app shows is a plain file under **the desktop's watched results root** — `~/research-results` by default, overridable in `~/.config/turing-desktop/config.json` (keep the root id `results`; the panes look it up by name). That root sits outside every checkout on purpose: research code can live in any project — Turing, `~/Developer/active/mnist`, a scratch notebook, a mirror of a cluster run — and still light up the panes without leaving untracked artifacts in that project. `<results-root>` below means that directory.
+
+Write to these paths and Owen literally watches your work live; skip them and your run is invisible.
 
 | You produce | Write to | Desktop pane |
 |---|---|---|
-| Live training/eval metrics | `research/results/<run>/metrics.jsonl` — **append one JSON object per step** | metrics (charts every numeric field, live) |
-| Final summary numbers | `research/results/<run>/metrics.json` | metrics (static) — required by research-loop conventions |
-| Flywheel / loop rounds | `research/results/loop-<slug>/trajectory.json` (+ `round-NN/round.json`) | flywheel timeline |
-| Plots / figures | `research/results/<run>/*.svg` or `*.png` | images (auto-selects newest) |
-| Remote job metrics, live (Rosie or any ssh host) | `ssh <HOST> 'tail -n +1 -F <run>/metrics.jsonl' \| tee -a research/results/<run>/metrics.jsonl` (desktop runner `ssh-follow-metrics` pre-types this) | metrics |
-| Remote plots/assets, live | rsync loop via desktop runner `ssh-pull-assets` into `research/results/` | images + metrics |
+| Live training/eval metrics | `<results-root>/<run>/metrics.jsonl` — **append one JSON object per step** | metrics (charts every numeric field, live) |
+| Final summary numbers | `<results-root>/<run>/metrics.json` | metrics (static) — required by research-loop conventions |
+| Flywheel / loop rounds | `<results-root>/loop-<slug>/trajectory.json` (+ `round-NN/round.json`) | flywheel timeline |
+| Plots / figures | `<results-root>/<run>/*.svg` or `*.png` | images (auto-selects newest) |
+| Remote job metrics, live (Rosie or any ssh host) | `ssh <HOST> 'tail -n +1 -F <run>/metrics.jsonl' \| tee -a <results-root>/<run>/metrics.jsonl` (desktop runner `ssh-follow-metrics` pre-types this) | metrics |
+| Remote plots/assets, live | rsync loop via desktop runner `ssh-pull-assets` into `<results-root>/` | images + metrics |
+
+Runs are just directories — the panes discover them by walking the root, so nothing needs registering, and Turing's own loop already defaults there (`TURING_RESEARCH_RESULTS_ROOT` repoints it). The narrative — `research/JOURNAL.md`, `OPEN-QUESTIONS.md`, `DEAD-ENDS.md`, `briefs/` — stays in the repo it belongs to.
 
 ### metrics.jsonl line contract
 
@@ -42,11 +46,11 @@ Everything the desktop app shows is a plain file. Write to these paths and Owen 
 
 ### Driving the operator's view
 
-Write `research/results/.viewer.json` to point Owen's metrics pane at what he should look at — `{"series": "accuracy", "runs": ["run-42"], "titles": {"accuracy": "held-out accuracy — run 42"}}`. `series` switches the visible chart tab, `runs` selects/overlays runs, `titles` renames chart headings. Owen can edit the same file manually; unknown or malformed keys are ignored.
+Write `<results-root>/.viewer.json` (i.e. `~/research-results/.viewer.json`) to point Owen's metrics pane at what he should look at — `{"series": "accuracy", "runs": ["run-42"], "titles": {"accuracy": "held-out accuracy — run 42"}}`. `series` switches the visible chart tab, `runs` selects/overlays runs, `titles` renames chart headings. Owen can edit the same file manually; unknown or malformed keys are ignored.
 
 ### Reading it back
 
-You can read everything the desktop shows: the JSONL/JSON files above, the SVG/PNG plots (open them — you can see images), and other agents' transcripts (`~/.claude/projects`, `~/.codex/sessions`). When Owen says "look at the current run", it's `research/results/` — same files his charts are drawn from.
+You can read everything the desktop shows: the JSONL/JSON files above, the SVG/PNG plots (open them — you can see images), and other agents' transcripts (`~/.claude/projects`, `~/.codex/sessions`). When Owen says "look at the current run", it's `~/research-results/` — same files his charts are drawn from, whatever repo produced them.
 
 ## Orientation
 
