@@ -13,7 +13,7 @@ This skill exists to make the quiet failures loud.
 
 **If the work is a self-improving loop — a flywheel, iterative refinement, agent-improves-agent, synthetic-data retraining, anything where round *N+1* is built from round *N* — read `driving-functions.md` too, at the design gate.** That protocol is additional to this one, not a replacement for it.
 
-**If the work lives in the Turing repo (`~/Developer/active/Turing`) — Owen's primary research-dev home — read the `turing` skill too.** It carries the desktop-app data contract: append live metrics to `research/results/<run>/metrics.jsonl` (one JSON object per step, with `step`/`total_steps`/`ts`) so Owen's charts move while the run is in flight, drop plots as SVG/PNG in the run dir, and write flywheel rounds to `loop-<slug>/trajectory.json`. The final `metrics.json` these conventions require is unchanged — the JSONL stream is additional, for live visibility.
+**If the Turing desktop app is what Owen is watching — and it usually is — read the `turing` skill too.** Its data contract is repo-independent: runs land in the desktop's watched results root (`~/research-results` by default, overridable in `~/.config/turing-desktop/config.json`), so research code can live in any project — Turing, `~/Developer/active/mnist`, a scratch notebook — and still render live. Append per-step metrics to `<results-root>/<run>/metrics.jsonl` (one JSON object per step, with `step`/`total_steps`/`ts`) so Owen's charts move while the run is in flight, drop plots as SVG/PNG in the run dir, and write flywheel rounds to `loop-<slug>/trajectory.json`. The final `metrics.json` these conventions require is unchanged — the JSONL stream is additional, for live visibility.
 
 ## The Principle
 
@@ -61,7 +61,7 @@ At the start of **every** session, before proposing anything:
 cat research/JOURNAL.md | head -100      # what happened recently
 cat research/OPEN-QUESTIONS.md            # what we don't know
 cat research/DEAD-ENDS.md                 # what's already been ruled out
-ls -t research/results | head -20         # what's been run
+ls -t ~/research-results | head -20       # what's been run — shared root, every project
 git log --oneline -15
 ```
 
@@ -120,6 +120,8 @@ python3 "$LOG_RUN" run \
   --estimate-minutes 45 \
   -- python train.py --config configs/sweep.yaml
 ```
+
+The run directory lands in the shared results root (`~/research-results/YYYY-MM-DD-<slug>/`), not in the repo — that is what lets the same command render live in the Turing desktop from whatever project you happen to be in. `--results-dir` repoints it for a one-off; `RESEARCH_RESULTS_ROOT` repoints it for a session.
 
 Everything after `--` is the experiment's own command, run unmodified — use whatever interpreter that project uses there (`python`, `uv run`, `srun`, a binary). The `python3` at the front is only for the wrapper itself.
 
@@ -210,14 +212,16 @@ If the deliverable is an MSOE lab report, hand off to `msoe-lab-report` or `msoe
 For a repo with no `research/` directory, offer this — and create it only after Owen says yes:
 
 ```
-research/
-  JOURNAL.md          reverse-chronological entries; the narrative
-  OPEN-QUESTIONS.md   what we don't know yet
-  DEAD-ENDS.md        what's been ruled out, one line each
-  results/            one directory per run — see conventions.md
+research/                 in the repo — the narrative, version-controlled
+  JOURNAL.md              reverse-chronological entries; the thread
+  OPEN-QUESTIONS.md       what we don't know yet
+  DEAD-ENDS.md            what's been ruled out, one line each
+
+~/research-results/       outside the repo — one directory per run, shared
+                          across projects, watched by the Turing desktop
 ```
 
-Templates for the three files are in `templates/`. Add the gitignore stanza from `conventions.md` § Version Control at the same time — logging 4GB of checkpoints into git is a mistake that's tedious to undo.
+Templates for the three files are in `templates/`. The run directories are **not** created inside the repo — `log_run.py` writes them to the shared results root — so there is no gitignore stanza to add for them; see `conventions.md` § Version Control for what that costs and how the record stays citable.
 
 ## Reporting
 

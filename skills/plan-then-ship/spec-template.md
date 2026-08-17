@@ -58,7 +58,7 @@ Anything that would otherwise leak from the planning conversation: a library alr
 
 ## Bar for "excruciating"
 
-A spec that a cheaper model can execute without asking a question. If you would need to be in the room to explain a sentence, rewrite the sentence.
+A spec that a cheaper model can execute without asking a question. If you would need to be in the room to explain a sentence, rewrite the sentence — or better, that's a sentence `interview.md` should have caught before it was ever written down. The interview is how this bar gets met; this section is how you check it did.
 
 Fail this bar:
 
