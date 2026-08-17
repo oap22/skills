@@ -81,7 +81,7 @@ Write the halting condition down before the loop starts, at the design gate. A l
 Every round is a logged run under the normal `conventions.md` layout, plus a trajectory record for the loop as a whole:
 
 ```
-research/results/loop-<slug>/
+~/research-results/loop-<slug>/
   trajectory.json        one row per round — see below
   noise-floor/           the pre-round-1 seed runs
   round-00/              baseline (the un-improved starting point)

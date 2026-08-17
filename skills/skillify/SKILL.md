@@ -7,7 +7,7 @@ description: Turn a finished session into a reusable skill. Distills what was ju
 
 Distill a session into a skill so the same work never gets rebuilt from scratch.
 
-**Repo:** `~/Developer/skills` — the source of truth for every harness.
+**Repo:** `~/Developer/active/skills` — the source of truth for every harness.
 **Never** write a skill directly into `~/.claude/skills`, `~/.cursor/skills`, `~/.codex/skills`, or a vault `.claude/skills`. Those are symlink targets and hand-placed directories get pruned.
 
 ## The Bar
@@ -40,7 +40,7 @@ In order of preference:
 
 ### 2. Check for overlap first
 
-Read `~/Developer/skills/manifest.json` and the `description` line of each existing skill in `~/Developer/skills/skills/*/SKILL.md`.
+Read `~/Developer/active/skills/manifest.json` and the `description` line of each existing skill in `~/Developer/active/skills/skills/*/SKILL.md`.
 
 If an existing skill covers this ground, **improve it rather than adding a second one**. Two skills with overlapping descriptions compete for the same requests and both fire unreliably — this is the single most common way a skill library rots.
 
@@ -110,11 +110,11 @@ Read `compliance.md` (bundled with this skill) and walk the draft through all fi
 
 ### 8. Install
 
-1. Write to `~/Developer/skills/skills/<name>/SKILL.md`.
+1. Write to `~/Developer/active/skills/skills/<name>/SKILL.md`.
 2. Add to `manifest.json` under `skills`, mapping the name to its harnesses:
    - `claude`, `cursor`, `codex` — general coding and workflow skills
    - `vault` — **only** for skills specific to the Obsidian vault. Global Claude Code skills already resolve inside the vault, so adding both `claude` and `vault` registers it twice.
-3. Run `cd ~/Developer/skills && ./install.py` and confirm the links.
+3. Run `cd ~/Developer/active/skills && ./install.py` and confirm the links.
 4. Commit: `skillify: add <name>`.
 
 ### 9. Report

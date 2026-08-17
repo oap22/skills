@@ -6,23 +6,29 @@ The whole point of a convention here is **comparability across time**. A results
 
 ## Layout
 
+The narrative lives in the repo. The runs live in a **shared results root outside every repo** — `~/research-results` by default (`--results-dir`, or `RESEARCH_RESULTS_ROOT`, repoints it). Home-anchored rather than repo-relative so research code can sit in any project and still land where the Turing desktop app watches for metrics and plots, without dropping untracked artifacts into that project's checkout.
+
 ```
-research/
+research/                 in the repo, version-controlled
   JOURNAL.md              reverse-chronological narrative — the thread
   OPEN-QUESTIONS.md       what we don't know yet
   DEAD-ENDS.md            what's been ruled out, one line each
-  results/
-    2026-08-14-lr-sweep-cosine/     one directory per run
-      run.json                      metadata — written by log_run.py
-      config.yaml                   the exact config used (copied, not referenced)
-      metrics.json                  the numbers
-      stdout.log                    everything the command printed
-      notes.md                      the human-readable record
-      artifacts/                    plots, checkpoints, large outputs — gitignored
-    loop-verifiable-retarget/       self-improving loops — see driving-functions.md
-      trajectory.json
-      noise-floor/  round-00/  round-01/  …
+
+~/research-results/       the shared results root, outside any repo
+  2026-08-14-lr-sweep-cosine/     one directory per run
+    run.json                      metadata — written by log_run.py
+    config.yaml                   the exact config used (copied, not referenced)
+    metrics.json                  the numbers
+    metrics.jsonl                 optional per-step stream — see below
+    stdout.log                    everything the command printed
+    notes.md                      the human-readable record
+    artifacts/                    plots, checkpoints, large outputs
+  loop-verifiable-retarget/       self-improving loops — see driving-functions.md
+    trajectory.json
+    noise-floor/  round-00/  round-01/  …
 ```
+
+Runs are just directories: the desktop panes discover them by walking the root, so nothing needs registering, and deleting a directory makes it disappear.
 
 ## Run IDs
 
@@ -48,7 +54,7 @@ Written by `log_run.py`; never hand-edit. Records what the run *was*, as distinc
 
 Flat where possible. Scalars are the point; nested structures should be rare and deliberate.
 
-**Live streaming (Turing):** when the run happens in the Turing repo, *additionally* append per-step lines to `metrics.jsonl` in the same run directory (`{"step": n, "total_steps": N, "ts": epoch, ...numeric series}`) — the Turing desktop app tails it and charts the run live. The final `metrics.json` above stays the citable artifact; the JSONL is visibility, not evidence. See the `turing` skill.
+**Live streaming (Turing desktop):** *additionally* append per-step lines to `metrics.jsonl` in the same run directory (`{"step": n, "total_steps": N, "ts": epoch, ...numeric series}`) — the Turing desktop app tails it and charts the run live. This works from any project, not just the Turing repo, because the run directory already sits in the watched root. The final `metrics.json` above stays the citable artifact; the JSONL is visibility, not evidence. See the `turing` skill.
 
 ```json
 {
@@ -95,7 +101,7 @@ Newest entry at the top, immediately under the header. Never edit or delete a pa
 **Control:** Step decay, identical harness.
 **Falsifier:** Difference inside the seed band.
 
-**Result:** +1.2pp (0.629 → 0.641), seed band ±0.4pp. → `results/2026-08-14-lr-sweep-cosine/`
+**Result:** +1.2pp (0.629 → 0.641), seed band ±0.4pp. → `~/research-results/2026-08-14-lr-sweep-cosine/`
 
 **Verified by:** 3 seeds · control through identical path · hand-check of 20 examples.
 **Not verified:** Generalization past mathgen-v3.
@@ -130,17 +136,22 @@ Answered questions stay, checked, with the run that settled them. The list is a 
 
 ## Version Control
 
-Commit the record. Never commit the artifacts.
+The run directories are no longer inside the repo, so the repo's history no longer carries the record automatically — and that is a real loss to compensate for, not a detail. Two rules replace the old gitignore stanza:
+
+1. **The journal is the committed artifact.** `JOURNAL.md`, `OPEN-QUESTIONS.md`, and `DEAD-ENDS.md` live in the repo and cite run IDs. A run ID that appears in a committed entry is what makes the result findable later; a result that exists only as a directory under `~/research-results` and is named nowhere in git is one `rm -rf` from never having happened.
+2. **When a run backs a claim that matters, copy its small files into the repo** — `run.json`, `config.yaml`, `metrics.json`, `notes.md`, `stdout.log`, `trajectory.json` — to `research/records/<run-id>/`, unless the project already has a home for them, and commit them alongside the journal entry. They're small, diffable, and the entire point. If `stdout.log` is enormous, truncate the middle and say so in the file rather than dropping it.
+
+Never copy `artifacts/` into the repo — checkpoints and other large binaries stay in the results root, where they are outside git by construction. That is the one thing this layout makes easier: committing 4GB of checkpoints is now something you'd have to do on purpose.
+
+If Owen wants the whole results root under version control, `git init` in `~/research-results` itself is the move — one history for every project's runs — with this stanza in its `.gitignore`:
 
 ```gitignore
-research/results/**/artifacts/
-research/results/**/*.ckpt
-research/results/**/*.pt
-research/results/**/*.safetensors
-research/results/**/*.parquet
+**/artifacts/
+**/*.ckpt
+**/*.pt
+**/*.safetensors
+**/*.parquet
 ```
-
-`run.json`, `config.yaml`, `metrics.json`, `notes.md`, `stdout.log`, and `trajectory.json` are small, diffable, and the entire point — they get committed. If `stdout.log` is enormous, truncate the middle and say so in the file rather than gitignoring it.
 
 **Commit the code before a run that matters.** `log_run.py` records dirty state and warns; it won't stop you, and a dirty tree is a caveat attached to every number the run produced.
 

@@ -10,14 +10,14 @@ rather than reconstructed afterward from memory.
         --estimate-minutes 45 -- python train.py --config configs/sweep.yaml
 
     # record metrics after the fact (or from inside your own code)
-    log_run.py metrics research/results/2026-08-14-lr-sweep-cosine \
+    log_run.py metrics ~/research-results/2026-08-14-lr-sweep-cosine \
         --set held_out_accuracy=0.641 --set seed=1337
 
     # validate a run directory before citing it in the journal
-    log_run.py check research/results/2026-08-14-lr-sweep-cosine
+    log_run.py check ~/research-results/2026-08-14-lr-sweep-cosine
 
     # append a round to a self-improving loop's trajectory
-    log_run.py trajectory research/results/loop-verifiable --round 3 \
+    log_run.py trajectory ~/research-results/loop-verifiable --round 3 \
         --run-id 2026-08-14-loop-r03 --primary 0.641 --noise-floor 0.011 \
         --gpu-hours 4.2 --dollars 1.85 --human-interventions 1
 
@@ -38,7 +38,14 @@ import time
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-RESULTS_DIR = Path("research/results")
+# The shared results root is home-anchored rather than repo-relative: research
+# code can live in any project and still land where the Turing desktop app
+# watches for metrics and plots. Repoint per-run with --results-dir.
+RESULTS_DIR = Path(
+    os.environ.get("RESEARCH_RESULTS_ROOT")
+    or os.environ.get("TURING_RESEARCH_RESULTS_ROOT")
+    or (Path.home() / "research-results")
+).expanduser()
 REQUIRED_FOR_CITATION = ("run.json", "metrics.json", "notes.md")
 
 
@@ -103,7 +110,7 @@ def now() -> str:
 
 
 def allocate_dir(name: str, root: Path) -> Path:
-    """research/results/YYYY-MM-DD-<slug>, suffixed on same-day collision."""
+    """<results-root>/YYYY-MM-DD-<slug>, suffixed on same-day collision."""
     stem = f"{date.today().isoformat()}-{name}"
     candidate = root / stem
     if not candidate.exists():
@@ -153,7 +160,7 @@ NOTES_TEMPLATE = """# {run_id}
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    root = Path(args.results_dir)
+    root = Path(args.results_dir).expanduser()
     root.mkdir(parents=True, exist_ok=True)
     run_dir = allocate_dir(args.name, root)
     (run_dir / "artifacts").mkdir(parents=True)

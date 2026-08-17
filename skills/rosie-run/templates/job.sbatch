@@ -35,5 +35,7 @@ python3 log_run.py run \
     --estimate-minutes <n> \
     -- <the actual command>
 
-# Results land in research/results/<date>-<run-slug>/.
-# Pull them back to the Mac with rsync; do not archive on Rosie.
+# Results land in ~/research-results/<date>-<run-slug>/ on the cluster (the
+# shared, home-anchored root — not inside the repo). Pull them back to the same
+# path on the Mac with rsync, where the Turing desktop watches; don't archive
+# on Rosie.
