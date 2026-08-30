@@ -19,7 +19,7 @@ Ordinary feature work on Turing's own code (gateway, desktop app, tooling) is no
 
 ## Rule 2 — expose your data where the desktop renders it
 
-Everything the desktop app shows is a plain file under **the desktop's watched results root** — `~/research-results` by default, overridable in `~/.config/turing-desktop/config.json` (keep the root id `results`; the panes look it up by name). That root sits outside every checkout on purpose: research code can live in any project — Turing, `~/Developer/active/mnist`, a scratch notebook, a mirror of a cluster run — and still light up the panes without leaving untracked artifacts in that project. `<results-root>` below means that directory.
+Everything the desktop app shows is a plain file under **the desktop's watched results root** — `~/research-results` by default, overridable in `~/.config/turing-desktop/config.json` (on Linux: `${XDG_CONFIG_HOME:-~/.config}/turing-desktop/config.json`) (keep the root id `results`; the panes look it up by name). That root sits outside every checkout on purpose: research code can live in any project — Turing, `~/Developer/active/mnist`, a scratch notebook, a mirror of a cluster run — and still light up the panes without leaving untracked artifacts in that project. `<results-root>` below means that directory.
 
 Write to these paths and Owen literally watches your work live; skip them and your run is invisible.
 
