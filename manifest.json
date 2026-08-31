@@ -144,6 +144,11 @@
       "claude",
       "cursor",
       "codex"
+    ],
+    "professor": [
+      "claude",
+      "cursor",
+      "codex"
     ]
   }
 }
