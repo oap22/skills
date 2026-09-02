@@ -1,6 +1,6 @@
 ---
 name: research-loop
-description: Run research development as a disciplined loop — ground in prior work, design an experiment, gate on cost, run it, try to falsify the result, then log it so the next session inherits the thread. Covers self-improving loops and their driving functions. Use when Owen is doing ML, data science, or systems research: training runs, benchmarks, ablations, analysis, flywheels and recursive self-improvement, "let's test whether X", "how far can I push this", "why is this slower", "run the experiment", or any time a session will produce a result worth trusting later. Not for ordinary feature work.
+description: Run research development as a disciplined loop — ground in prior work, design an experiment, gate on cost, run it, try to falsify the result, then log it so the next session inherits the thread. Covers self-improving loops and their driving functions. Use when Owen is doing ML, data science, or systems research — training runs, benchmarks, ablations, analysis, flywheels and recursive self-improvement, "let's test whether X", "how far can I push this", "why is this slower", "run the experiment", or any time a session will produce a result worth trusting later. Not for ordinary feature work.
 ---
 
 # Research Loop
