@@ -27,7 +27,9 @@ install.py                      creates and prunes the symlinks
 
 Idempotent. Removing a skill from `manifest.json` and re-running unlinks it everywhere — the repo stays the only place a skill is ever edited or deleted.
 
-Add a harness by adding a row to `TARGETS` in `install.py`.
+A harness that isn't installed on the current machine is skipped rather than conjured into being — a laptop without the vault synced still gets its Claude Code, Cursor, and Codex links, and re-running after the vault lands fills in the rest.
+
+Add a harness by adding a `"name": (root, subpath)` row to `TARGETS` in `install.py`. `root` is the directory that must already exist for the harness to count as present here.
 
 ## manifest.json
 
@@ -45,7 +47,7 @@ Not every skill belongs everywhere. Vault skills are meaningless in a coding har
 ## Authoring rules
 
 1. `name` matches the directory name, kebab-case.
-2. `description` is one line, third person, and **names its trigger phrases**. Every harness routes on this string — a vague description is a skill that never fires.
+2. `description` is one line, third person, and **names its trigger phrases**. Every harness routes on this string — a vague description is a skill that never fires. `install.py` also flags a description YAML can't parse — most often an unquoted scalar containing `": "`, which every harness then silently falls back from, leaving the skill unroutable with no error anywhere.
 3. **Don't hardcode harness-specific tool names in load-bearing steps.** A skill that says "spawn subagents with the Task tool" breaks *silently* in Cursor. Describe the capability and degrade: "if parallel subagents are available, fan out; otherwise process sequentially." This is the real portability constraint.
 4. Reference bundled files by relative path, never absolute.
 5. Keep `SKILL.md` short; push detail into bundled `.md` files loaded on demand.
