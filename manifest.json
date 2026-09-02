@@ -149,6 +149,11 @@
       "claude",
       "cursor",
       "codex"
+    ],
+    "swe2410-java-setup": [
+      "claude",
+      "cursor",
+      "codex"
     ]
   }
 }
