@@ -5,3 +5,7 @@ skills/*/.DS_Store
 # Local secrets — never commit
 **/*.local.json
 **/*.local.sh
+
+# Python bytecode
+__pycache__/
+*.py[cod]
