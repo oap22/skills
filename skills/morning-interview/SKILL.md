@@ -5,7 +5,7 @@ description: "Render the daily note, then interview Owen one question at a time 
 
 # Morning Interview
 
-Before saving a daily note, re-read it and merge only this workflow's owned region into the latest text. Disjoint markers do not prevent two whole-file writes from overwriting each other. Use the vault's existing file lock/atomic-update helper when available; otherwise serialize writers and retry if the file changed. If markers are duplicated or unbalanced, preserve the file and report the structural problem. Scheduling statements below are historical setup notes: inspect the live task before reporting its status or changing it.
+Before saving a daily note, use the vault's documented helper for every create or marker update. Its `note_lock` takes `.system/locks/daily-note.lock`; its update path re-reads the expected bytes under the lock and uses an atomic replace. Re-read the note and merge only this workflow's owned region. If the helper, lock, expected-bytes check, or atomic replace is unavailable, do not improvise a whole-file fallback: preserve the note and report the blocker. If markers are duplicated or unbalanced, preserve the file and report the structural problem. Scheduling statements below are historical setup notes: inspect the live task before reporting its status or changing it.
 
 The connectors know what's *scheduled*. They do not know what's coming. A ride to catch, a professor who might reply, a lab that's due but was never filed, the fact that he slept four hours — none of that is in Linear or Calendar, and all of it decides how the day actually goes.
 
@@ -19,9 +19,21 @@ This skill renders the machine-knowable half first, then asks about the rest.
 
 This absorbs the old `daily-note-render` routine — it does that render itself, then interviews. Read `.system/productivity-abstractions.md` for the tool boundary before changing how anything files.
 
+Before creating or refreshing a note, read `.system/note-creation.md` and the
+Daily Note section of `.system/frontmatter-schema.md`. Use
+`python3 .system/scripts/daily-note.py --vault . --date <date> --ensure` from
+the vault root for creation and `--region interview --body-file` for this
+skill's generated interview block.
+Re-read immediately before each write and preserve the user's Chosen outcome,
+any legacy Top 3, Schedule, Captured, Notes, and the `mail`/`linear` regions
+owned by the other skills. The daily-note skill owns Linear rendering and its
+`linear-rendered-at`/coverage/success fields; this skill must not advance those
+fields from an interview-only write. Read connector status and retain truthful
+partial or unavailable coverage in the report.
+
 ## The two ways this starts
 
-**Unattended (the 6:30 fire).** Owen is asleep. Do the render, write the brief, ask the *first* question in the note and in the run output, and stop. Do not fabricate answers, do not guess at a Top 3 and present it as agreed. A morning where nobody answers should still leave a fully rendered note.
+**Unattended (the 6:30 fire).** Owen is asleep. Do the render, write the brief, ask the *first* question in the note and in the run output, and stop. Do not fabricate answers, do not guess at a Chosen outcome and present it as agreed. A morning where nobody answers should still leave a fully rendered note.
 
 **Attended (he invoked it, or replied to the fire).** Render if it hasn't happened yet, then run the interview live.
 
@@ -35,15 +47,15 @@ If the note already carries today's `interview-done` stamp, don't re-interview �
 TZ=America/Chicago date +%Y-%m-%d
 ```
 
-Never hardcode, never trust a date from earlier in the conversation. If `School/Daily TODO/<date>.md` exists you are refreshing — preserve everything outside the marked blocks. If not, create it from the template, substituting `{{date}}`, `{{yesterday}}`, `{{tomorrow}}`.
+Never hardcode, never trust a date from earlier in the conversation. If `School/Daily TODO/<date>.md` exists you are refreshing — preserve everything outside the marked blocks. If not, create it with `python3 .system/scripts/daily-note.py --vault . --date <date> --ensure` from the vault root and the documented template contract.
 
-### 2. Render the day (Linear + Calendar)
+### 2. Render the day (Linear + Calendar; read the existing mail block)
 
-Read `../daily-note/SKILL.md` and perform its **render-only** steps. Do not run its optional time-blocking step, promote captures, or fill Top 3 before the interview. Reuse its workspace verification, pagination, partial-failure, and Schedule-preservation rules. If the skill is unavailable, report the missing dependency and present the available day context in chat; do not reconstruct a second rendering contract.
+Read `../daily-note/SKILL.md` and perform its **render-only** steps. Do not run its optional time-blocking step, promote captures, or fill Chosen outcome before the interview. Reuse its workspace verification, pagination, partial-failure, coverage, and Schedule-preservation rules. If the skill is unavailable, report the missing dependency and present the available day context in chat; do not reconstruct a second rendering contract.
 
 ### 3. Show the day back before asking anything
 
-Open with the picture, not a question. Total scheduled hours, the largest free gap, count of urgent issues, anything due today. Two or three lines.
+Open with the picture, not a question. Read the existing `## Mail` block after the render, without rerunning the mail sweep. Include any mail item marked delivery change, waiting-on-you, or must-know alongside total scheduled hours, the largest free gap, count of urgent issues, and anything due today. Say when the mail block is absent, stale, or reports an unavailable connector. Keep the overview to two or three lines.
 
 This is the same principle as `deep-interview`: **never ask what you can read.** "You've got 09:00–14:00 blocked and one 🔴 — is that the whole day?" is worth answering. "What's on today?" makes him recite his own calendar back at a machine that already has it.
 
@@ -94,7 +106,7 @@ The interview block lives under its own heading, below `## Schedule`:
 <!-- interview:end -->
 ```
 
-Refresh this block from the saved answers plus new answers. Preserve earlier answered context and never replace it with a fresh unanswered question on a retry. Everything outside it — Top 3, Captured, Notes — is his and is never overwritten.
+Refresh this block from the saved answers plus new answers. Preserve earlier answered context and never replace it with a fresh unanswered question on a retry. Everything outside it — Chosen outcome, any legacy Top 3, Captured, Notes — is his and is never overwritten.
 
 If he never answered, the block says so and carries the parked question:
 
@@ -106,13 +118,23 @@ If he never answered, the block says so and carries the parked question:
 <!-- interview:end -->
 ```
 
-### 6. Top 3, only after the interview
+### 6. Choose one outcome, only after the interview
 
-Propose up to three real items, weighted: Urgent > blocks other work > at-risk (unbacked repos, expiring tokens) > due today > stale-but-active. One line of reason each, plus a `🔗 [OWE-nn](url)` link.
+If `## Chosen outcome` is empty, propose one real item from both workspaces,
+weighted: Urgent > blocks other work > at-risk (unbacked repos, expiring tokens)
+> due today > stale-but-active. Include one short reason and a
+`🔗 [OWE-nn](url)` or `🔗 [RES-nn](url)` link. Say if coverage is partial or
+unavailable. Record Owen's choice in his words after he answers; do not claim
+he completed a review or chose an item when he has not.
 
-**Fit them to what he just told you.** Three deep-work items on a day he described as five hours of meetings and four hours of sleep is a plan that fails by 10am — and now you have no excuse, because he said so.
+**Fit it to what he just told you.** A deep-work item on a day he described as
+five hours of meetings and four hours of sleep is a plan that fails by 10am —
+and now you have no excuse, because he said so.
 
-Never overwrite a Top 3 he already wrote. Unattended runs may propose a draft in the run output but leave the note's Top 3 unchanged, including when empty.
+Never overwrite an outcome he already wrote. If a legacy Top 3 exists, preserve
+it and do not create a second planning section. Unattended runs may propose a
+draft in the run output but leave the note's outcome unchanged, including when
+empty.
 
 ### 7. Stamp and close
 
@@ -124,7 +146,8 @@ Close by reading back the three things that changed versus the raw render. If no
 
 - **One question per message.** The rule the whole skill rests on.
 - **Never ask what Linear, Calendar, or the vault already answers.** Present it for correction instead.
-- **Only marked regions are regenerated.** `<!-- linear:* -->` and `<!-- interview:* -->`. Top 3, Captured, and Notes are his.
+- **Only marked regions are regenerated.** `<!-- linear:* -->` and `<!-- interview:* -->`. Chosen outcome, any legacy Top 3, Captured, and Notes are his.
+- **Marker ownership is strict.** This skill writes only `interview:start` through `interview:end`; daily-note owns Linear and mail-digest owns mail. Use the daily-note helper for marker updates.
 - **Never check off a rendered Linear issue in the vault.** State changes go to Linear.
 - **A 6:30 routine does not write to Linear.** It captures; promotion is `vault-to-linear`'s job, with him present.
 - **"Skip" ends a thread instantly.** Health, money, and sleep get asked plainly and dropped without friction.
@@ -151,7 +174,7 @@ Two things that surprise people, both true here:
 
 ## Untested
 
-- **The RES workspace render (added 2026-08-16).** Never fired from a scheduled run. The `linear-research` server, the Urgent/High-Backlog inclusion, and the "moved since last render" diff are all unexercised at 06:38. The diff depends on a prior `linear-synced` stamp existing — a note created fresh that morning has none and must skip the line, not render everything as moved.
+- **The RES workspace render (added 2026-08-16).** Never fired from a scheduled run. The `linear-research` server, the Urgent/High-Backlog inclusion, and the "moved since last render" diff are all unexercised at 06:38. The diff depends on a prior `linear-res-last-success` cursor existing — a note created fresh that morning has none and must skip the line, not render everything as moved. An unknown or legacy-only cursor never counts as evidence of movement.
 - **A live 6:30 fire.** The routine is created and the render half is inherited from a verified `daily-note`, but no morning has actually run interview-and-answer end to end yet. Expect the first real fire to pause on connector permission prompts.
 - **Re-run guarding.** `interview-done` short-circuiting a second same-day run is written but unexercised.
 - **The parked-question path** — asked at 6:30, answered at noon in a different session — is the most likely thing to be wrong.
