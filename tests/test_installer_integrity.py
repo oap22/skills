@@ -101,6 +101,20 @@ class InventoryIntegrityTests(Fixture):
         self.assertEqual(moc.read_bytes(), before)
         self.assertEqual(list(moc.parent.glob(f".{moc.name}.*.tmp")), [])
 
+    def test_invalid_closing_fence_keeps_example_markers_fenced(self):
+        vault, moc = self.use_vault(
+            "```md\n"
+            "```not-a-close\n"
+            "<!-- skills-inventory:start -->\n"
+            "example\n"
+            "<!-- skills-inventory:end -->\n"
+            "## Skills\nLegacy\n## Claude Agents\nTail\n"
+        )
+        before = moc.read_bytes()
+        with self.assertRaises(ValueError):
+            self.inventory.update_inventory(self.repo, vault)
+        self.assertEqual(moc.read_bytes(), before)
+
 
 class InstallerIntegrityTests(Fixture):
     def test_read_only_inventory_is_rejected_before_link_changes(self):
@@ -138,6 +152,29 @@ class InstallerIntegrityTests(Fixture):
             self.assertEqual(self.run_installer(), 1)
         self.assertTrue((self.target / "old").is_symlink())
         self.assertFalse((self.target / "demo").exists())
+
+    def test_replacement_failure_restores_exact_owned_target(self):
+        old_source = self.repo / "skills" / "old"
+        old_source.mkdir()
+        old_target = os.path.relpath(old_source, self.target)
+        link = self.target / "demo"
+        link.symlink_to(old_target)
+        original = Path.symlink_to
+        failed = False
+
+        def fail_new(path, target, target_is_directory=False):
+            nonlocal failed
+            if path == link and not failed:
+                failed = True
+                raise OSError("simulated replacement failure")
+            return original(path, target, target_is_directory=target_is_directory)
+
+        with patch.object(Path, "symlink_to", fail_new):
+            self.assertEqual(self.run_installer(), 1)
+        self.assertTrue(failed)
+        self.assertTrue(link.is_symlink())
+        self.assertEqual(os.readlink(link), old_target)
+        self.assertEqual(os.path.realpath(link), os.path.realpath(old_source))
 
     def test_foreign_symlink_appearing_after_plan_is_preserved(self):
         original_plan = self.installer.installation_plan
