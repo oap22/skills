@@ -23,7 +23,7 @@ A driving function is only load-bearing if all four hold. Check them explicitly,
 
 **1. Mechanically verifiable.** Ground truth comes from a checker, not a human judgment. If a person sits in the reward seat, the loop is rate-limited by that person, the signal drifts as they get tired or change their mind, and cross-round comparison is confounded by the drift. Tasks with checkable answers — math with a verifier, code with tests, predictions against held-out labels — are the price of admission to unattended operation, and unattended operation is the precondition for sweeping.
 
-**2. Held out and uncontaminated.** The eval set must be genuinely unseen. For anything involving a pretrained model, public benchmarks are presumed contaminated — they are in the training data. Prefer **programmatically generated problems with checkers**, or items published after the model's cutoff. A leaderboard split is not a held-out set.
+**2. Held out and uncontaminated.** The eval set must be genuinely unseen. For anything involving a pretrained model, public benchmarks have a contamination risk unless training provenance establishes otherwise. Prefer **programmatically generated problems with checkers**, or independently held-out items. Publication after a claimed cutoff alone does not prove isolation. Keep the final test set separate from repeated development evaluations.
 
 **3. In the difficulty band.** Above the floor and below the ceiling. A metric where the system scores 0 every round measures nothing; so does one where it scores 100. Verify the band with a pilot before round 1 — this is cheap and catches a wasted sweep.
 
@@ -74,7 +74,7 @@ Write the halting condition down before the loop starts, at the design gate. A l
 - Round budget R reached                                  (hard backstop, always set one)
 ```
 
-**Expect saturation early.** The collapse literature and most practical reports land in the 1–3 useful rounds range before returns vanish. Aim at that deliberately: the likely publishable result is **where it saturates, why, and what moves that point** — not an unbroken climb. A loop that reports monotonic improvement over ten rounds should be treated as a measurement bug until proven otherwise, and the first thing to check is contamination between the loop's output and the eval set.
+**Measure saturation; do not assume a round count.** The useful contribution may be where gains saturate and what shifts that point. Unexpectedly smooth improvement warrants checks for contamination and evaluation drift, but is not itself proof of a bug. Predefine the noise statistic and stopping rule; three seeds are a pilot estimate, not a universal significance guarantee.
 
 ## Round Discipline
 
@@ -88,7 +88,7 @@ Every round is a logged run under the normal `conventions.md` layout, plus a tra
   round-01/  round-02/   … each a standard run directory
 ```
 
-`trajectory.json` — one object per round:
+`trajectory.json` is an object containing `loop` and a `rounds` array, written through `log_run.py trajectory`. Use a single writer and append increasing round numbers; existing rounds cannot be silently replaced. The primary metric is assumed higher-is-better: transform loss/latency to a declared utility before logging. Each round object looks like:
 
 ```json
 {

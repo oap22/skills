@@ -70,5 +70,5 @@ Always include:
 - **The new contract as one explicit sentence**, not just the list of defects.
 - Which findings are in scope and which are deliberately not.
 - Where the new logic belongs, if the review revealed the old code put it in the wrong layer.
-- "Add tests that FAIL before this fix. Confirm they fail by reverting, and report that you did."
+- "Add tests that FAIL before this fix. Confirm the pre-fix failure in a disposable worktree or scratch copy, and report the evidence. Never revert or stash shared work."
 - "Report the exact commands you ran and their real output. If something fails and you cannot fix it, say so plainly rather than claiming success."
