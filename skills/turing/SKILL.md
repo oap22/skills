@@ -13,7 +13,7 @@ Turing (`~/Developer/active/Turing`, github `oap22/Turing`) is Owen's autonomous
 
 Turing is where Owen does research development. If the session is research-shaped — an experiment, a training run, a benchmark, an ablation, a flywheel round, "let's test whether X" — then:
 
-- **No current brief? Run `/research-interview` first.** Briefs live in `research/briefs/`; a brief with `status: agreed` is the contract. Do not start experiment code from a vibe.
+- **No current brief?** First check the current conversation and authorized handoff for an already agreed question, method, falsifier, constraints, and budget. If those are complete, materialize that approved design as `research/briefs/YYYY-MM-DD-<slug>.md` with `status: agreed` and continue without a new interview. Run `/research-interview` only for consequential unresolved choices; do not start experiment code from a vibe.
 - **Every experiment runs under `/research-loop`.** Ground → design gate → cost gate → run → falsify → log. Its `conventions.md` owns the results-directory format, `JOURNAL.md`, and `DEAD-ENDS.md`.
 - **Heavy jobs go to ROSIE via `rosie-run`.** The Mac orchestrates; the cluster computes.
 

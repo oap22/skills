@@ -5,9 +5,9 @@ description: Sweep Gmail for the few things that actually matter today — packa
 
 # Mail Digest
 
-Before saving a daily note, re-read it and merge only this workflow's owned region into the latest text. Disjoint markers do not prevent two whole-file writes from overwriting each other. Use the vault's existing file lock/atomic-update helper when available; otherwise serialize writers and retry if the file changed. If markers are duplicated or unbalanced, preserve the file and report the structural problem. Scheduling statements below are historical setup notes: inspect the live task before reporting its status or changing it.
+Before saving a daily note, use the vault's documented helper for every create or marker update. Its `note_lock` takes `.system/locks/daily-note.lock`; its update path re-reads the expected bytes under the lock and uses an atomic replace. Re-read the note and merge only this workflow's owned region. If the helper, lock, expected-bytes check, or atomic replace is unavailable, do not improvise a whole-file fallback: preserve the note and report the blocker. If markers are duplicated or unbalanced, preserve the file and report the structural problem. Scheduling statements below are historical setup notes: inspect the live task before reporting its status or changing it.
 
-A narrow question such as "did my package ship?" is answered in chat from the relevant evidence. Write the daily-note digest and cursor only for an explicit digest/update request or its configured scheduled run. Complete every result page for the chosen bounded window, deduplicate message IDs, and advance a source cursor only after its reads and writes succeed.
+A narrow question such as "did my package ship?" is answered in chat from the relevant evidence. By default, a digest request or its configured scheduled run writes only this skill's mail block and mail-digest cursor. It does not write Brain notes, Commitments, or `unfiled-work.md`. If the user explicitly authorizes durable ingestion, hand the evidence to `brain-mail-ingest` as the single owner of People, Threads, and Commitments, passing source thread/message IDs and the obligation identity for deduplication; do not create a second ledger entry here. Complete every result page for the chosen bounded window, deduplicate message IDs, and advance a source cursor only after its reads and writes succeed.
 
 Owen's inbox is mostly noise. This reads it every morning and answers three questions in under ten lines:
 
@@ -76,7 +76,15 @@ An evidenced account compromise or lockout with a concrete consequence can pass 
 
 ### 5. Write the block into the daily note
 
-If today's note doesn't exist, create it from `Templates/Daily Note.md`, substituting `{{date}}`, `{{yesterday}}`, `{{tomorrow}}`. If it exists, touch **only** the mail block.
+Read `.system/note-creation.md` before creating a missing daily note. Use
+`python3 .system/scripts/daily-note.py --vault . --date <date> --ensure` from
+the vault root for creation and `--region mail --body-file <digest-block>` for
+the owned marker update. Re-read immediately before writing. The mail routine
+owns only its mail block and its own cursor; it never stamps Linear coverage or
+interview completion.
+
+If today's note doesn't exist, create it with the helper and the documented
+template contract. If it exists, touch **only** the mail block.
 
 The block lives under its own heading directly after `## Schedule`. If the markers aren't there, insert the whole section; never rewrite the file around it.
 
@@ -99,16 +107,16 @@ Include the Gmail thread link on anything he'd want to open. Keep each line to o
 
 ### 6. Hand off, don't duplicate
 
-- **Durable correspondence** (a new person, a decision, something that changes a project) → note it in the report and let `brain-mail-ingest` write the `30-Brain/` notes. This skill does not write People or Thread notes.
-- **A real commitment either direction** → `30-Brain/Commitments/` per the Brain rules, if `brain-mail-ingest` hasn't already got it.
+- **Durable correspondence** (a new person, a decision, something that changes a project) → mention it in the report. Only an explicit ingestion request may hand it to `brain-mail-ingest`, which alone writes the `30-Brain/` People, Thread, or Commitment notes. This skill does not write those notes.
+- **A real commitment either direction** → keep it in the digest until an explicitly authorized `brain-mail-ingest` handoff; pass its source thread/message ID and obligation identity so the owner can dedupe it. A scheduled digest never creates a Commitment or `unfiled-work.md` entry silently.
 - **Needs a reply** → say so. Do not draft unprompted; `draft-outreach` writes it when he asks, and never sends.
-- **A dated obligation** → mention it. Promotion to Linear is `vault-to-linear`'s job with him present; a 6:15 routine does not write to Linear.
+- **A consequential dated obligation** → report it with its source link, stated due date (blank if unknown), and explicit open/unknown-completion evidence. If the user separately authorizes durable ingestion, hand it to `brain-mail-ingest` with the source pointer and obligation identity; that owner dedupes by source thread plus obligation and decides whether a Commitment is warranted. Do not write `30-Brain/Sources/unfiled-work.md` from this digest. Promotion to Linear remains `vault-to-linear`'s job with him present; the digest does not write to Linear. An old completed obligation about the same account is not completion of a new notice.
 
 ### 7. Update the cursor and report
 
-Write `30-Brain/Sources/mail-digest-state.md`: last-run timestamp, window used, threads scanned, threads kept, the queries run, and — important — a one-line note of anything *deliberately excluded* that a future run might otherwise re-surface. Without that, every run re-litigates the same newsletter.
+Write a compact current record in `30-Brain/Sources/mail-digest-state.md`: last-run timestamp, window used, threads scanned/kept, query definitions, exact active ID set needed for diffs, and bounded exclusion reasons. Keep older evidence in existing history rather than re-narrating it. Maintain unresolved obligations in their own notes; aging out of the query never closes them. Without that, every run re-litigates the same newsletter.
 
-Report the same three-to-five lines in the run output, since he may read the notification and never open the note.
+Report meaningful changes, new consequential deadlines, or required user action. Finish quietly when nothing changed; preserve the scheduler notification policy. Unchanged delivery status or an unchanged connector blocker is not fresh news.
 
 ## Rules
 
@@ -141,8 +149,6 @@ Two things that surprise people, both true here:
 - zsh aborts on non-matching globs — `for f in dir/*.md` dies if the directory is empty. Use `find | while read`.
 - `ls` is aliased to a git-aware tool that hangs in large or fresh repos. Use `/bin/ls`.
 
-## Untested
+## Validation limits
 
-- **A live 6:15 fire.** Written and installed, but no morning has run it end to end. Expect the first fire to pause on a Gmail connector permission prompt.
-- **The delivery query's carrier coverage.** Built from the obvious carriers; a retailer that ships under its own domain will be missed until it shows up and gets added.
-- **Both-orders-work.** The claim that a post-interview run is harmless rests on marker discipline, not on an observed run.
+Saved run evidence confirms the digest has executed, but does not establish completeness of every mailbox or carrier. Marker fixtures verify both execution orders locally; live overlap, new authentication, and delivery state still require real observations. Absence of messages in Gmail does not prove absence of school mail in Outlook.

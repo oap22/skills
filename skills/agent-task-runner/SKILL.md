@@ -26,6 +26,10 @@ Pick up issues in **Agent Work** whose status is **Todo** or **In Progress**.
 
 Nothing outside Agent Work. School / Research / Personal are Owen's work, not the agents'.
 
+## Required workspace and outage handoff
+
+Verify `owenp22` and team `OWE` before reading or changing the intended queue. Read `30-Brain/Sources/connector-status.md`. If unavailable, record the attempt there, preserve successful cursors, and keep new unfiled findings in `30-Brain/Sources/unfiled-work.md` with stable IDs, source links, intended destination, and blocker. Search the ledger and existing OWE references before appending. Do not file into RES as a substitute, mark a remote issue Done, advance a recurring issue chain, or claim the queue is empty. Continue only independent work already authorized. On recovery, read and dedupe the actual backlog before linking or promoting entries. Notify only on material change or needed user action; repeated unchanged failure needs no new essay.
+
 ## Steps
 
 ### 1. Pull the queue
