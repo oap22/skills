@@ -142,19 +142,29 @@ def render(repo):
 
 
 def _fenced_and_headings(text):
-    """Return genuine heading spans, excluding fenced code blocks."""
+    """Return genuine headings and lines inside fenced code blocks.
+
+    A closing fence must use the opening fence character, be at least as
+    long, and have only whitespace after it. This matches Markdown fence
+    rules closely enough for migration safety: a fence followed by text such
+    as ``not-a-close`` remains fenced content rather than silently exposing
+    example headings or markers.
+    """
     in_fence = None
-    skills, agents = [], []
+    skills, agents, fenced_lines = [], [], []
     offset = 0
     for line in text.splitlines(keepends=True):
         body = line.rstrip("\r\n")
-        fence = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", body)
+        fence = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})(.*)$", body)
         if fence:
             marker = fence.group(1)
             if in_fence is None:
                 in_fence = (marker[0], len(marker))
-            elif marker[0] == in_fence[0] and len(marker) >= in_fence[1]:
+            elif (marker[0] == in_fence[0] and len(marker) >= in_fence[1]
+                  and not fence.group(2).strip()):
                 in_fence = None
+            elif in_fence is not None:
+                fenced_lines.append((offset, offset + len(line)))
             offset += len(line)
             continue
         if in_fence is None:
@@ -162,8 +172,10 @@ def _fenced_and_headings(text):
                 skills.append((offset, offset + len(line)))
             if _AGENTS_HEADING.fullmatch(body):
                 agents.append((offset, offset + len(line)))
+        else:
+            fenced_lines.append((offset, offset + len(line)))
         offset += len(line)
-    return skills, agents
+    return skills, agents, fenced_lines
 
 
 def _marker_region(text):
@@ -177,25 +189,10 @@ def _marker_region(text):
         return None
     if len(starts) != 1 or len(ends) != 1:
         raise ValueError("inventory markers missing or duplicated")
-    skills, agents = _fenced_and_headings(text)
+    _, _, fenced_lines = _fenced_and_headings(text)
     start = starts[0]
     end = ends[0]
     # Marker lines inside fences are never a managed region.
-    fenced_lines = []
-    in_fence = None
-    offset = 0
-    for line in text.splitlines(keepends=True):
-        body = line.rstrip("\r\n")
-        fence = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", body)
-        if fence:
-            marker = fence.group(1)
-            if in_fence is None:
-                in_fence = (marker[0], len(marker))
-            elif marker[0] == in_fence[0] and len(marker) >= in_fence[1]:
-                in_fence = None
-        elif in_fence is not None:
-            fenced_lines.append((offset, offset + len(line)))
-        offset += len(line)
     if any(a <= start.start() < b or a <= end.start() < b for a, b in fenced_lines):
         raise ValueError("inventory marker is inside a fenced block")
     if start.start() > end.start():
@@ -212,7 +209,7 @@ def _replace_block(text, block):
             block += "\n"
         return before + block + after
 
-    skills, agents = _fenced_and_headings(text)
+    skills, agents, _ = _fenced_and_headings(text)
     if len(skills) != 1 or len(agents) != 1 or skills[0][0] >= agents[0][0]:
         raise ValueError("legacy inventory requires one unique unfenced Skills heading before Claude Agents")
     # Preserve the old section verbatim after the managed block. This makes the

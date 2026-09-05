@@ -48,8 +48,22 @@ says 25.0.2, Oracle ships 25.0.4.1). That is expected and fine — the tutorial 
 says to use the version you actually downloaded. Just keep every path consistent afterward.
 
 Installation needs elevation and the user is typically an admin but *not* elevated.
-**Batch all elevated work into ONE script and launch it with a single
-`Start-Process pwsh -Verb RunAs -Wait`** so the user clicks one UAC prompt instead of four.
+**Batch all elevated work into ONE script and launch it with a single resolved
+PowerShell executable using `Start-Process -Verb RunAs -Wait`** so the user
+clicks one UAC prompt instead of four. Resolve PowerShell first; prefer
+PowerShell 7 when `pwsh` exists, otherwise use stock Windows PowerShell
+(`powershell.exe`). If neither executable is available, report the blocker and
+do not attempt an installation.
+
+```powershell
+$elevatedShell = Get-Command pwsh -ErrorAction SilentlyContinue
+if (-not $elevatedShell) {
+    $elevatedShell = Get-Command powershell.exe -ErrorAction SilentlyContinue
+}
+if (-not $elevatedShell) { throw 'No PowerShell executable is available' }
+Start-Process -FilePath $elevatedShell.Source -ArgumentList ('-File "{0}"' -f $scriptPath) -Verb RunAs -Wait
+```
+
 That script should:
 
 1. `msiexec /i <jdk msi> /qn /norestart` — silent JDK install

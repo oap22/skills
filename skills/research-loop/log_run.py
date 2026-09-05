@@ -577,17 +577,23 @@ def cmd_trajectory(args: argparse.Namespace) -> int:
             if not isinstance(existing, dict) or existing.get("round") != expected:
                 raise ValueError("trajectory history must contain consecutive rounds beginning at 0")
             for field in (
-                "run_id", "primary", "noise_floor", "secondary", "eval_set",
+                "run_id", "run_dir", "primary", "noise_floor", "secondary", "eval_set",
                 "eval_set_sha256", "n_examples", "human_interventions",
             ):
                 if field not in existing:
                     raise ValueError(f"trajectory round {expected} is missing {field}")
             if not isinstance(existing["run_id"], str) or not existing["run_id"]:
                 raise ValueError(f"trajectory round {expected} has an invalid run_id")
+            if not isinstance(existing["run_dir"], str) or not existing["run_dir"]:
+                raise ValueError(f"trajectory round {expected} has an invalid run_dir")
             if expected == 0:
                 if existing.get("parent_round") is not None or existing.get("parent_run_id") is not None:
                     raise ValueError("trajectory round 0 cannot have a parent")
-            elif existing.get("parent_round") != expected - 1 or not isinstance(existing.get("parent_run_id"), str) or not existing["parent_run_id"]:
+            elif (
+                existing.get("parent_round") != expected - 1
+                or not isinstance(existing.get("parent_run_id"), str)
+                or existing.get("parent_run_id") != rounds[expected - 1].get("run_id")
+            ):
                 raise ValueError(f"trajectory round {expected} has invalid parent lineage")
             if any(
                 isinstance(existing[field], bool)
@@ -596,10 +602,10 @@ def cmd_trajectory(args: argparse.Namespace) -> int:
                 for field in ("primary", "noise_floor", "secondary")
             ):
                 raise ValueError(f"trajectory round {expected} has nonfinite score metadata")
-            if existing["noise_floor"] < 0 or existing["human_interventions"] < 0:
-                raise ValueError(f"trajectory round {expected} has negative loop metadata")
             if type(existing["human_interventions"]) is not int:
                 raise ValueError(f"trajectory round {expected} has a non-integer intervention count")
+            if existing["noise_floor"] < 0 or existing["human_interventions"] < 0:
+                raise ValueError(f"trajectory round {expected} has negative loop metadata")
             cost = existing.get("cost")
             if not isinstance(cost, dict) or any(
                 isinstance(cost.get(field), bool)
@@ -616,6 +622,30 @@ def cmd_trajectory(args: argparse.Namespace) -> int:
                 "eval_set_sha256": existing["eval_set_sha256"],
             }):
                 raise ValueError(f"trajectory round {expected} has invalid eval identity")
+            backing_problems, _, backing_record, backing_metrics = validate_run_dir(
+                Path(existing["run_dir"])
+            )
+            if backing_problems:
+                raise ValueError(
+                    f"trajectory round {expected} backing run is not citable: "
+                    + "; ".join(backing_problems)
+                )
+            if backing_record.get("run_id") != existing["run_id"]:
+                raise ValueError(
+                    f"trajectory round {expected} run_id does not match its backing record"
+                )
+            if (
+                backing_metrics.get("eval_set"),
+                backing_metrics.get("eval_set_sha256"),
+                backing_metrics.get("n_examples"),
+            ) != (
+                existing["eval_set"],
+                existing["eval_set_sha256"],
+                existing["n_examples"],
+            ):
+                raise ValueError(
+                    f"trajectory round {expected} eval identity does not match its backing record"
+                )
 
         if rounds:
             previous = rounds[-1]

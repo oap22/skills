@@ -108,7 +108,7 @@ Also: relative paths for bundled files, never absolute. Absolute vault paths are
 
 ### 7. Run the compliance checklist
 
-Read `compliance.md` (bundled with this skill) and walk the draft through all five practices — description-as-trigger, real expertise, context economy, deterministic scripts, security/trust — plus the repo rules. **A failed check blocks install**: fix it, or record in the skill's `## Untested` section why it doesn't apply. The two checks most often failed are the P1 collision check against existing descriptions and the P5 prompt-injection posture for skills that read external content.
+Read `compliance.md` (bundled with this skill) and walk the draft through all five practices — description-as-trigger, real expertise, context economy, deterministic scripts, security/trust — plus the repo rules. Failures involving trust or prompt injection, secrets, destructive writes, or an unresolved trigger collision block install and must be fixed before proceeding. A non-safety check may be recorded in the skill's `## Untested` section only when it is genuinely inapplicable or its required tool or input is unavailable; name the missing evidence and do not claim the check passed. Never use `## Untested` to waive a safety failure. The two checks most often failed are the P1 collision check against existing descriptions and the P5 prompt-injection posture for skills that read external content.
 
 ### 8. Install
 
