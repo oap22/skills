@@ -234,21 +234,22 @@ class ApplyFailure(RuntimeError):
 
 
 class LinkTransaction:
-    def __init__(self, before, desired, touched, changed, created_dirs):
+    def __init__(self, before, desired, intermediate, touched, changed, created_dirs):
         self.before = before
         self.desired = desired
+        self.intermediate = intermediate
         self.touched = touched
         self.changed = changed
         self.created_dirs = created_dirs
 
 
-def _restore_state(path, before, desired, changed):
+def _restore_state(path, before, desired, intermediate, changed):
     current = _path_state(path)
     if current == before:
         return
     if path not in changed:
         raise RuntimeError(f"target changed unexpectedly during rollback: {path}")
-    if current != desired:
+    if current != desired and current != intermediate:
         raise RuntimeError(f"refusing to remove unmanaged path during rollback: {path}")
     if current[0] == "symlink":
         path.unlink()
@@ -270,6 +271,7 @@ def rollback_links(transaction):
                 path,
                 transaction.before[path],
                 transaction.desired[path],
+                transaction.intermediate[path],
                 transaction.changed,
             )
         except Exception as exc:
@@ -311,6 +313,7 @@ def _prepare_parents(actions):
 def apply_links(actions):
     before = {}
     desired = {}
+    intermediate = {}
     for action, link, src in actions:
         state = _path_state(link)
         if action == "unlink" and state[0] != "symlink":
@@ -323,10 +326,15 @@ def apply_links(actions):
             raise ApplyFailure(f"skill source changed before link: {src}")
         before[link] = state
         desired[link] = ("absent", None) if action == "unlink" else ("symlink", str(src))
+        # A replacement deliberately passes through an absent path after the
+        # old owned link is removed and before the new link is created.
+        intermediate[link] = ("absent", None)
     created_dirs = _prepare_parents(actions)
     touched = []
     changed = set()
-    transaction = LinkTransaction(before, desired, touched, changed, created_dirs)
+    transaction = LinkTransaction(
+        before, desired, intermediate, touched, changed, created_dirs
+    )
     try:
         for action, link, src in actions:
             if not _state_matches(link, before[link]):

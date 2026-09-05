@@ -1,6 +1,6 @@
 ---
 name: draft-outreach
-description: Draft an email or message to someone on Owen's behalf — researched, specific, and in his voice — and hand it to him to send. Never sends. Use when Owen says "draft an email to X", "help me reach out to", "write to my professor", "cold email", "set up a coffee chat", or when an agent task calls for outreach.
+description: Draft an email or message to someone on Owen's behalf — researched, specific, and in his voice — and hand it to him to send. A drafting request never sends as a side effect; an explicit send request uses the separate mail workflow. Use when Owen says "draft an email to X", "help me reach out to", "write to my professor", "cold email", "set up a coffee chat", or when an agent task calls for outreach.
 ---
 
 # Draft Outreach

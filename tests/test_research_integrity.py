@@ -149,6 +149,43 @@ class ResearchIntegrityTests(unittest.TestCase):
         self.assertIn("eval identity changed", result.stderr)
         self.assertEqual((loop / "trajectory.json").read_bytes(), payload_before)
 
+    def test_trajectory_revalidates_backing_runs_and_malformed_counts(self):
+        run0 = self.make_run()
+        run1 = self.make_run("2026-09-05-run-b")
+        loop = self.root / "loop"
+        self.assertEqual(self.trajectory(loop, run0, 0).returncode, 0)
+        payload_before = (loop / "trajectory.json").read_bytes()
+
+        # A cached trajectory entry must not keep a deleted backing run citable.
+        for name in ("run.json", "metrics.json", "notes.md"):
+            self.assertTrue((run0 / name).exists())
+        for path in run0.iterdir():
+            path.unlink()
+        run0.rmdir()
+        result = self.trajectory(loop, run1, 1)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("backing run is not citable", result.stderr)
+        self.assertEqual((loop / "trajectory.json").read_bytes(), payload_before)
+
+        # Restore the first run and corrupt only the cached intervention field.
+        run0 = self.make_run()
+        self.assertEqual(self.trajectory(loop, run0, 1).returncode, 0)
+        payload_before = (loop / "trajectory.json").read_bytes()
+        payload = json.loads(payload_before)
+        payload["rounds"][0]["human_interventions"] = "unknown"
+        (loop / "trajectory.json").write_text(json.dumps(payload))
+        corrupted = (loop / "trajectory.json").read_bytes()
+        for value in ("unknown", None, [], {}):
+            payload["rounds"][0]["human_interventions"] = value
+            (loop / "trajectory.json").write_text(json.dumps(payload))
+            result = self.trajectory(loop, run1, 2)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("intervention count", result.stderr)
+            self.assertEqual((loop / "trajectory.json").read_bytes(), json.dumps(payload).encode())
+        # The successful round-1 append and its bytes were preserved before the
+        # deliberate malformed-record rewrites above.
+        self.assertNotEqual(corrupted, payload_before)
+
     def test_trajectory_requires_explicit_loop_metadata(self):
         run = self.make_run()
         result = self.cli(

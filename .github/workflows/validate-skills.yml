@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 2
+          fetch-depth: 0
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python }}
@@ -34,5 +34,12 @@ jobs:
         run: python install.py --check
       - name: Exercise temporary-workspace regression tests
         run: python -m unittest discover -s tests -v
-      - name: Check whitespace
-        run: git diff --check HEAD^ HEAD
+      - name: Check whitespace across the full change
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        shell: bash
+        run: |
+          if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
+            BASE_SHA=$(git hash-object -t tree /dev/null)
+          fi
+          git diff --check "$BASE_SHA" HEAD
