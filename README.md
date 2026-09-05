@@ -23,6 +23,7 @@ install.py                      creates and prunes the symlinks
 ```bash
 ./install.py --dry-run    # preview
 ./install.py              # apply
+./install.py --target vault  # apply one harness only
 ```
 
 Idempotent. Removing a skill from `manifest.json` and re-running unlinks it everywhere — the repo stays the only place a skill is ever edited or deleted.
@@ -66,9 +67,11 @@ python3 -m unittest discover -s tests -v
 python3 install.py --dry-run
 ```
 
-Validation errors and target collisions stop installation before any link changes. The installer preserves unmanaged files/directories and foreign symlinks, including broken ones. Only symlinks pointing into this checkout's `skills/` directory are pruned. Removing a skill from the manifest deactivates its links while preserving its source folder. `--check` never inspects or changes live harness links; `--dry-run` previews them. Apply from a linked worktree is refused so temporary paths cannot become live dependencies.
+Validation errors, target collisions, and inventory staging failures stop installation before any link changes. Applying installs serialize cooperating invocations with the checkout-local `.install.lock`, then re-read the manifest and target state after acquiring the lock. The installer preserves unmanaged files/directories and foreign symlinks, including broken ones. Only symlinks pointing into this checkout's `skills/` directory are pruned. Removing a skill from the manifest deactivates its links while preserving its source folder. Ordinary apply failures roll managed links back when their expected state is still present; if an external process changes a path during rollback, the installer refuses to remove that path and reports the rollback as incomplete. This is a bounded local rollback, not a crash-proof distributed transaction. Apply from a linked worktree is refused so temporary paths cannot become live dependencies.
 
-The tests use temporary harness directories and tiny local subprocesses. They do not contact mail, Calendar, Linear, GitHub, or Rosie. Structural checks cannot prove a skill's reasoning or a live workflow; see [the September audit](docs/skills-audit-2026-09-04.md) for findings and validation limits.
+When a vault target is selected, a needed Skills inventory update is staged in a temporary file beside the MOC, flushed, and atomically replaced after the link plan applies. Read-only or symlinked inventory files are rejected before link changes when an update is needed. Existing inventory markers replace only their own block. A legacy MOC is migrated only when it has one unique, unfenced `## Skills` heading before one unique, unfenced `## Claude Agents` heading; the old section content is retained, and ambiguous headings or markers abort without writing.
+
+The tests use temporary harness directories and tiny local subprocesses. They do not contact mail, Calendar, Linear, GitHub, or Rosie. Continuous integration runs the catalog, installer, and workflow regression checks on Ubuntu and macOS across the supported Python versions. Structural checks cannot prove a skill's reasoning or a live workflow; see [the September audit](docs/skills-audit-2026-09-04.md) and [the September 5 adversarial follow-up](docs/skills-adversarial-review-2026-09-05.md) for findings and validation limits.
 
 ## Not managed here
 

@@ -88,17 +88,22 @@ Every round is a logged run under the normal `conventions.md` layout, plus a tra
   round-01/  round-02/   … each a standard run directory
 ```
 
-`trajectory.json` is an object containing `loop` and a `rounds` array, written through `log_run.py trajectory`. Use a single writer and append increasing round numbers; existing rounds cannot be silently replaced. The primary metric is assumed higher-is-better: transform loss/latency to a declared utility before logging. Each round object looks like:
+`trajectory.json` is an object containing `loop` and a `rounds` array, written through `log_run.py trajectory`. Start with round 0 and append exactly one consecutive round at a time; existing rounds cannot be silently replaced. Each entry must point to a completed, citable run directory with `--run-dir`; the helper copies the run's eval identity into the entry and rejects an identity change. It compares the recorded identity strings; it does not recompute or scientifically verify the digest. The primary metric is assumed higher-is-better: transform loss/latency to a declared utility before logging. Each round object looks like:
 
 ```json
 {
   "round": 3,
   "run_id": "2026-08-14-loop-verifiable-r03",
+  "run_dir": "/Users/owenpacetti/research-results/2026-08-14-loop-verifiable-r03",
   "parent_round": 2,
+  "parent_run_id": "2026-08-14-loop-verifiable-r02",
   "primary": 0.641,
   "delta": 0.008,
   "noise_floor": 0.011,
   "secondary": 0.512,
+  "eval_set": "mathgen-v3",
+  "eval_set_sha256": "9f2c000000000000000000000000000000000000000000000000000000000000",
+  "n_examples": 4096,
   "cost": {"gpu_hours": 4.2, "dollars": 1.85},
   "cost_per_point": 231.0,
   "human_interventions": 1,
@@ -109,11 +114,25 @@ Every round is a logged run under the normal `conventions.md` layout, plus a tra
 
 Rules that keep a long loop honest:
 
-- **Round 0 is the baseline** and gets the same measurement treatment as every other round. Skipping it means having no anchor.
-- **Every round records its parent.** Accumulate-vs-replace and retrain-from-base-vs-stack are different experiments and get confused constantly when lineage isn't explicit.
-- **Never compare rounds measured on different eval sets.** If the eval set changes, the trajectory restarts. Note it loudly.
+- **Round 0 is the baseline** and gets the same measurement treatment as every other round. The logger rejects a first round with any other number.
+- **Every round records its parent and backing run directory.** Accumulate-vs-replace and retrain-from-base-vs-stack are different experiments and get confused constantly when lineage isn't explicit. The logger checks that the backing record is complete and that its `run_id` matches.
+- **Never compare rounds measured on different eval sets.** If the eval set or its hash/version changes, the trajectory restarts. The logger compares the copied identity and rejects the append.
 - **A round that fails a constraint gate is logged, not deleted.** It is the most informative round in the sweep.
-- **Log the eval set's own hash or version** in every round. Silent eval drift produces beautiful fake curves.
+- **Log the eval set's own hash or version** in every round. Silent eval drift produces beautiful fake curves. For a genuinely non-dataset loop, use matching explicit `not-applicable: <reason>` fields in every backing run.
+
+Use the helper with all loop metadata explicit; omitted costs or intervention
+counts are not treated as zero:
+
+```bash
+log_run.py trajectory ~/research-results/loop-verifiable --round 0 \
+  --run-dir ~/research-results/2026-08-14-loop-verifiable-r00 \
+  --primary 0.629 --noise-floor 0.011 --secondary 0.510 \
+  --gpu-hours 4.2 --dollars 1.85 --human-interventions 1
+```
+
+The metrics updater uses an exclusive lock and atomic replacement. A lock left
+by an interrupted process is a deliberate stop condition; inspect it before
+removing it rather than allowing two writers to merge from stale state.
 
 ## Sweeping
 
