@@ -35,9 +35,7 @@ case-insensitive in a way that silently collides filenames. It corrupts
 `node_modules` and loses file modes on checkout. Most drives ship exFAT from the
 factory and stay that way for years.
 
-If the drive is exFAT and repos are in scope, it needs reformatting to APFS.
-Say so before proposing the archive — it is destructive, so it needs its own
-confirmation, and it is cheapest while the drive is still empty.
+For exFAT, offer a verified archive file that preserves links and modes, or an APFS destination. Reformatting is optional and destructive; inventory the entire device and obtain explicit erase authorization before using it.
 
 ## Reformatting
 
@@ -46,14 +44,14 @@ size, and check the identifier is not the internal disk:
 
 ```bash
 diskutil list external
-diskutil info disk6 | grep -Ei "device identifier|media name|internal|virtual|disk size"
+diskutil info <verified-external-disk-id> | grep -Ei "device identifier|media name|internal|virtual|disk size"
 ```
 
 Then:
 
 ```bash
-diskutil unmountDisk force disk6
-diskutil eraseDisk APFS <VolumeName> GPT disk6
+diskutil unmountDisk <verified-external-disk-id>
+diskutil eraseDisk APFS <VolumeName> GPT <verified-external-disk-id>
 ```
 
 **Choose case-insensitive APFS**, the default. It matches the internal macOS
@@ -76,14 +74,14 @@ trip, which is the direction that loses data.
 
 3. Use `rsync` over `mv` for large trees so an interrupted transfer resumes:
    ```bash
-   rsync -a --remove-source-files <repo>/ "$DRIVE/Archive/Developer/<name>/"
+   rsync -a <repo>/ "$DRIVE/Archive/Developer/<name>/"
    ```
 
 4. Verify the destination before removing the source:
    ```bash
    git -C "$DRIVE/Archive/Developer/<name>" status
    ```
-   If this errors, the move was lossy — restore and investigate.
+   Also compare source and destination with a checksum dry run (`rsync -acn --itemize-changes`), inspect file modes/symlinks, run `git fsck`, and compare refs plus dirty/untracked files. Keep the source until verification passes and source removal is explicitly authorized. Linked worktrees reference Git data outside their directory; archive the owning repository or materialize a standalone copy first.
 
 ## Triaging which repos are dormant
 

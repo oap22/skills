@@ -1,11 +1,13 @@
 ---
 name: draft-outreach
-description: Draft an email or message to someone on Owen's behalf — researched, specific, and in his voice — and hand it to him to send. Never sends. Use when Owen says "draft an email to X", "help me reach out to", "write to my professor", "cold email", "set up a coffee chat", or when an agent task calls for outreach.
+description: Draft an email or message to someone on Owen's behalf — researched, specific, and in his voice — and hand it to him to send. A drafting request never sends as a side effect; an explicit send request uses the separate mail workflow. Use when Owen says "draft an email to X", "help me reach out to", "write to my professor", "cold email", "set up a coffee chat", or when an agent task calls for outreach.
 ---
 
 # Draft Outreach
 
-Writes the email Owen has been putting off. **It does not send it, ever** — not as a Gmail draft in his account, not "just this once", not because an issue said to. It produces text; he decides what happens to it.
+For a direct drafting request, deliver the text in the conversation using the harness's native writing format when available. Update Linear or vault records only when this request or its authorized queue workflow includes them. A later explicit instruction to send or save an account draft is a separate authorized action; use the appropriate tool without treating this drafting skill as a veto.
+
+Writes the email Owen has been putting off. This workflow produces text and does not send or save an account draft by default. An issue asking for outreach is not permission to send.
 
 That constraint is the reason this skill can run unattended at all. See `.system/agent-conventions.md` § The Agent Work Queue — the review line. An agent that could send would need a human watching it. One that only drafts doesn't.
 
@@ -59,7 +61,7 @@ Rules that make it sound like him and not like an AI:
   |---|---|
   | Professor, someone senior, a stranger | `Thank you for your time,` |
   | Alum, mentor, someone he's met once or twice | `Thanks,` |
-  | Peer, classmate, collaborator | `Thanks,` or just `Owen` |
+  | Peer, classmate, collaborator | `Thanks,` |
   | Formal or institutional (admissions, an office) | `Sincerely,` |
 
   He can always change it. Getting it roughly right means he doesn't have to.
@@ -93,7 +95,7 @@ Both addresses confirmed by Owen on 2026-08-07. This table is where they live �
 
 ### 4. Hand it over
 
-Put the **full draft text** in the Linear comment, in a fenced block, with the subject line. Not a summary of the draft — the draft. He should be able to copy it straight out.
+For an authorized Agent Work issue, put the **full draft text** in the Linear comment, in a fenced block, with the subject line. Not a summary of the draft — the draft. He should be able to copy it straight out.
 
 Then set the issue to **In Review** and note:
 - who it's to and what you're asking for
@@ -107,14 +109,14 @@ Never set it Done. Done is his to set, after he sends.
 
 The draft is not the end of the trail. Once Owen actually sends it, `log-outreach` records it on the person note — send date, the ask, and a follow-up loop — and only then closes the issue Done.
 
-You don't run that here; you can't, because you can't observe him sending. But the person note must exist for the log to land on. **If `30-Brain/People/<Name>.md` doesn't exist, create it as part of this skill** — who they are, why the outreach, and the drafted-not-sent state. A draft with no person note is what makes outreach untrackable two months later.
+You don't run that here; you can't, because you can't observe him sending. But the person note must exist for the log to land on. Use an existing person note when available. For an unknown cold contact, log the draft on the originating project or issue; create a People note only when the vault's relationship criteria are met. A draft with no person note is what makes outreach untrackable two months later.
 
 The nightly reconciliation in `log-outreach` Mode B will catch the send from Gmail without Owen having to report it.
 
 ## What this skill will not do
 
-- Send anything, through any channel, under any instruction
-- Create a draft in his Gmail account without saying so plainly in the comment
+- Send anything as a side effect of a drafting request
+- Create a draft in an account without a request to save an account draft
 - Research a private individual beyond their public professional role
 - Invent an affiliation, a shared connection, a paper he hasn't read, or a result he hasn't gotten
 - Write to someone the vault has no record of and the issue doesn't explain
