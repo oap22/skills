@@ -118,11 +118,11 @@ class LoggerTests(unittest.TestCase):
     def cli(self, *args):
         return subprocess.run([sys.executable, str(self.script), *map(str, args)], cwd=self.root, capture_output=True, text=True, timeout=30)
 
-    def record(self):
-        directory = self.root / 'fixture'
+    def record(self, name='fixture'):
+        directory = self.root / name
         directory.mkdir()
-        (directory / 'run.json').write_text(json.dumps({'exit_code': 0, 'finished_at':'2026-09-05T00:00:00Z', 'git':{'sha':'abc'}}))
-        (directory / 'metrics.json').write_text(json.dumps({'accuracy':.7,'seed':42,'n_examples':20,'eval_set':'test','eval_set_sha256':'abc'}))
+        (directory / 'run.json').write_text(json.dumps({'run_id':name, 'name':'fixture', 'command':['python3','experiment.py'], 'started_at':'2026-09-05T00:00:00Z', 'finished_at':'2026-09-05T00:01:00Z', 'duration_seconds':60, 'exit_code':0, 'git':{'available':True,'sha':'a'*40,'branch':'main','dirty':False}}))
+        (directory / 'metrics.json').write_text(json.dumps({'accuracy':.7,'seed':42,'n_examples':20,'eval_set':'test','eval_set_sha256':'b'*64}))
         (directory / 'notes.md').write_text('# Run\nQuestion and answer.\n## Verification\nCompared the control on 20 examples.\n## Caveats\nOne dataset.\n')
         return directory
 
@@ -184,8 +184,9 @@ class LoggerTests(unittest.TestCase):
 
     def test_trajectory_preserves_round_history(self):
         loop=self.root/'loop'
+        runs = [self.record(f'run-{n}') for n in range(3)]
         def add(n,primary):
-            return self.cli('trajectory',loop,'--round',n,'--run-id',f'run-{n}','--primary',primary,'--noise-floor','.01','--human-interventions','0')
+            return self.cli('trajectory',loop,'--round',n,'--run-dir',runs[n],'--run-id',f'run-{n}','--primary',primary,'--noise-floor','.01','--secondary','.6','--gpu-hours','0','--dollars','0','--human-interventions','0')
         self.assertEqual(add(0,.5).returncode,0)
         self.assertEqual(add(1,.6).returncode,0)
         before=(loop/'trajectory.json').read_bytes()

@@ -15,7 +15,7 @@ Build a picture of the user's actual situation — one that makes every other sk
 
 **One question per message. Never batch.** This is the single most important rule. A numbered list of six questions gets six shallow answers; one question gets a real one. Keep the text around the question short too — a long preamble recreates the problem.
 
-**Never ask what you can read.** Before the first question, read the profile, `CLAUDE.md`, the project notes, `School/`, daily notes, and any reflections. Open by *presenting what you already believe to be true* and inviting correction. It respects their time and it surfaces errors that a question wouldn't.
+**Never ask what you can read.** Before the first question, read the profile, `CLAUDE.md` when present, and a small bounded set of recent notes relevant to the user's stated purpose (including the relevant project, School, daily, or reflection note when one is identified). Expand only when an unresolved question requires another source. Open by *presenting what you already believe to be true* and inviting correction. It respects their time and it surfaces errors that a question wouldn't.
 
 **Follow the thread.** Each question should come from the last answer, not from a prepared list. "I was working" → what's the job → when did it end → what's next → who do you know. A script cannot find the thing you didn't know to ask about.
 
@@ -23,7 +23,7 @@ Build a picture of the user's actual situation — one that makes every other sk
 
 ### 1. Read first, then show your work
 
-Read everything relevant, then present the inferred picture as a table and ask them to correct it rather than repeat it. Flag any contradictions found in the vault — a note tagged `spring` sitting in a `Fall/` folder is a real question.
+Read the bounded relevant set from the opening contract, then present the inferred picture as a table and ask them to correct it rather than repeat it. Expand the read only for a specific unresolved point. Flag any contradictions found in the vault — a note tagged `spring` sitting in a `Fall/` folder is a real question.
 
 ### 2. Ask, one at a time
 

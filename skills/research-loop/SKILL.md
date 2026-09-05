@@ -5,7 +5,7 @@ description: "Design, execute, verify, and log reproducible research experiments
 
 # Research Loop
 
-The wrapper passes the allocated absolute path in `RESEARCH_RUN_DIR`; the experiment must write its metrics there. It never imports a working-directory `metrics.json`. Keep credentials out of argv, configs, and stdout because the run record captures them. `env` describes the wrapper/ambient environment; record the experiment interpreter and dependency versions separately when they differ. `check` validates record structure, not scientific truth. Kill/interruption can leave an incomplete record, which must remain uncitable.
+The wrapper passes the allocated absolute path in `RESEARCH_RUN_DIR`; the experiment must write its metrics there. It never imports a working-directory `metrics.json`. Keep credentials out of argv, configs, and stdout because the run record captures them. `env` describes the wrapper/ambient environment; record the experiment interpreter and dependency versions separately when they differ. `check` validates required record and provenance fields, not scientific truth or the existence of the referenced Git object/dataset digest: the record needs a Git object ID in the expected shape, typed finite metadata, explicit dataset identity, and owned regular `run.json`, `metrics.json`, and `notes.md` files. A symlink or external citation file fails validation. Kill/interruption can leave an incomplete record, which must remain uncitable.
 
 Research code fails differently from product code. Product code fails loudly — the test goes red. Research code fails **quietly**: the number looks plausible, the plot looks reasonable, and six weeks later Owen can't reproduce it or remember why he ruled out the obvious alternative.
 
@@ -111,7 +111,7 @@ Log the estimate alongside the actual afterward. An agent whose estimates are ch
 
 ### 4. Run — through the helper, always
 
-Every logged run goes through `log_run.py`, which lives beside this file. It creates the results directory, captures the git SHA and dirty state, records the environment, tees stdout, and times the run. Reading it is the fastest way to understand the layout.
+Every logged run goes through `log_run.py`, which lives beside this file. It creates the results directory, captures the Git SHA and dirty state, records the environment, tees stdout, and times the run. A run from outside a Git checkout is still recorded for debugging, but `log_run.py check` rejects it as uncitable; rerun it from a committed Git checkout before citing it. Reading the helper is the fastest way to understand the layout.
 
 ```bash
 LOG_RUN=<absolute-path-to-this-skill>/log_run.py   # resolve from the loaded skill
@@ -182,7 +182,7 @@ When output feeds back into input, the loop compounds — and so does every meas
 
 - **At the Design gate**, the design must name a **driving function**: a mechanically-verified scalar, comparable across rounds, with a human out of the reward seat. A pass/fail gate is not an objective — it can say "ship round 3" but never "round 3 beat round 2 by this much, and here is where it stops."
 - **Before round 1**, measure the **seed-noise floor** — same config, ≥3 seeds. Without it, "round 4 improved by 0.8" is uninterpretable and saturation cannot be defined. This is a Cost gate.
-- **The stopping criterion is pre-committed**, before the first round. Along with the primary score, every round logs marginal gain, cost per unit gain, and human-gate load. If human-gate load rises, the loop is not self-improving — that finding outranks the score.
+- **The stopping criterion is pre-committed**, before the first round. Along with the primary score, every round logs marginal gain, secondary score, cost per unit gain, and human-gate load. `log_run.py trajectory` requires a completed, citable run directory for each round, starts at round 0, appends one consecutive round at a time, copies the run's eval identity into the trajectory, and rejects an eval identity change. Metrics updates are serialized with a lock; a lock left by an interrupted writer is reported for human inspection rather than silently taken over.
 
 Expect the result to be *where it saturates and what moves that point*, not an unbroken climb. Treat a monotonic ten-round improvement as a measurement bug until proven otherwise; check contamination between the loop's output and the eval set first.
 
