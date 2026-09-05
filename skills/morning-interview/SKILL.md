@@ -31,6 +31,17 @@ owned by the other skills. The daily-note skill owns Linear rendering and its
 fields from an interview-only write. Read connector status and retain truthful
 partial or unavailable coverage in the report.
 
+The public helper CLI exposes only the `mail`, `interview`, and `linear` marker
+regions; it does not provide a Schedule or Captured region. For an answer that
+belongs in Schedule or Captured, use a narrowly scoped vault adapter that
+imports the verified helper, acquires its `note_lock` at
+`.system/locks/daily-note.lock`, reads the latest note bytes, changes only the
+authorized row or checkbox, and calls the helper's expected-bytes
+`_atomic_replace(path, expected, updated)` contract. Re-read and retry on a
+concurrent-modification error. If that adapter is unavailable, preserve the
+answer in the interview marker and report Schedule/Captured persistence as
+blocked; never use an unlocked whole-file write or discard the answer.
+
 ## The two ways this starts
 
 **Unattended (the 6:30 fire).** Owen is asleep. Do the render, write the brief, ask the *first* question in the note and in the run output, and stop. Do not fabricate answers, do not guess at a Chosen outcome and present it as agreed. A morning where nobody answers should still leave a fully rendered note.
@@ -78,14 +89,17 @@ Stop when the answers stop changing the plan. Six good questions beats fifteen d
 
 ### 5. Write as you go, not at the end
 
-After each answer, put it in the note. Long conversations get compressed and unwritten answers are lost answers.
+After each answer, put it in the note through the destination path below. Long
+conversations get compressed and unwritten answers are lost answers. If a
+Schedule or Captured write is blocked, keep the answer in the interview marker
+and report the pending destination rather than dropping it.
 
 Where each kind of answer files:
 
 | Answer | Destination |
 |---|---|
-| Fixed time not on Calendar | a `## Schedule` row, Source `🗣 interview` (no Calendar link) |
-| New actionable | `## Captured` as a checkbox — **not** Linear, not from a 6:30 routine |
+| Fixed time not on Calendar | a `## Schedule` row, Source `🗣 interview` (no Calendar link), through the verified adapter |
+| New actionable | `## Captured` as a checkbox through the verified adapter — **not** Linear, not from a 6:30 routine |
 | Waiting-on / context / capacity | the `<!-- interview:start -->` block |
 | A real commitment to someone | `30-Brain/Commitments/` per the Brain rules |
 
@@ -147,7 +161,7 @@ Close by reading back the three things that changed versus the raw render. If no
 - **One question per message.** The rule the whole skill rests on.
 - **Never ask what Linear, Calendar, or the vault already answers.** Present it for correction instead.
 - **Only marked regions are regenerated.** `<!-- linear:* -->` and `<!-- interview:* -->`. Chosen outcome, any legacy Top 3, Captured, and Notes are his.
-- **Marker ownership is strict.** This skill writes only `interview:start` through `interview:end`; daily-note owns Linear and mail-digest owns mail. Use the daily-note helper for marker updates.
+- **Marker ownership is strict.** Generated interview content stays within `interview:start` through `interview:end`; daily-note owns Linear and mail-digest owns mail. Use the daily-note helper for marker updates. During an attended interview, persist authorized Schedule rows and Captured checkboxes through the locked adapter described above, preserving existing user content.
 - **Never check off a rendered Linear issue in the vault.** State changes go to Linear.
 - **A 6:30 routine does not write to Linear.** It captures; promotion is `vault-to-linear`'s job, with him present.
 - **"Skip" ends a thread instantly.** Health, money, and sleep get asked plainly and dropped without friction.

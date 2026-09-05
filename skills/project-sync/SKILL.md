@@ -5,9 +5,12 @@ description: "Inventory local Git repositories and update their vault project no
 
 # Project Sync
 
-Reconcile `~/Developer` (and anywhere else repos live) against `02-Projects/` in the vault. Repos change constantly and the vault goes stale silently — this closes the gap.
+Reconcile configured local Git repository roots against `02-Projects/` in the vault. The default root is `~/Developer`; add any other explicitly configured or user-named roots before claiming complete coverage. Repos change constantly and the vault goes stale silently — this closes the gap for the roots actually scanned.
 
 **Vault:** `$HOME/Owen's Awesome Vault`
+**Repository roots:** default `~/Developer`; include every additional root the
+user names or the local project configuration provides, and report the exact
+roots scanned and any unavailable roots.
 Read `.system/frontmatter-schema.md` and `.system/agent-conventions.md` before writing anything.
 
 ## Steps
@@ -15,12 +18,15 @@ Read `.system/frontmatter-schema.md` and `.system/agent-conventions.md` before w
 ### 1. Discover
 
 ```bash
-find ~/Developer -maxdepth 5 -name ".git" \( -type d -o -type f \) \
-  -not -path "*/node_modules/*" -not -path "*/.Trash/*" -not -path "*/Library/*" \
-  2>/dev/null | sed 's|/.git$||'
+repo_roots=("$HOME/Developer") # append explicitly configured or user-named roots
+for root in "${repo_roots[@]}"; do
+  find "$root" -maxdepth 5 -name ".git" \( -type d -o -type f \) \
+    -not -path "*/node_modules/*" -not -path "*/.Trash/*" -not -path "*/Library/*" \
+    2>/dev/null | sed 's|/.git$||'
+done
 ```
 
-Depth 4 catches nested groupings like `research-group-26-27/<repo>`. Raise it if repos are buried deeper. Note that agent tool directories (`~/.codex`, `~/.claude`) contain git repos — exclude them.
+Run discovery once per configured root. Depth 4 catches nested groupings like `research-group-26-27/<repo>`; raise it for a named root whose repos are buried deeper. Record a missing or unreadable root as unavailable coverage. Agent tool directories (`~/.codex`, `~/.claude`) contain git repos — exclude them unless the user explicitly names one.
 
 ### 2. Collect metadata
 
