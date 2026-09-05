@@ -14,12 +14,12 @@
 
 set -euo pipefail
 cd "$SLURM_SUBMIT_DIR"
-mkdir -p logs
+# Create logs/ BEFORE sbatch; Slurm opens output before this script runs.
 
 # --- environment: build it in the job, not on the login node ---------------
 # The compute nodes run a different Python patch than dh-mgmt2 (3.12.10 vs
 # 3.12.11 as of 2026-08-12), so anything validated only on login is unproven.
-module load cuda/12.9                     # or dgx1Env / h100Env for those partitions
+module load <verified-cuda-module>                     # or dgx1Env / h100Env for those partitions
 # source .venv/bin/activate               # uv is at /snap/bin/uv
 # singularity exec --nv <image.sif> ...   # singularity 3.10.0
 
