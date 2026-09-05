@@ -1,9 +1,11 @@
 ---
 name: morning-interview
-description: Render today's daily note from Linear and Calendar, then interview Owen one question at a time about what's actually coming up today, writing his answers into the note as they come. Use when he says "morning interview", "what's on today", "interview me about my day", "morning check-in", "plan my day", or when the 6:30 morning routine fires. For a render without the interview, use daily-note.
+description: "Render the daily note, then interview Owen one question at a time about capacity, unscheduled commitments, and priorities. Use for \"morning interview\", \"morning check-in\", or a scheduled morning interview. Use day-check for a quick read-only day summary."
 ---
 
 # Morning Interview
+
+Before saving a daily note, re-read it and merge only this workflow's owned region into the latest text. Disjoint markers do not prevent two whole-file writes from overwriting each other. Use the vault's existing file lock/atomic-update helper when available; otherwise serialize writers and retry if the file changed. If markers are duplicated or unbalanced, preserve the file and report the structural problem. Scheduling statements below are historical setup notes: inspect the live task before reporting its status or changing it.
 
 The connectors know what's *scheduled*. They do not know what's coming. A ride to catch, a professor who might reply, a lab that's due but was never filed, the fact that he slept four hours — none of that is in Linear or Calendar, and all of it decides how the day actually goes.
 
@@ -37,17 +39,7 @@ Never hardcode, never trust a date from earlier in the conversation. If `School/
 
 ### 2. Render the day (Linear + Calendar)
 
-This is the `daily-note` skill's job — invoke it if resolvable. Otherwise, inline:
-
-- **Linear — OWE:** issues for team Owen's Operations, `assignee: "me"`, `state: "Todo"` plus In Progress, `fields: ["id","title","project","priority","status","dueDate","url"]`. Group School → Research → Personal → Agent Work.
-- **Linear — RES:** the `linear-research` server, team Research Group 26/27, `assignee: "me"`, same fields plus `updatedAt`. Query the **team, not a project** — several RES issues carry no project and vanish under a project filter. Include Todo and In Progress, **plus Backlog when Urgent or High**: RES keeps its real queue in Backlog, so a Todo-only query renders empty on a day with urgent work in it. Then add a line naming anything whose `updatedAt` is newer than the note's previous `linear-synced` stamp, Done included — `*Moved since the 06:38 render: RES-14 → In Progress.*` That line is the reason RES is rendered at all: Owen dispatches agents on RES issues overnight and this is where he learns what they did. Skip it when there's no prior stamp to diff against.
-
-  Sort priority ascending, remembering **1 = Urgent, 4 = Low, 0 = None** — a naive sort puts "no priority" on top. Glyphs: 🔴 Urgent · 🟠 High · 🟡 Medium · ⚪ Low. One table per project, columns `P | Issue | link`, always the full identifier (`OWE-14` and `RES-14` are different issues in different instances), legend at the bottom. The whole thing goes between `<!-- linear:start -->` and `<!-- linear:end -->` and nothing outside those markers is touched.
-- **Calendar:** today's events, `orderBy: startTime`, `timeZone: America/Chicago`. Fill `## Schedule` with `HH:MM – HH:MM`, summary, and `📆 [Calendar](htmlLink)`. Skip `WORKING_LOCATION` and `BIRTHDAY`. Events are not tasks.
-
-Stamp `linear-synced: "<ISO timestamp>"` in frontmatter.
-
-**If a connector fails, say which one, in the note** — including when one Linear workspace answers and the other doesn't. Write `*Linear unreachable at 06:38 — this section is stale.*` inside the block. An empty section reads as "nothing to do today," which is a lie the whole routine exists to avoid.
+Read `../daily-note/SKILL.md` and perform its **render-only** steps. Do not run its optional time-blocking step, promote captures, or fill Top 3 before the interview. Reuse its workspace verification, pagination, partial-failure, and Schedule-preservation rules. If the skill is unavailable, report the missing dependency and present the available day context in chat; do not reconstruct a second rendering contract.
 
 ### 3. Show the day back before asking anything
 
@@ -102,7 +94,7 @@ The interview block lives under its own heading, below `## Schedule`:
 <!-- interview:end -->
 ```
 
-That block is regenerated wholesale on re-run. Everything outside it — Top 3, Captured, Notes — is his and is never overwritten.
+Refresh this block from the saved answers plus new answers. Preserve earlier answered context and never replace it with a fresh unanswered question on a retry. Everything outside it — Top 3, Captured, Notes — is his and is never overwritten.
 
 If he never answered, the block says so and carries the parked question:
 
@@ -116,11 +108,11 @@ If he never answered, the block says so and carries the parked question:
 
 ### 6. Top 3, only after the interview
 
-Propose three, weighted: Urgent > blocks other work > at-risk (unbacked repos, expiring tokens) > due today > stale-but-active. One line of reason each, plus a `🔗 [OWE-nn](url)` link.
+Propose up to three real items, weighted: Urgent > blocks other work > at-risk (unbacked repos, expiring tokens) > due today > stale-but-active. One line of reason each, plus a `🔗 [OWE-nn](url)` link.
 
 **Fit them to what he just told you.** Three deep-work items on a day he described as five hours of meetings and four hours of sleep is a plan that fails by 10am — and now you have no excuse, because he said so.
 
-Never overwrite a Top 3 he already wrote. Unattended runs propose it as a draft in the run output and leave the note's Top 3 alone unless it's empty.
+Never overwrite a Top 3 he already wrote. Unattended runs may propose a draft in the run output but leave the note's Top 3 unchanged, including when empty.
 
 ### 7. Stamp and close
 

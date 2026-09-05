@@ -20,7 +20,7 @@ Linear "get user" with `me`, then list projects on the team. Confirm the three p
 
 ### 2. Read what's already in Linear
 
-List existing issues on the team **before** sweeping. This is the dedupe set — match on normalized title: lowercase, punctuation stripped, whitespace collapsed. One fixed rule, applied the same way to both sides — an improvised looser match double-files on the next run. Re-running this skill must not double-file tasks that were promoted last time.
+List existing issues on the team **before** sweeping. This is the dedupe set — match existing source links/issue IDs first, then use normalized titles as candidates, checking project and source context before declaring a duplicate. Similar titles in different courses or projects may be distinct tasks. Re-running this skill must not double-file tasks that were promoted last time.
 
 ### 3. Sweep the vault
 
@@ -84,8 +84,8 @@ One `save_issue` per task. Set `team`, `project`, `assignee: "me"`, `state: "Tod
 The sweep is only half the job. Also:
 
 - Add `linear: <project-url>` to the frontmatter of each project note that produced issues.
-- Record the run in `30-Brain/Sources/sync-state.md`: date, highest issue id as cursor, count, and — importantly — **what you deliberately skipped and why**. Future runs read this to stay consistent.
-- Leave the original `- [ ]` boxes in place as context. Do not delete vault content to "finish" a sync.
+- Record the run in `30-Brain/Sources/sync-state.md`: date, source-linked issue IDs and per-source completion state (issue numbers are not a reliable cross-project cursor), count, and — importantly — **what you deliberately skipped and why**. Future runs read this to stay consistent.
+- After confirmed issue creation, replace the promoted checkbox marker with a non-checkbox issue link, preserving the task text and context. Save the returned issue ID immediately so a retry can reconcile it before creating another issue. Leave failed or uncertain promotions untouched.
 
 ### 8. Report
 
@@ -99,7 +99,7 @@ Group by project, show priority, and state plainly what was skipped. A sync that
 - **`state: "Todo"` must be explicit** — the default is Backlog.
 - **Every issue cites its vault source.** No orphan issues.
 - **Never write secrets** into an issue description.
-- **Never delete vault notes or checkboxes** — the vault rule is ask-first, always.
+- **Never delete vault notes or task text** — the vault rule is ask-first, always.
 - If the vault's doctrine file contradicts what the user is asking for, **say so and update the doctrine** rather than leaving both versions live.
 
 ## Untested

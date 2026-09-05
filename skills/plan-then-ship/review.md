@@ -6,9 +6,9 @@ Attack the change. The job is to find reasons not to ship, then only ship if tho
 
 ## Pass 0 — evidence
 
-Run every command in the spec's Tests section from the repo root. Paste the command and the relevant stdout/stderr. If a command was not run, the review has not started.
+Run the relevant commands in the spec's Tests section and retain their output. Summarize outcomes and any unavailable checks; do not claim unrun tests passed. Documentation-only changes can use inspection rather than invented execution tests.
 
-Redact secrets in the paste — tokens, passwords, API keys, `Authorization` headers, private keys, and URLs that embed credentials — replace the value with `REDACTED`. Do not skip the paste to avoid redacting; do not paste the raw secret.
+Redact secrets in the paste — tokens, passwords, API keys, `Authorization` headers, private keys, and URLs that embed credentials — replace the value with `REDACTED`. Never paste raw secrets. Concise outcome summaries are sufficient when full logs add no value.
 
 "Should pass," "looks fine," "the implementer said tests were green" — all fails. Re-run it yourself. If the implementer ran in the cloud, re-run the tests **here** on the fetched branch. Their log is not your evidence.
 
@@ -61,11 +61,11 @@ Round 1 has no Progress block. Rounds 2+ must fill it — that is how the loop k
 
 ## Stuck rules
 
-Evaluated after each review that still has criticals or red tests. First match wins; stop and report. Do not ship.
+Evaluated after each review that still has criticals or red tests. First match routes to the bounded escalation rules in `SKILL.md`. A contradictory spec needs a user decision; do not try to implement around it. Do not ship unresolved critical defects.
 
 | Rule | When it fires |
 |---|---|
-| **No progress** | Critical count did not strictly decrease vs the previous round. |
+| **No progress** | The same root cause remains unresolved with no new evidence or working correction. |
 | **Same finding, unchanged** | A critical at the same location with the same claim survived a repair. |
 | **Oscillation** | This round reintroduces a critical that the previous round had closed. |
 | **Spec is the problem** | The implementer or reviewer can show the spec is contradictory, incomplete, or wrong. Escalate to Owen; do not spend another implementer pass. |
