@@ -31,7 +31,7 @@ List projects and issues before adding. A fresh Linear workspace ships with onbo
 
 ### 3. Agree the taxonomy
 
-Ask what the split should be before creating. Common shapes:
+Use the taxonomy already requested or established in this session. Ask only when a material choice remains unresolved. Common shapes:
 
 - Life areas — School / Research / Personal
 - Mirroring an existing folder tree the user already thinks in
@@ -62,7 +62,7 @@ Give the user the project URLs from each response.
 
 ### 6. Persist the setup
 
-If the harness has memory, record the workspace slug, team name and key, and the project list. Every future "add this to Linear" needs all three, and re-deriving them costs a round trip and risks filing into the wrong place.
+Report the workspace slug, team IDs, and project URLs. Persist them in an authorized project configuration when needed. Write to harness memory only when the user explicitly asks and the memory mechanism permits it; this skill does not grant memory-write authority. Treat the field names below as examples and inspect the connected tool schema before each mutation.
 
 ## Rules
 

@@ -1,15 +1,15 @@
 ---
 name: research-interview
-description: Interview the user relentlessly, one question at a time, until the research question, hypotheses, constraints, and success criteria are pinned down with no ambiguity left — then write a research brief that /research-loop takes as grounding context. Use before starting a research-loop session, or when the user says "interview me about this project", "let's get on the same page before we research", "build a research brief", or hands you a vague research idea that isn't ready to run.
+description: "Clarify a research effort through a one-question-at-a-time interview and write a research brief. Use for \"build a research brief\", \"interview me about this research\", or consequential unanswered design questions. Reuse an existing agreed plan; do not require a new interview for every experiment."
 ---
 
 # Research Interview
 
 Reach complete shared understanding of a research effort **before** any compute is spent — by interrogating, not assuming. The output is a brief that `/research-loop` reads at its **ground** step, so the loop starts from an agreed contract instead of a vibe.
 
-**Position in the pipeline:** `research-interview` → `/research-loop` (→ `rosie-run` if the cluster is involved). If the user invokes `/research-loop` and no current brief exists, that's the cue to run this first.
+**Position in the pipeline:** `research-interview` → `/research-loop` (→ `rosie-run` if the cluster is involved). Use an existing agreed design when one is available. Missing paperwork alone does not require a new interview: draft the known plan and ask only about consequential unknowns.
 
-**When Owen will be watching the Turing desktop app** — the usual case, whatever repo the code sits in — also load the `turing` skill: briefs land in the project's `research/briefs/`, and the brief should note where the run will write its live output (`~/research-results/<run>/metrics.jsonl` etc. — the desktop's watched root, outside any checkout) so the execution phase renders live.
+**When Owen says he will be watching the Turing desktop app**, also load the `turing` skill: briefs land in the project's `research/briefs/`, and the brief should note where the run will write its live output (`~/research-results/<run>/metrics.jsonl` etc. — the desktop's watched root, outside any checkout) so the execution phase renders live.
 
 ## The Standard
 
@@ -24,7 +24,7 @@ Relentless means persistent, not rapid-fire. Keep going past the point of social
 
 **One question per message. Never batch.** A list of six questions gets six shallow answers. Keep the preamble short too.
 
-**Use the structured question tool when the harness has one.** In Claude Code, ask through `AskUserQuestion` — one question per call, with 2–4 concrete options when the answer space is genuinely enumerable (which partition, which baseline, which metric) so the user can tap instead of type; the built-in "Other" covers everything else. Fall back to plain chat for open-ended threads ("what would make you abandon this idea?") where options would anchor the answer. Never use the tool to batch several questions into one call — that's the same six-shallow-answers failure with buttons.
+**Use the structured question tool when the harness has one.** Follow that tool's current usage rules — one question per call, with 2–4 concrete options when the answer space is genuinely enumerable (which partition, which baseline, which metric) so the user can tap instead of type; the built-in "Other" covers everything else. Fall back to plain chat for open-ended threads ("what would make you abandon this idea?") where options would anchor the answer. Never use the tool to batch several questions into one call — that's the same six-shallow-answers failure with buttons.
 
 **Never ask what you can read.** Before the first question, read the project's `CONTEXT.md`/`README`, prior run logs, the relevant vault project note (`02-Projects/`), and any earlier briefs. Open by *presenting what you already believe* — question, method, constraints as you understand them — and ask what's wrong with it.
 
@@ -120,7 +120,7 @@ Date, participants, and the decisions that changed during the interview
 
 ## Rules
 
-- **Never mark `status: agreed` without a clean pass of the closing loop.** A brief the user hasn't confirmed verbatim is a draft.
+- **Never mark `status: agreed` without a clean pass of the closing loop.** Explicit approval of the concrete plan suffices; do not require verbatim repetition or restart the interview after a minor correction.
 - **Record hedges as hedges.** "I think the license allows it" goes in Open Questions, not Resources.
 - **Don't design the experiment for them.** Propose and challenge, but the hypotheses and priorities are the user's; your job is to make their intent unambiguous, not to substitute your own.
 - **"Skip" is a valid answer** — but it becomes an explicit Open Question, never a silent gap.
