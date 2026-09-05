@@ -29,6 +29,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
+import re
+import tempfile
 import os
 import platform
 import shutil
@@ -79,7 +82,8 @@ def git_state() -> dict:
 
 def env_state() -> dict:
     env = {
-        "python": sys.version.split()[0],
+        "wrapper_python": sys.version.split()[0],
+        "packages_scope": "wrapper/ambient environment; experiment must record its own interpreter and dependencies",
         "platform": platform.platform(),
         "hostname": platform.node(),
         "cwd": os.getcwd(),
@@ -111,14 +115,17 @@ def now() -> str:
 
 def allocate_dir(name: str, root: Path) -> Path:
     """<results-root>/YYYY-MM-DD-<slug>, suffixed on same-day collision."""
+    if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
+        raise SystemExit("--name must be a kebab-case slug, not a path")
     stem = f"{date.today().isoformat()}-{name}"
-    candidate = root / stem
-    if not candidate.exists():
-        return candidate
-    for suffix in "bcdefghijklmnopqrstuvwxyz":
-        candidate = root / f"{stem}-{suffix}"
-        if not candidate.exists():
+    root.mkdir(parents=True, exist_ok=True)
+    for suffix in [""] + [f"-{x}" for x in "bcdefghijklmnopqrstuvwxyz"]:
+        candidate = root / f"{stem}{suffix}"
+        try:
+            candidate.mkdir()
             return candidate
+        except FileExistsError:
+            continue
     raise SystemExit(f"too many runs named {stem} today; pick a different --name")
 
 
@@ -129,18 +136,40 @@ def coerce(value: str):
         return low == "true"
     for cast in (int, float):
         try:
-            return cast(value)
+            result = cast(value)
+            if isinstance(result, float) and not math.isfinite(result):
+                raise SystemExit("metrics must be finite; NaN/Infinity are not results")
+            return result
         except ValueError:
             pass
     return value
 
 
 def load_json(path: Path) -> dict:
-    return json.loads(path.read_text()) if path.exists() else {}
+    if not path.exists():
+        return {}
+    try:
+        value = json.loads(path.read_text(), parse_constant=lambda x: (_ for _ in ()).throw(ValueError(f"nonfinite value: {x}")))
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"{path.name}: invalid JSON: {exc}") from exc
+    json.dumps(value, allow_nan=False)  # also reject overflow literals such as 1e309
+    if not isinstance(value, dict):
+        raise ValueError(f"{path.name}: expected a JSON object")
+    return value
 
 
 def dump_json(path: Path, payload) -> None:
-    path.write_text(json.dumps(payload, indent=2) + "\n")
+    encoded = json.dumps(payload, indent=2, allow_nan=False) + "\n"
+    fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    try:
+        with os.fdopen(fd, "w") as stream:
+            stream.write(encoded)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 # ---------------------------------------------------------------- run
@@ -160,7 +189,9 @@ NOTES_TEMPLATE = """# {run_id}
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    root = Path(args.results_dir).expanduser()
+    if args.config and not Path(args.config).is_file():
+        raise SystemExit(f"config not found: {args.config}")
+    root = Path(args.results_dir).expanduser().resolve()
     root.mkdir(parents=True, exist_ok=True)
     run_dir = allocate_dir(args.name, root)
     (run_dir / "artifacts").mkdir(parents=True)
@@ -211,9 +242,15 @@ def cmd_run(args: argparse.Namespace) -> int:
                 stderr=subprocess.STDOUT,
                 text=True,
                 bufsize=1,
+                errors="replace",
+                env={**os.environ, "RESEARCH_RUN_DIR": str(run_dir)},
             )
-        except FileNotFoundError:
-            raise SystemExit(f"command not found: {args.command[0]}")
+        except OSError as exc:
+            record.update(finished_at=now(), duration_seconds=round(time.monotonic() - started, 2), exit_code=127, launch_error=str(exc))
+            dump_json(run_dir / "run.json", record)
+            log.write(f"Launch failed: {exc}\n")
+            print(f"[log_run] launch failed: {exc}", file=sys.stderr)
+            return 127
         # Tee: the operator watches it live, the file keeps it forever.
         assert proc.stdout is not None
         for line in proc.stdout:
@@ -232,13 +269,8 @@ def cmd_run(args: argparse.Namespace) -> int:
             duration / 60 / args.estimate_minutes, 2
         )
 
-    # Pick up metrics the command wrote itself, wherever it put them.
-    for candidate in (run_dir / "metrics.json", Path("metrics.json")):
-        if candidate.exists():
-            if candidate != run_dir / "metrics.json":
-                shutil.move(str(candidate), run_dir / "metrics.json")
-            break
-
+    # Only the allocated run directory belongs to this run. Never claim or move
+    # a metrics.json left in the caller's working directory by an earlier run.
     dump_json(run_dir / "run.json", record)
 
     print(f"\n[log_run] exit {exit_code} · {duration / 60:.1f} min · {run_dir}")
@@ -271,7 +303,7 @@ def cmd_metrics(args: argparse.Namespace) -> int:
         raise SystemExit(f"not a run directory: {run_dir}")
     metrics = load_json(run_dir / "metrics.json")
     if args.from_file:
-        metrics.update(json.loads(Path(args.from_file).read_text()))
+        metrics.update(load_json(Path(args.from_file)))
     for pair in args.set or []:
         if "=" not in pair:
             raise SystemExit(f"--set expects key=value, got: {pair}")
@@ -303,35 +335,46 @@ def cmd_check(args: argparse.Namespace) -> int:
         if not (run_dir / required).exists():
             problems.append(f"missing {required}")
 
-    record = load_json(run_dir / "run.json")
-    if record.get("exit_code") not in (0, None):
-        problems.append(f"exit code {record['exit_code']} — not citable as a result")
-    if "exit_code" not in record:
-        problems.append("no exit_code — run never completed through log_run.py")
-    if record.get("git", {}).get("dirty"):
+    try:
+        record = load_json(run_dir / "run.json")
+        metrics = load_json(run_dir / "metrics.json")
+    except ValueError as exc:
+        print(f"FAIL  {exc}")
+        return 1
+    if type(record.get("exit_code")) is not int or record["exit_code"] != 0:
+        problems.append("run did not complete with integer exit_code 0")
+    if not record.get("finished_at"):
+        problems.append("no finished_at — run has not completed")
+    git = record.get("git") if isinstance(record.get("git"), dict) else {}
+    if git.get("dirty"):
         warnings.append("git tree was dirty at run time")
-    if not record.get("git", {}).get("sha"):
-        warnings.append("no git SHA — the code that ran cannot be recovered")
-
-    metrics = load_json(run_dir / "metrics.json")
-    if metrics:
-        for key in ("seed", "eval_set"):
-            if key not in metrics:
-                warnings.append(f"metrics.json has no '{key}'")
-    notes = (run_dir / "notes.md").read_text() if (run_dir / "notes.md").exists() else ""
-    if "<fill in after verifying" in notes or "<what this run was meant" in notes:
+    if not git.get("sha"):
+        warnings.append("no git SHA — provide another code snapshot before citing")
+    if not metrics:
+        problems.append("metrics.json is empty")
+    for key in ("seed", "n_examples", "eval_set", "eval_set_sha256"):
+        if key not in metrics or metrics[key] is None or metrics[key] == "":
+            problems.append(f"metrics.json missing {key}; use an explicit not-applicable explanation for non-dataset runs")
+    notes_path = run_dir / "notes.md"
+    notes = notes_path.read_text() if notes_path.is_file() else ""
+    if not notes.strip():
+        problems.append("notes.md is empty")
+    placeholders = ("<what this run", "<fill in after", "<which checks", "<what this does")
+    if any(x in notes for x in placeholders):
         problems.append("notes.md is still the unfilled template")
-    if "## Verification" in notes:
+    if "## Verification" not in notes:
+        problems.append("notes.md has no Verification section")
+    else:
         body = notes.split("## Verification", 1)[1].split("##", 1)[0].strip()
         if not body or body.startswith("<"):
-            problems.append("notes.md § Verification is empty — nothing was checked")
+            problems.append("notes.md Verification is empty — nothing was checked")
 
     for line in problems:
         print(f"FAIL  {line}")
     for line in warnings:
         print(f"WARN  {line}")
     if not problems:
-        print(f"OK    {run_dir.name} is citable" + (" (with warnings)" if warnings else ""))
+        print(f"OK    {run_dir.name} passes structural checks; scientific validity requires review" + (" (with warnings)" if warnings else ""))
     return 1 if problems else 0
 
 
@@ -344,7 +387,16 @@ def cmd_trajectory(args: argparse.Namespace) -> int:
     path = loop_dir / "trajectory.json"
     rounds = load_json(path).get("rounds", []) if path.exists() else []
 
-    previous = next((r for r in reversed(rounds) if r["round"] < args.round), None)
+    if args.round < 0 or any(r["round"] >= args.round for r in rounds):
+        raise ValueError("append rounds in increasing order; do not overwrite existing history")
+    if any(not math.isfinite(x) for x in (args.primary, args.noise_floor, args.secondary, args.gpu_hours, args.dollars) if x is not None):
+        raise ValueError("trajectory values must be finite")
+    if any(x is not None and x < 0 for x in (args.noise_floor, args.gpu_hours, args.dollars, args.human_interventions)):
+        raise ValueError("noise, costs, and intervention counts must be nonnegative")
+    for constraint in args.constraint or []:
+        if "=" not in constraint or constraint.split("=", 1)[1] not in ("pass", "fail"):
+            raise ValueError("--constraint expects NAME=pass|fail")
+    previous = rounds[-1] if rounds else None
     delta = (
         round(args.primary - previous["primary"], 6) if previous else None
     )
@@ -468,7 +520,11 @@ def main() -> int:
             args.command = args.command[1:]
         if not args.command:
             parser.error("no command given — put it after `--`")
-    return args.func(args)
+    try:
+        return args.func(args)
+    except (ValueError, OSError) as exc:
+        print(f"[log_run] {exc}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

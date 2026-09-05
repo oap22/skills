@@ -13,7 +13,7 @@ Entry format is specified in `conventions.md` § JOURNAL.md.
 **Control:** <baseline, ablation, or prior run ID>
 **Falsifier:** <the result that would have proven this wrong>
 
-**Result:** <the number, with its uncertainty> → `results/<run-id>/`
+**Result:** <the number, with its uncertainty> → `<results-root>/<run-id>/`
 
 **Verified by:** <which checks from SKILL.md § Verify, and what they showed>
 **Not verified:** <what you could not rule out — an empty line here is almost always a lie>
