@@ -45,7 +45,7 @@ Written by `log_run.py`; never hand-edit. Records what the run *was*, as distinc
 | `started_at`, `finished_at`, `duration_seconds` | Wall clock |
 | `estimate_minutes`, `estimate_error_ratio` | Estimate vs. actual — calibration over time |
 | `exit_code` | Non-zero means the metrics are suspect, full stop |
-| `env` | Python version, platform, hostname, key package versions |
+| `env` | Wrapper Python version, platform, hostname, ambient packages; experiment environment recorded separately |
 | `config_path`, `config_sha256` | Ties the copied config to its original |
 
 **A run with a non-zero exit code is never cited as a result.** It gets logged — failures are data — but it is not evidence for a claim.
@@ -67,7 +67,7 @@ Flat where possible. Scalars are the point; nested structures should be rare and
 }
 ```
 
-Always include **`seed`**, **`n_examples`**, and an **eval set identifier plus hash**. A metric without its seed can't be compared; a metric without its eval set version silently drifts and produces a beautiful fake curve.
+Always include **`seed`**, **`n_examples`**, and **`eval_set` / `eval_set_sha256`**. For non-dataset or deterministic runs, use an explicit `not-applicable: <reason>` value for inapplicable fields rather than fabricating provenance. A metric without its seed can't be compared; a metric without its eval set version silently drifts and produces a beautiful fake curve.
 
 ## notes.md
 

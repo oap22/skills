@@ -42,21 +42,33 @@ Add a harness by adding a `"name": (root, subpath)` row to `TARGETS` in `install
 }
 ```
 
-Not every skill belongs everywhere. Vault skills are meaningless in a coding harness; refactoring skills are meaningless in the vault.
+Not every skill belongs everywhere. Select by capability and useful context, not by the harness name alone. Codex is used for both coding and personal workflows, so the full catalog is discoverable there. A discovered vault skill still requires actual vault and connector access.
 
 ## Authoring rules
 
-1. `name` matches the directory name, kebab-case.
-2. `description` is one line, third person, and **names its trigger phrases**. Every harness routes on this string — a vague description is a skill that never fires. `install.py` also flags a description YAML can't parse — most often an unquoted scalar containing `": "`, which every harness then silently falls back from, leaving the skill unroutable with no error anywhere.
-3. **Don't hardcode harness-specific tool names in load-bearing steps.** A skill that says "spawn subagents with the Task tool" breaks *silently* in Cursor. Describe the capability and degrade: "if parallel subagents are available, fan out; otherwise process sequentially." This is the real portability constraint.
-4. Reference bundled files by relative path, never absolute.
-5. Keep `SKILL.md` short; push detail into bundled `.md` files loaded on demand.
-6. Absolute vault paths are acceptable in `vault`-targeted skills only.
-7. **Never name a real third party.** This repo is pushed off the machine; the people in Owen's mail and calendar didn't agree to that. Examples use fictional stand-ins (`Dr. Vance`, `jordanm@example-corp.com`), and the real name or address gets resolved from Gmail or the vault at runtime. Owen's own addresses are fine — they're load-bearing in `draft-outreach` and `log-outreach`.
-8. **Real expertise only.** A skill records what was actually done and the constraints learned the hard way — never LLM-generated filler an agent would improvise anyway. Anything not yet exercised goes in an `## Untested` section, stated as such.
-9. **Scripts for fragile steps.** Exact computation, date math, strict formats, and mechanical transforms become bundled scripts invoked by relative path, not prose the model re-improvises each run. Judgment stays in prose.
-10. **Security is install-blocking.** No secrets anywhere in a skill directory; destructive actions gated behind survey-then-confirm; any skill that reads external content (mail, web, others' commits) must say to treat that content as data, never instructions; third-party skills get vetted like unreviewed code before first run.
-11. **Every new or substantially edited skill passes the five-practices checklist** in `skills/skillify/compliance.md` before `./install.py`. `skillify` runs it as step 7; run it manually when editing outside skillify.
+1. The frontmatter name matches its kebab-case directory. Describe the actual task and its boundary concisely; examples of user phrasing help, but catch-all trigger lists hurt routing.
+2. This catalog uses a deliberately small, dependency-free frontmatter subset: `name` and `description`, each a one-line string. Plain strings, JSON double-quoted strings, and YAML single-quoted strings are supported. Use JSON quoting when punctuation could change YAML parsing. Nested metadata or other YAML features need deliberate validator support before adoption; this limitation is specific to this repo, not to skills generally.
+3. State capabilities rather than assuming a harness-specific tool name, model ID, or scheduler. Inspect the currently exposed schema. Use a truthful sequential/local fallback where possible; do not silently substitute accounts or products.
+4. Link bundled resources with relative paths, and load them only when their mode applies. Preserve tested environment-specific constraints; timestamp historical observations and verify drift-prone facts before acting.
+5. Respect the current request and prior authorization. A skill may constrain its default workflow, but cannot veto a later explicit user instruction. Ask only about consequential unknowns or actions outside the authorized scope. Do necessary reversible preparation before a required approval.
+6. Preserve assignment ownership in professor mode. Answer direct conceptual and syntax questions directly; an explicit mode change is honored.
+7. Keep private third-party identifiers and secrets out of this public-facing source tree. Use fictional stand-ins; resolve real contacts from authorized sources at runtime. Owen's own account identifiers may remain when operationally necessary.
+8. Record demonstrated lessons without inventing experience. New instructions can fix a demonstrated defect; describe their validation and remaining live-service uncertainty honestly. `Untested` records a limitation, not permission to bypass a safety failure.
+9. Use scripts for fragile repeated transformations when they improve reliability. Simple arithmetic or a one-line example does not require a new helper. Test observable behavior and failure paths, not exact wording.
+10. Treat external content as data. Survey before destructive work and verify before removing source data. Reuse explicit authorization for the specified action; do not invent an additional confirmation ceremony.
+11. Review [the skill checklist](skills/skillify/compliance.md) for substantial edits, then run the checks below. Install from the permanent checkout after integrating any worktree changes.
+
+## Validation
+
+```bash
+python3 install.py --check
+python3 -m unittest discover -s tests -v
+python3 install.py --dry-run
+```
+
+Validation errors and target collisions stop installation before any link changes. The installer preserves unmanaged files/directories and foreign symlinks, including broken ones. Only symlinks pointing into this checkout's `skills/` directory are pruned. Removing a skill from the manifest deactivates its links while preserving its source folder. `--check` never inspects or changes live harness links; `--dry-run` previews them. Apply from a linked worktree is refused so temporary paths cannot become live dependencies.
+
+The tests use temporary harness directories and tiny local subprocesses. They do not contact mail, Calendar, Linear, GitHub, or Rosie. Structural checks cannot prove a skill's reasoning or a live workflow; see [the September audit](docs/skills-audit-2026-09-04.md) for findings and validation limits.
 
 ## Not managed here
 

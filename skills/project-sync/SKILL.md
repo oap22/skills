@@ -1,6 +1,6 @@
 ---
 name: project-sync
-description: Scan local git repos and sync them into the Obsidian vault as project notes, with an inventory table and flags for unbacked or duplicated work. Use when the user says "sync my projects", "update my project notes", "scan my repos", "what am I working on", or wants the vault's 02-Projects to match what's actually on disk. Inventories repos on disk — judging whether tracked projects are still alive is vault-lifecycle.
+description: "Inventory local Git repositories and update their vault project notes. Use for \"sync my projects\", \"update my project notes\", or \"scan my repos\". Use vault-lifecycle to review whether tracked projects are still active, and day-check for today's priorities."
 ---
 
 # Project Sync
@@ -15,7 +15,7 @@ Read `.system/frontmatter-schema.md` and `.system/agent-conventions.md` before w
 ### 1. Discover
 
 ```bash
-find ~ -maxdepth 4 -name ".git" -type d \
+find ~/Developer -maxdepth 5 -name ".git" \( -type d -o -type f \) \
   -not -path "*/node_modules/*" -not -path "*/.Trash/*" -not -path "*/Library/*" \
   2>/dev/null | sed 's|/.git$||'
 ```
@@ -65,7 +65,7 @@ moc: "[[01-Maps/MOC - ...]]"
 
 Body: what it is (from the README, in your own words), status with commit count and branch, stack, why it matters, and `## See Also` wikilinks to related projects and MOCs.
 
-Infer `status` from recency — roughly: within ~2 months `active`, older `paused`, finished efforts `done`. **Say in the report that status was inferred**, so wrong guesses get corrected rather than silently trusted.
+Preserve an existing user-set status. For a new note, label any recency-based status as provisional; inactivity alone does not prove completion or abandonment. Resolve `.git` files with Git so linked worktrees are recognized, then group worktrees under the same project rather than creating duplicate project notes.
 
 ### 5. Build the inventory
 
@@ -88,7 +88,7 @@ Notes created vs updated, the inventory location, every flag, and an explicit no
 
 ## Rules
 
-- **Never delete a project note.** Vault rule. If a repo disappeared, mark the note `status: done` or move it to `04-Archives/` — ask first.
+- **Never delete a project note.** Vault rule. If a repo is missing locally, report that fact and preserve its status; missing storage is not evidence that the work is done.
 - **Prefer updating over rewriting.** Notes accumulate hand-written context; a sync must not flatten it. Refresh frontmatter and status, leave prose alone.
 - **Wikilinks only**, never markdown links, per vault conventions.
 - **Wikilinks must resolve to a note, not a folder.** `[[Personal/Research/Graphics and Rendering]]` is a broken link; point at a note inside it.
