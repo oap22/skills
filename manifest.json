@@ -154,6 +154,11 @@
       "claude",
       "cursor",
       "codex"
+    ],
+    "port-lab-forward": [
+      "claude",
+      "cursor",
+      "codex"
     ]
   }
 }
