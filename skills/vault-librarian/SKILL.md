@@ -43,7 +43,7 @@ These have exactly one correct answer. Fix them, don't ask, report afterward.
 | `tags-not-a-list` | Rewrite as a YAML list. |
 | `date-malformed` | Normalize to `YYYY-MM-DD`. |
 | `frontmatter-incomplete` | Add the missing key **only when the value is unambiguous** from the note's content — a project in `School/` is `type: school`. If you'd be guessing, file it instead. |
-| `broken-link` with a similarity candidate | Treat as a review hint only, never an automatic rename. **Read both concepts first**. A close name is not proof; `Determinant` → `Determinants` is right, a coincidental match is not. |
+| `broken-link` | Never mechanical. The audit emits `likely_rename_of: null` for every target — the similarity heuristic was removed after it proposed `State Pattern` → `Strategy Pattern`, two distinct GoF patterns compared side by side in the same table. A rename is a judgment call: read both concepts, then handle it in § 3. |
 
 `missing-frontmatter` is mechanical *only* for the note type's required keys — add `tags` and `date` (use the file's git-first-commit date or mtime, not today). Do not invent topical tags for a note you haven't read.
 
