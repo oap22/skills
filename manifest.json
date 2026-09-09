@@ -177,6 +177,11 @@
       "claude",
       "cursor",
       "codex"
+    ],
+    "token-economy-run": [
+      "claude",
+      "cursor",
+      "codex"
     ]
   }
 }
