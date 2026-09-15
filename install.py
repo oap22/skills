@@ -10,20 +10,21 @@ ordinary filesystem failures where possible.
 import argparse
 from contextlib import contextmanager
 import importlib.util
-import json
 import os
-import re
 from pathlib import Path
+import sys
 
 REPO = Path(__file__).resolve().parent
 HOME = Path.home()
+SCRIPTS = REPO / "scripts"
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+from catalog_contract import TARGET_LAYOUTS, load_catalog  # noqa: E402
+
 TARGETS = {
-    "claude": (HOME / ".claude", "skills"),
-    "cursor": (HOME / ".cursor", "skills"),
-    "codex": (HOME / ".codex", "skills"),
-    "vault": (HOME / "Owen's Awesome Vault", ".claude/skills"),
+    name: (HOME / root, subpath)
+    for name, (root, subpath) in TARGET_LAYOUTS.items()
 }
-NAME = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 
 
 def readlink(path):
@@ -37,99 +38,13 @@ def readlink(path):
     return Path(os.path.abspath(dest if dest.is_absolute() else path.parent / dest))
 
 
-def scalar(value):
-    """Accept this repo's deliberately small YAML string subset, fail closed."""
-    if value.startswith('"'):
-        result = json.loads(value)
-    elif value.startswith("'"):
-        if not re.fullmatch(r"'(?:[^']|'')*'", value):
-            raise ValueError("invalid single-quoted string")
-        result = value[1:-1].replace("''", "'")
-    else:
-        if (not value or value[0] in "[]{}&*!|>@`%#,-?:" or
-                ": " in value or " #" in value or
-                value.lower() in {"true", "false", "null", "~", "yes", "no", "on", "off"} or
-                re.fullmatch(r"[-+]?\d+(?:\.\d+)?", value)):
-            raise ValueError("quote this scalar with JSON double quotes")
-        result = value
-    if not isinstance(result, str) or not result.strip() or "\n" in result:
-        raise ValueError("expected a nonempty one-line string")
-    return result
-
-
-def frontmatter_problems(name):
-    try:
-        text = (REPO / "skills" / name / "SKILL.md").read_text(encoding="utf-8")
-    except (OSError, UnicodeError) as exc:
-        return [f"{name}: cannot read SKILL.md: {exc}"]
-    block = re.match(r"\A---\n(.*?)\n---(?:\n|$)", text, re.S)
-    if not block:
-        return [f"{name}: missing frontmatter delimiters"]
-    fields, problems = {}, []
-    for line in block[1].splitlines():
-        if not line.strip() or line.startswith("#"):
-            continue
-        key, sep, value = line.partition(":")
-        if not sep or key not in {"name", "description"}:
-            problems.append(f"{name}: unsupported frontmatter field/structure: {key!r}")
-            continue
-        if key in fields:
-            problems.append(f"{name}: duplicate {key}")
-        try:
-            fields[key] = scalar(value.strip())
-        except (ValueError, TypeError, json.JSONDecodeError) as exc:
-            problems.append(f"{name}: invalid {key}: {exc}")
-    if fields.get("name") != name:
-        problems.append(f"{name}: frontmatter name must match directory")
-    if not fields.get("description"):
-        problems.append(f"{name}: missing valid description")
-    if len(fields.get("description", "")) > 1024:
-        problems.append(f"{name}: description exceeds 1024 characters")
-    if not text[block.end():].strip():
-        problems.append(f"{name}: empty skill body")
-    return problems
-
-
-def unique_object(pairs):
-    result = {}
-    for key, value in pairs:
-        if key in result:
-            raise ValueError(f"duplicate JSON key: {key}")
-        result[key] = value
-    return result
-
-
 def load_manifest():
     try:
-        data = json.loads((REPO / "manifest.json").read_text(), object_pairs_hook=unique_object)
-        if not isinstance(data, dict) or not isinstance(data.get("skills"), dict):
-            raise ValueError("manifest must contain a skills object")
-    except (OSError, UnicodeError, ValueError, json.JSONDecodeError) as exc:
-        return set(), [f"manifest.json: {exc}"]
-    wanted, problems = set(), []
-    skills = data["skills"]
-    for name, harnesses in skills.items():
-        if len(name) > 64 or not NAME.fullmatch(name):
-            problems.append(f"invalid skill name: {name!r}")
-            continue
-        folder = REPO / "skills" / name
-        if folder.is_symlink() or not folder.is_dir() or not (folder / "SKILL.md").is_file() or (folder / "SKILL.md").is_symlink():
-            problems.append(f"{name}: expected a local skill directory with a regular SKILL.md")
-            continue
-        problems.extend(frontmatter_problems(name))
-        if not isinstance(harnesses, list) or not harnesses:
-            problems.append(f"{name}: targets must be a nonempty list")
-            continue
-        seen = set()
-        for harness in harnesses:
-            if not isinstance(harness, str) or harness not in TARGETS:
-                problems.append(f"{name}: unknown harness {harness!r}")
-            elif harness in seen:
-                problems.append(f"{name}: duplicate harness {harness}")
-            else:
-                wanted.add((name, harness))
-                seen.add(harness)
-    return wanted, problems
+        rows = load_catalog(REPO)
+    except (OSError, UnicodeError, ValueError, KeyError, TypeError) as exc:
+        return set(), [str(exc)]
+    wanted = {(name, harness) for name, _, harnesses in rows for harness in harnesses}
+    return wanted, []
 
 
 def live_targets():

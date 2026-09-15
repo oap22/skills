@@ -9,121 +9,34 @@ kept after the new managed block.
 """
 import argparse
 from contextlib import contextmanager
-import json
 import os
 from pathlib import Path
 import re
 import stat
+import sys
 import tempfile
+
+SCRIPTS = Path(__file__).resolve().parent
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+from catalog_contract import load_catalog  # noqa: E402
 
 START = "<!-- skills-inventory:start -->"
 END = "<!-- skills-inventory:end -->"
-NAME = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
-HARNESSES = {"claude", "cursor", "codex", "vault"}
 _START_LINE = re.compile(r"^[ \t]*" + re.escape(START) + r"[ \t]*(?:\n|$)", re.M)
 _END_LINE = re.compile(r"^[ \t]*" + re.escape(END) + r"[ \t]*(?:\n|$)", re.M)
 _SKILLS_HEADING = re.compile(r"^[ \t]{0,3}##[ \t]+Skills[ \t]*$", re.M)
 _AGENTS_HEADING = re.compile(r"^[ \t]{0,3}##[ \t]+Claude Agents[ \t]*$", re.M)
 
 
-def _unique_object(pairs):
-    result = {}
-    for key, value in pairs:
-        if key in result:
-            raise ValueError(f"duplicate JSON key: {key}")
-        result[key] = value
-    return result
-
-
-def _scalar(value):
-    """Parse the same deliberately small string subset as install.py."""
-    if value.startswith('"'):
-        result = json.loads(value)
-    elif value.startswith("'"):
-        if not re.fullmatch(r"'(?:[^']|'')*'", value):
-            raise ValueError("invalid single-quoted string")
-        result = value[1:-1].replace("''", "'")
-    else:
-        if (not value or value[0] in "[]{}&*!|>@`%#,-?:" or
-                ": " in value or " #" in value or
-                value.lower() in {"true", "false", "null", "~", "yes", "no", "on", "off"} or
-                re.fullmatch(r"[-+]?\d+(?:\.\d+)?", value)):
-            raise ValueError("quote this scalar with JSON double quotes")
-        result = value
-    if not isinstance(result, str) or not result.strip() or "\n" in result:
-        raise ValueError("expected a nonempty one-line string")
-    return result
-
-
-def _frontmatter(name, source):
-    try:
-        text = source.read_text(encoding="utf-8")
-    except (OSError, UnicodeError) as exc:
-        raise ValueError(f"{name}: cannot read SKILL.md: {exc}") from exc
-    block = re.match(r"\A---\n(.*?)\n---(?:\n|$)", text, re.S)
-    if not block:
-        raise ValueError(f"{name}: missing frontmatter delimiters")
-    fields = {}
-    for line in block[1].splitlines():
-        if not line.strip() or line.startswith("#"):
-            continue
-        key, sep, value = line.partition(":")
-        if not sep or key not in {"name", "description"}:
-            raise ValueError(f"{name}: unsupported frontmatter field/structure: {key!r}")
-        if key in fields:
-            raise ValueError(f"{name}: duplicate {key}")
-        try:
-            fields[key] = _scalar(value.strip())
-        except (ValueError, TypeError, json.JSONDecodeError) as exc:
-            raise ValueError(f"{name}: invalid {key}: {exc}") from exc
-    if fields.get("name") != name:
-        raise ValueError(f"{name}: frontmatter name must match directory")
-    description = fields.get("description")
-    if not description:
-        raise ValueError(f"{name}: missing valid description")
-    if len(description) > 1024:
-        raise ValueError(f"{name}: description exceeds 1024 characters")
-    if not text[block.end():].strip():
-        raise ValueError(f"{name}: empty skill body")
-    return description
-
-
-def _catalog(repo):
-    try:
-        manifest = json.loads(
-            (repo / "manifest.json").read_text(encoding="utf-8"),
-            object_pairs_hook=_unique_object,
-        )
-    except (OSError, UnicodeError, ValueError, json.JSONDecodeError) as exc:
-        raise ValueError(f"manifest.json: {exc}") from exc
-    if not isinstance(manifest, dict) or not isinstance(manifest.get("skills"), dict):
-        raise ValueError("manifest.json: manifest must contain a skills object")
-
-    rows = []
-    for name, targets in sorted(manifest["skills"].items()):
-        if not isinstance(name, str) or len(name) > 64 or not NAME.fullmatch(name):
-            raise ValueError(f"invalid skill name: {name!r}")
-        if not isinstance(targets, list) or not targets:
-            raise ValueError(f"{name}: targets must be a nonempty list")
-        seen = set()
-        for target in targets:
-            if not isinstance(target, str) or target not in HARNESSES:
-                raise ValueError(f"{name}: unknown harness {target!r}")
-            if target in seen:
-                raise ValueError(f"{name}: duplicate harness {target}")
-            seen.add(target)
-        folder = repo / "skills" / name
-        source = folder / "SKILL.md"
-        if folder.is_symlink() or not folder.is_dir() or source.is_symlink() or not source.is_file():
-            raise ValueError(f"{name}: expected a local skill directory with a regular SKILL.md")
-        description = _frontmatter(name, source)
-        rows.append((name, description, targets))
-    return rows
+# Compatibility for callers that used the former private helper. New code
+# should use load_catalog().
+_catalog = load_catalog
 
 
 def render(repo):
     rows = []
-    for name, description, targets in _catalog(repo):
+    for name, description, targets in load_catalog(repo):
         # This is display text, never a link target or executable instruction.
         description = description.split(" Use when", 1)[0]
         if len(description) > 190:
@@ -317,10 +230,14 @@ def _local_lock(repo):
 
 
 def update_inventory(repo, vault, check=False):
+    # Validate and render before creating the lock. Read-only checks should not
+    # leave filesystem state behind, and invalid input must fail before any
+    # mutation. Applying recomputes under the lock to close the validation race.
+    initial_plan = plan_update(repo, vault)
+    if check:
+        return not initial_plan.changed
     with _local_lock(repo):
         plan = plan_update(repo, vault)
-        if check:
-            return not plan.changed
         try:
             stage_update(plan)
             commit_update(plan)
