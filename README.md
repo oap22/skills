@@ -16,6 +16,8 @@ Every harness reads the same format — a directory containing `SKILL.md` with `
 skills/<skill-name>/SKILL.md    the skill; optional bundled *.md alongside
 manifest.json                   which skills go to which harnesses
 install.py                      creates and prunes the symlinks
+scripts/export_catalog.py       exports the portable catalog contract
+scripts/catalog_contract.py     shared catalog validator and target registry
 ```
 
 ## Usage
@@ -30,18 +32,50 @@ Idempotent. Removing a skill from `manifest.json` and re-running unlinks it ever
 
 A harness that isn't installed on the current machine is skipped rather than conjured into being — a laptop without the vault synced still gets its Claude Code, Cursor, and Codex links, and re-running after the vault lands fills in the rest.
 
-Add a harness by adding a `"name": (root, subpath)` row to `TARGETS` in `install.py`. `root` is the directory that must already exist for the harness to count as present here.
+Add a harness by adding a `"name": (root, subpath)` row to `TARGET_LAYOUTS`
+in `scripts/catalog_contract.py`. `root` is the home-relative directory that
+must already exist for the harness to count as present here.
 
 ## manifest.json
 
 ```json
 {
+  "schema_version": 1,
   "skills": {
     "some-skill": ["claude", "cursor"],
     "vault-only-skill": ["vault"]
   }
 }
 ```
+
+`schema_version` identifies the manifest contract. Version 1 is current.
+Manifests without the field remain valid as legacy version 1 input; malformed
+versions and unsupported future versions fail validation instead of being
+guessed at.
+
+## Catalog integration
+
+Other agent infrastructure, including Owen's Agent System, should consume the
+validated catalog projection rather than parse `manifest.json` or skill
+frontmatter independently:
+
+```bash
+python3 scripts/export_catalog.py
+```
+
+The command writes deterministic schema-v1 JSON to stdout. Skills are sorted by
+name, each skill's targets are sorted, descriptions are exported in full, and
+`source` is a repository-relative `skills/<name>/SKILL.md` path. Validation
+errors go to stderr with a nonzero exit and no partial JSON on stdout.
+
+The portable data model intentionally contains only `schema_version` and skill
+records (`name`, `description`, `source`, and `targets`). OAS owns modes,
+routing, policy, and any local repository path; those concepts do not belong in
+the canonical skills catalog. Python callers inside this repository may use
+`load_catalog(repo)` from `scripts/catalog_contract.py` to share the same
+manifest, source-path, target-registry, encoding, and frontmatter validation.
+The installer and inventory renderer use that same module; adding a target
+starts in `TARGET_LAYOUTS` there so their accepted target names cannot drift.
 
 Not every skill belongs everywhere. Select by capability and useful context, not by the harness name alone. Codex is used for both coding and personal workflows, so the full catalog is discoverable there. A discovered vault skill still requires actual vault and connector access.
 
@@ -63,6 +97,7 @@ Not every skill belongs everywhere. Select by capability and useful context, not
 
 ```bash
 python3 install.py --check
+python3 scripts/export_catalog.py > /dev/null
 python3 -m unittest discover -s tests -v
 python3 install.py --dry-run
 ```
