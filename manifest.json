@@ -7,6 +7,11 @@
     "vault": "~/Owen's Awesome Vault/.claude/skills"
   },
   "skills": {
+    "clion-run-input": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
     "agent-task-runner": [
       "vault",
       "cursor",
@@ -179,6 +184,11 @@
       "codex"
     ],
     "python-docstrings": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
+    "token-economy-run": [
       "claude",
       "cursor",
       "codex"
