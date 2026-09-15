@@ -177,6 +177,11 @@
       "claude",
       "cursor",
       "codex"
+    ],
+    "python-docstrings": [
+      "claude",
+      "cursor",
+      "codex"
     ]
   }
 }
