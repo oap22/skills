@@ -1,4 +1,5 @@
 {
+  "schema_version": 1,
   "_comment": "Maps each skill to the harnesses it should be linked into. Run ./install.py after editing.",
   "_targets": {
     "claude": "~/.claude/skills",
