@@ -6,8 +6,7 @@
 
 #SBATCH --job-name=<sweep-name>
 #SBATCH --partition=<dgx|dgxh100|teaching>
-#SBATCH --array=0-<N>%<concurrent>   # the % throttle is not optional — uncapped
-                                     # arrays take the whole partition
+#SBATCH --array=0-<last-zero-based-index>%<concurrent>
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=<n>
@@ -18,9 +17,9 @@
 
 set -euo pipefail
 cd "$SLURM_SUBMIT_DIR"
-mkdir -p logs
+# Create logs/ BEFORE sbatch; Slurm opens output before this script runs.
 
-module load cuda/12.9
+module load <verified-cuda-module>
 
 TASK=${SLURM_ARRAY_TASK_ID}
 
@@ -28,8 +27,13 @@ TASK=${SLURM_ARRAY_TASK_ID}
 # Keep this mapping in a committed file, not inline arithmetic. Six weeks from
 # now "task 37" has to resolve to an exact configuration, and a shell
 # expression nobody can re-derive is how a sweep becomes uninterpretable.
-CONFIG=$(sed -n "$((TASK + 1))p" sweep-configs.txt)
-SEED=$(echo "$CONFIG" | cut -d' ' -f1)
+# sweep-configs.tsv: seed<TAB>config path, no header; one row per task.
+ROW=$(sed -n "$((TASK + 1))p" sweep-configs.tsv)
+IFS=$'\t' read -r SEED CONFIG <<< "$ROW"
+[[ "$SEED" =~ ^[0-9]+$ && -n "$CONFIG" && -f "$CONFIG" ]] || {
+    echo "invalid sweep row for task $TASK" >&2
+    exit 2
+}
 
 echo "task=$TASK config=$CONFIG node=$(hostname) job=$SLURM_ARRAY_JOB_ID"
 

@@ -7,57 +7,75 @@
     "vault": "~/Owen's Awesome Vault/.claude/skills"
   },
   "skills": {
+    "clion-run-input": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
     "agent-task-runner": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "draft-outreach": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "file-agent-issue": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "brain-mail-ingest": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "calendar-block": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "daily-note": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "day-check": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "deep-interview": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "mail-digest": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "linear-project-setup": [
       "claude",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "local-routine": [
       "claude",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "log-outreach": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "morning-interview": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "plan-then-ship": [
       "claude",
@@ -66,11 +84,13 @@
     ],
     "project-sync": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "collaborator-sweep": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "publish-to-github": [
       "claude",
@@ -84,12 +104,14 @@
     ],
     "research-ingest": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "research-interview": [
       "claude",
       "cursor",
-      "vault"
+      "vault",
+      "codex"
     ],
     "research-loop": [
       "claude",
@@ -108,27 +130,33 @@
     ],
     "vault-librarian": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "vault-lifecycle": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "vault-to-linear": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "vault-triage": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "spaced-recall": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "resume-build": [
       "vault",
-      "cursor"
+      "cursor",
+      "codex"
     ],
     "adversarial-review": [
       "claude",
@@ -156,6 +184,16 @@
       "codex"
     ],
     "port-lab-forward": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
+    "python-docstrings": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
+    "token-economy-run": [
       "claude",
       "cursor",
       "codex"
