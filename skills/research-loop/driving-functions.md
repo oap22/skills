@@ -23,7 +23,7 @@ A driving function is only load-bearing if all four hold. Check them explicitly,
 
 **1. Mechanically verifiable.** Ground truth comes from a checker, not a human judgment. If a person sits in the reward seat, the loop is rate-limited by that person, the signal drifts as they get tired or change their mind, and cross-round comparison is confounded by the drift. Tasks with checkable answers — math with a verifier, code with tests, predictions against held-out labels — are the price of admission to unattended operation, and unattended operation is the precondition for sweeping.
 
-**2. Held out and uncontaminated.** The eval set must be genuinely unseen. For anything involving a pretrained model, public benchmarks are presumed contaminated — they are in the training data. Prefer **programmatically generated problems with checkers**, or items published after the model's cutoff. A leaderboard split is not a held-out set.
+**2. Held out and uncontaminated.** The eval set must be genuinely unseen. For anything involving a pretrained model, public benchmarks have a contamination risk unless training provenance establishes otherwise. Prefer **programmatically generated problems with checkers**, or independently held-out items. Publication after a claimed cutoff alone does not prove isolation. Keep the final test set separate from repeated development evaluations.
 
 **3. In the difficulty band.** Above the floor and below the ceiling. A metric where the system scores 0 every round measures nothing; so does one where it scores 100. Verify the band with a pilot before round 1 — this is cheap and catches a wasted sweep.
 
@@ -74,7 +74,7 @@ Write the halting condition down before the loop starts, at the design gate. A l
 - Round budget R reached                                  (hard backstop, always set one)
 ```
 
-**Expect saturation early.** The collapse literature and most practical reports land in the 1–3 useful rounds range before returns vanish. Aim at that deliberately: the likely publishable result is **where it saturates, why, and what moves that point** — not an unbroken climb. A loop that reports monotonic improvement over ten rounds should be treated as a measurement bug until proven otherwise, and the first thing to check is contamination between the loop's output and the eval set.
+**Measure saturation; do not assume a round count.** The useful contribution may be where gains saturate and what shifts that point. Unexpectedly smooth improvement warrants checks for contamination and evaluation drift, but is not itself proof of a bug. Predefine the noise statistic and stopping rule; three seeds are a pilot estimate, not a universal significance guarantee.
 
 ## Round Discipline
 
@@ -88,17 +88,22 @@ Every round is a logged run under the normal `conventions.md` layout, plus a tra
   round-01/  round-02/   … each a standard run directory
 ```
 
-`trajectory.json` — one object per round:
+`trajectory.json` is an object containing `loop` and a `rounds` array, written through `log_run.py trajectory`. Start with round 0 and append exactly one consecutive round at a time; existing rounds cannot be silently replaced. Each entry must point to a completed, citable run directory with `--run-dir`; the helper copies the run's eval identity into the entry and rejects an identity change. It compares the recorded identity strings; it does not recompute or scientifically verify the digest. The primary metric is assumed higher-is-better: transform loss/latency to a declared utility before logging. Each round object looks like:
 
 ```json
 {
   "round": 3,
   "run_id": "2026-08-14-loop-verifiable-r03",
+  "run_dir": "/Users/owenpacetti/research-results/2026-08-14-loop-verifiable-r03",
   "parent_round": 2,
+  "parent_run_id": "2026-08-14-loop-verifiable-r02",
   "primary": 0.641,
   "delta": 0.008,
   "noise_floor": 0.011,
   "secondary": 0.512,
+  "eval_set": "mathgen-v3",
+  "eval_set_sha256": "9f2c000000000000000000000000000000000000000000000000000000000000",
+  "n_examples": 4096,
   "cost": {"gpu_hours": 4.2, "dollars": 1.85},
   "cost_per_point": 231.0,
   "human_interventions": 1,
@@ -109,11 +114,25 @@ Every round is a logged run under the normal `conventions.md` layout, plus a tra
 
 Rules that keep a long loop honest:
 
-- **Round 0 is the baseline** and gets the same measurement treatment as every other round. Skipping it means having no anchor.
-- **Every round records its parent.** Accumulate-vs-replace and retrain-from-base-vs-stack are different experiments and get confused constantly when lineage isn't explicit.
-- **Never compare rounds measured on different eval sets.** If the eval set changes, the trajectory restarts. Note it loudly.
+- **Round 0 is the baseline** and gets the same measurement treatment as every other round. The logger rejects a first round with any other number.
+- **Every round records its parent and backing run directory.** Accumulate-vs-replace and retrain-from-base-vs-stack are different experiments and get confused constantly when lineage isn't explicit. The logger checks that the backing record is complete and that its `run_id` matches.
+- **Never compare rounds measured on different eval sets.** If the eval set or its hash/version changes, the trajectory restarts. The logger compares the copied identity and rejects the append.
 - **A round that fails a constraint gate is logged, not deleted.** It is the most informative round in the sweep.
-- **Log the eval set's own hash or version** in every round. Silent eval drift produces beautiful fake curves.
+- **Log the eval set's own hash or version** in every round. Silent eval drift produces beautiful fake curves. For a genuinely non-dataset loop, use matching explicit `not-applicable: <reason>` fields in every backing run.
+
+Use the helper with all loop metadata explicit; omitted costs or intervention
+counts are not treated as zero:
+
+```bash
+log_run.py trajectory ~/research-results/loop-verifiable --round 0 \
+  --run-dir ~/research-results/2026-08-14-loop-verifiable-r00 \
+  --primary 0.629 --noise-floor 0.011 --secondary 0.510 \
+  --gpu-hours 4.2 --dollars 1.85 --human-interventions 1
+```
+
+The metrics updater uses an exclusive lock and atomic replacement. A lock left
+by an interrupted process is a deliberate stop condition; inspect it before
+removing it rather than allowing two writers to merge from stale state.
 
 ## Sweeping
 
