@@ -183,6 +183,11 @@
       "cursor",
       "codex"
     ],
+    "port-lab-forward": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
     "python-docstrings": [
       "claude",
       "cursor",
