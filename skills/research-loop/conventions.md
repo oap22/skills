@@ -45,8 +45,16 @@ Written by `log_run.py`; never hand-edit. Records what the run *was*, as distinc
 | `started_at`, `finished_at`, `duration_seconds` | Wall clock |
 | `estimate_minutes`, `estimate_error_ratio` | Estimate vs. actual — calibration over time |
 | `exit_code` | Non-zero means the metrics are suspect, full stop |
-| `env` | Python version, platform, hostname, key package versions |
+| `env` | Wrapper Python version, platform, hostname, ambient packages; experiment environment recorded separately |
 | `config_path`, `config_sha256` | Ties the copied config to its original |
+
+`log_run.py check` requires `git.available: true`, a 40- or 64-character Git
+object ID in the expected shape, a branch name, ISO-8601 start and finish
+timestamps, and a nonempty command list. A record made outside a Git checkout
+remains useful for debugging but is not citable; rerun it from a committed Git
+checkout before citing it. These checks validate field shape and presence only:
+they do not prove that the Git object exists locally or that the dataset digest
+matches the scientific data.
 
 **A run with a non-zero exit code is never cited as a result.** It gets logged — failures are data — but it is not evidence for a claim.
 
@@ -61,13 +69,20 @@ Flat where possible. Scalars are the point; nested structures should be rare and
   "held_out_accuracy": 0.641,
   "train_loss_final": 0.212,
   "eval_set": "mathgen-v3",
-  "eval_set_sha256": "9f2c…",
+  "eval_set_sha256": "9f2c000000000000000000000000000000000000000000000000000000000000",
   "seed": 1337,
   "n_examples": 4096
 }
 ```
 
-Always include **`seed`**, **`n_examples`**, and an **eval set identifier plus hash**. A metric without its seed can't be compared; a metric without its eval set version silently drifts and produces a beautiful fake curve.
+Always include **`seed`**, **`n_examples`**, and **`eval_set` / `eval_set_sha256`**. `seed` and `n_examples` are nonnegative integers; `eval_set` is a nonempty string; and `eval_set_sha256` is a 64-character hexadecimal SHA-256 digest. For non-dataset or deterministic runs, use an explicit `not-applicable: <reason>` value for each inapplicable field, and use it consistently for `eval_set` and `eval_set_sha256`; never fabricate provenance. A metric without its seed can't be compared; a metric without its eval set version silently drifts and produces a beautiful fake curve. `log_run.py check` rejects wrong types, nonfinite values, malformed hashes, and symlinked citation files.
+
+The `metrics` subcommand serializes its read/modify/write cycle with an
+exclusive `.metrics.json.lock` beside the file, then replaces the file
+atomically. If a process dies while holding the lock, later writers wait briefly
+and fail without deleting it. Inspect the owner and remove that lock manually
+only after confirming no writer remains; stale-lock recovery is intentionally
+not automatic.
 
 ## notes.md
 

@@ -1,91 +1,23 @@
 ---
 name: local-routine
-description: Schedule a recurring agent task that needs the local machine — the Obsidian vault, local files, or MCP connectors like Linear, Gmail, and Google Calendar. Use when the user says "run this every morning", "do this daily", "set up a routine", or "schedule this" AND the work touches local files or connected apps. For work that lives entirely in a GitHub repo, use the built-in /schedule (cloud) instead.
+description: Schedule or update recurring agent work that needs local files or connected accounts. Use for "run this every morning", "set up a routine", or a recurring vault workflow. Use the current harness's native scheduler and verify its access before creating a task.
 ---
 
 # Local Routine
 
-There are two schedulers on this machine and they are not interchangeable. Picking wrong produces a routine that looks healthy in the UI and silently does nothing every single day.
+A saved schedule is useful only if its execution environment can reach the files and accounts the work needs.
 
-## Pick the scheduler first
+1. **Inspect the current scheduler and existing tasks.** Use the native scheduling tool available in this session. Match by name and prompt before creating; update the existing task to avoid duplicates. Do not assume Claude, Codex, or cloud schedulers share schemas, timezones, or connector access.
+2. **Choose an environment from the actual dependencies.** Local vault paths require local access. Verify the intended Linear workspace and mail/calendar account; a connected service with the wrong account does not satisfy the dependency. In Codex, use a task-attached heartbeat by default, following the automation tool's current schema; use standalone project work only when requested.
+3. **Write a self-contained prompt.** Include the skill, absolute paths, account/team identifiers, timezone, ownership markers, expected output, and permitted mutations. Resolve relative dates at run time. State how to report partial failures without presenting missing data as an empty queue. Preserve the user's authorization and notification intent. Do not put credentials in the prompt.
+4. **Save the requested schedule.** Interpret it in the user's timezone (America/Chicago unless overridden), using the tool's supported format. Preserve unrelated existing fields on updates. Use a native one-shot mechanism for one-shot requests; never temporarily replace a recurrence to force a test run.
+5. **Verify the saved result.** Read back the task ID, prompt, enabled state, timezone, and recurrence. Check the next run when exposed. Report setup separately from execution: a task that saved successfully has not yet proved its first run works.
+6. **Record only what is in scope.** Update a project runbook if this setup includes it. Write harness memory only on an explicit user request.
 
-| | **Local** — `mcp__scheduled-tasks__*` | **Cloud** — built-in `/schedule`, `RemoteTrigger` |
-|---|---|---|
-| Runs on | This Mac, inside the Claude app | Anthropic cloud sandbox |
-| Sees local files | **Yes** | No |
-| Sees the Obsidian vault | **Yes** | No — the vault is not a git repo |
-| MCP connectors | Whatever this app has connected | Only claude.ai connectors, often **none** |
-| Needs a git repo | No | Effectively yes |
-| Min interval | Cron, 1/min granularity | 1 hour |
-| Timezone | **Local** (America/Chicago) | **UTC** — must convert |
+For monitors, stay quiet while state is unchanged or non-actionable; notify on meaningful change, completion, failure, or required user action unless the user requested periodic reports. Prefer the scheduler's notification mechanism over a second push notification.
 
-**Default to local** for anything in Owen's world. The vault, Linear, Gmail, and Calendar all hang off this app. Cloud is only right for work that lives entirely inside a GitHub repo and needs no local state.
+## Observed Claude-specific pitfalls
 
-Verify before choosing rather than assuming: if `/schedule`'s setup notes say *"No MCP connectors found"* or *"Not in a git repo"*, that is the cloud path telling you it cannot do the job.
+The local Claude scheduler observed in August 2026 used local-time cron and deterministic jitter; cloud routines had different access and timing semantics. A missing connector made a healthy-looking schedule unable to do its job. These are dated observations, not facts about other harnesses or their current versions.
 
-## Steps
-
-### 1. Confirm it needs local
-
-Ask what the task touches. Vault paths, `~/Developer`, Linear, Calendar, Gmail, Slack → local. A repo-only chore (dependency bumps, CI triage) → cloud, and hand off to `/schedule`.
-
-### 2. Write a self-contained prompt
-
-**Each run starts with zero memory of the conversation that created it.** The prompt is the entire context. Include:
-
-- Absolute paths — vault root, target files, templates
-- Which connectors to use and which workspace/team/account within them
-- The exact output format expected
-- Every preference the user expressed while setting it up
-- What to do on partial failure — *"if Linear is unreachable, write what you have and say plainly which source failed"*. Without this, a failed connector renders as an empty section that reads like a fact.
-
-Prefer telling it to invoke an existing skill by name, then inline the essential steps as fallback in case the skill isn't resolvable from that run's working directory.
-
-### 3. Create it
-
-```
-mcp__scheduled-tasks__create_scheduled_task
-  taskId: kebab-case
-  cronExpression: "30 6 * * *"    # LOCAL time — do not convert to UTC
-  description: one line for the sidebar
-  prompt: the self-contained prompt
-  notifyOnCompletion: true
-```
-
-Use `fireAt` (ISO 8601 with offset) instead for a genuine one-shot. Never fake a one-shot with cron.
-
-### 4. Verify, and expect jitter
-
-List the task afterwards. The reported time will be **later than the cron** — the scheduler adds a deterministic `jitterSeconds` (several minutes) to spread load. `30 6 * * *` showing as "06:38" is correct, not a bug. Check `cronExpression`, not the human-readable string, and tell the user so the drift doesn't look like an error.
-
-### 5. Tell the user the two real limits
-
-Both of these surprise people, and both are worth saying out loud:
-
-- **It only runs while the Claude app is open.** If the app is closed at 6:30, it runs at next launch — so a note may be stamped hours after the date in its filename.
-- **The first run will pause on permission prompts** for each connector it touches. Approvals are stored on the task and reused afterward.
-
-### 6. Pre-approving: there is no "run now" tool
-
-`mcp__scheduled-tasks__*` exposes only create, update, delete, list. **There is no run action.** (`RemoteTrigger`'s `run` is for cloud routines and will not touch a local task.)
-
-The user clicks **Run now** in the Scheduled sidebar. Don't treat this as a limitation to work around — the approval prompts need the user present anyway, so the click and the approving are the same act. Triggering it behind their back would just stall on a prompt nobody answers.
-
-Do **not** fake it by swapping `cronExpression` for a near-future `fireAt`: `fireAt` clears the cron, and the task auto-disables after firing. If the session ends before you restore the schedule, the user's routine is silently dead and they won't notice for days.
-
-### 7. Record it
-
-Note the routine in the doctrine file it serves (for vault work, `.system/productivity-abstractions.md`): task id, cron, that it's local and why, and the app-must-be-open caveat.
-
-## Rules
-
-- **Local unless proven otherwise.** Cloud cannot see the vault.
-- **Cron is local time here** and UTC in the cloud scheduler. Mixing these up is a silent 5–6 hour offset.
-- **The prompt must stand alone.** No "as we discussed", no relative dates — have it resolve the date at runtime with `TZ=America/Chicago date +%Y-%m-%d`.
-- **Always instruct partial-failure reporting.** A silent empty section is worse than an error.
-- **Never put secrets in a task prompt.** It's a plaintext file at `~/.claude/scheduled-tasks/<id>/SKILL.md`.
-- **Deleting is destructive** — prefer `enabled: false` to pause, and ask before deleting either way.
-
-## Untested
-
-- **Behavior when the app is closed through several scheduled fires.** Documented as "runs on next launch"; whether it coalesces missed runs into one or replays them has not been observed.
+A prior local tool exposed create/update/delete/list but no run action. If the current tool still lacks one, use its supported UI path; do not change recurrence to a near-future one-shot, which previously cleared the cron and disabled the routine afterward. Verify current app-open and missed-run behavior rather than promising replay or catch-up from this old observation.

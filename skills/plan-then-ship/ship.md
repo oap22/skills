@@ -13,8 +13,8 @@ git remote get-url origin
 git rev-parse --abbrev-ref origin/HEAD 2>/dev/null || true
 ```
 
-1. **Dirty tree.** Any modified, staged, or untracked path that is not `.plan-then-ship/`, `.gitignore`, or a path the spec lists under Touch or Tests → **stop**. Unrelated work is in the tree. Do not mix it into this pipeline. (A cloud implementer clones clean; this check still protects the parent tree you will fetch back into.)
-2. **Default branch.** If the current branch is `main` or `master`, create `pts/<kebab-of-spec-PR-title>` from current HEAD and switch to it. If already on any other branch, stay. Never commit to `main`/`master`. Never `git push` to `main`/`master`. Tell a cloud implementer this same branch name and the default-branch name it must branch from.
+1. **Dirty tree.** Preserve unrelated modified, staged, and untracked work. Create an isolated worktree when that avoids a conflict; do not make an otherwise unrelated dirty file a blocker. If authorized edits overlap existing work, inspect and preserve that diff before choosing an approach. (A cloud implementer clones clean; this check still protects the parent tree you will fetch back into.)
+2. **Default branch.** Discover the actual default branch from the remote. Create a feature branch following the repository convention (`codex/<slug>` in Codex), or reuse the branch explicitly assigned to this task. Do not assume any non-main branch belongs to this work. Never commit to `main`/`master`. Never `git push` to `main`/`master`. Tell a cloud implementer this same branch name and the default-branch name it must branch from.
 3. **Origin.** All `gh` and `git push` commands use **`origin` only**. Parse owner/name from `git remote get-url origin` (SSH or HTTPS). Pass that repo to `gh repo view` / `gh api` / `gh pr create`. Do not call `gh` without a repo argument and hope it matches `origin`.
 
 ## After a cloud or isolated implementer
@@ -34,12 +34,12 @@ If fetch fails, the isolated run did not push — stop and report. Do not review
 gh repo view "$(git remote get-url origin)" --json owner,name,viewerPermission
 ```
 
-`viewerPermission` decides the path. Collaborators and CODEOWNERS are not a stop.
+Check both user authorization and actual repository rules. `viewerPermission` alone does not determine merge eligibility; WRITE may allow merge, and ADMIN does not waive required reviews. Existing collaborators do not prevent preparing a PR.
 
 | `viewerPermission` | What you do |
 |---|---|
 | `ADMIN` or `MAINTAIN` | Push, open PR, request reviewers, merge after CI green (or no checks). |
-| `WRITE` | Push, open PR, request reviewers, **do not merge**. This is the contributor path on a shared repo. |
+| `WRITE` | Push and open PR when authorized; merge only if requested and permitted by the live rules and review/check state. |
 | anything else | Stop. Diff is ready. Do not push. |
 
 ## Commit
@@ -56,10 +56,10 @@ Message and PR title/body come from the spec. Create the PR against the repo's d
 
 ```bash
 git push -u origin HEAD
-gh pr create --repo "<owner>/<name>" --title "..." --body "..."
+gh pr create --repo "<owner>/<name>" --title "..." --body-file <description-file>
 ```
 
-**Use the people on the repo.** If `CODEOWNERS` or `.github/CODEOWNERS` names users or teams, add them as reviewers. If there is no CODEOWNERS file, request the other collaborators (`gh api repos/<owner>/<name>/collaborators`) except the current user. A PR that notifies nobody on a multi-person repo is the failure mode.
+**Use the people on the repo.** If `CODEOWNERS` or `.github/CODEOWNERS` names users or teams, add them as reviewers. If there is no CODEOWNERS file, use the repository's review convention or an explicitly requested reviewer; do not notify every collaborator by default. A PR that notifies nobody on a multi-person repo is the failure mode.
 
 ## CI then merge
 
@@ -73,7 +73,7 @@ gh pr checks --watch
 - **Every check succeeded:** eligible to merge.
 - **Any check failed, cancelled, timed out, or still pending after watch:** **do not merge.** Stop and report the failing checks.
 
-Then, only if eligible **and** `viewerPermission` is `ADMIN` or `MAINTAIN`: merge. Prefer squash when the repo allows it (`gh pr merge --squash`).
+Then, only if eligible **and** merging is authorized and permitted by the current repository rules: merge. Prefer squash when the repo allows it (`gh pr merge --squash`).
 
 If GitHub refuses because reviews are required, branch protection, or a collaborator must approve: **stop with the PR URL**. That is the multi-person workflow working. Do not override, do not `--admin` merge.
 
