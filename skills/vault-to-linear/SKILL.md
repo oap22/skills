@@ -10,7 +10,11 @@ Turn the vault's scattered `- [ ]` checkboxes into a real, prioritized Linear ba
 **Vault:** `$HOME/Owen's Awesome Vault`
 **Target:** workspace `owenp22` · team **Owen's Operations** (`OWE`) · projects **School**, **Research**, **Personal**
 
-Read `.system/productivity-abstractions.md` first — it defines the tool boundary and is the thing to update if the boundary changes. Linear owns task *state*; the vault owns *context*. Never mirror state into both.
+Read `.system/productivity-abstractions.md` first — it defines the tool boundary for this sync. Linear owns task *state*; the vault owns *context*. Never mirror state into both. If the user's requested sync conflicts with the doctrine, report the conflict and keep the doctrine unchanged unless the user separately asks to revise that policy.
+
+## Required workspace and outage handoff
+
+Verify `owenp22` and team `OWE` before reading or changing the intended queue. Read `30-Brain/Sources/connector-status.md`. If unavailable, record the attempt there, preserve successful cursors, and keep new unfiled findings in `30-Brain/Sources/unfiled-work.md` with stable IDs, source links, intended destination, and blocker. Search the ledger and existing OWE references before appending. Do not file into RES as a substitute, mark a remote issue Done, advance a recurring issue chain, or claim the queue is empty. Continue only independent work already authorized. On recovery, read and dedupe the actual backlog before linking or promoting entries. Notify only on material change or needed user action; repeated unchanged failure needs no new essay.
 
 ## Steps
 
@@ -20,7 +24,7 @@ Linear "get user" with `me`, then list projects on the team. Confirm the three p
 
 ### 2. Read what's already in Linear
 
-List existing issues on the team **before** sweeping. This is the dedupe set — match on normalized title: lowercase, punctuation stripped, whitespace collapsed. One fixed rule, applied the same way to both sides — an improvised looser match double-files on the next run. Re-running this skill must not double-file tasks that were promoted last time.
+List existing issues on the team **before** sweeping. This is the dedupe set — match existing source links/issue IDs first, then use normalized titles as candidates, checking project and source context before declaring a duplicate. Similar titles in different courses or projects may be distinct tasks. Re-running this skill must not double-file tasks that were promoted last time.
 
 ### 3. Sweep the vault
 
@@ -84,8 +88,8 @@ One `save_issue` per task. Set `team`, `project`, `assignee: "me"`, `state: "Tod
 The sweep is only half the job. Also:
 
 - Add `linear: <project-url>` to the frontmatter of each project note that produced issues.
-- Record the run in `30-Brain/Sources/sync-state.md`: date, highest issue id as cursor, count, and — importantly — **what you deliberately skipped and why**. Future runs read this to stay consistent.
-- Leave the original `- [ ]` boxes in place as context. Do not delete vault content to "finish" a sync.
+- Record the run in `30-Brain/Sources/sync-state.md`: date, source-linked issue IDs and per-source completion state (issue numbers are not a reliable cross-project cursor), count, and — importantly — **what you deliberately skipped and why**. Future runs read this to stay consistent.
+- After confirmed issue creation, replace the promoted checkbox marker with a non-checkbox issue link, preserving the task text and context. Save the returned issue ID immediately so a retry can reconcile it before creating another issue. Leave failed or uncertain promotions untouched.
 
 ### 8. Report
 
@@ -99,8 +103,8 @@ Group by project, show priority, and state plainly what was skipped. A sync that
 - **`state: "Todo"` must be explicit** — the default is Backlog.
 - **Every issue cites its vault source.** No orphan issues.
 - **Never write secrets** into an issue description.
-- **Never delete vault notes or checkboxes** — the vault rule is ask-first, always.
-- If the vault's doctrine file contradicts what the user is asking for, **say so and update the doctrine** rather than leaving both versions live.
+- **Never delete vault notes or task text** — the vault rule is ask-first, always.
+- If the vault's doctrine file contradicts what the user is asking for, **say so and pause at the policy boundary**. Update doctrine only under a separate explicit request to change the policy; do not bundle a doctrine edit into an ordinary task sync.
 
 ## Untested
 

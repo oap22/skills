@@ -46,13 +46,12 @@ turn out to be trivial, say so plainly with the sizes.
 Tier 1 — package caches (`~/Library/Caches/{Homebrew,pip,npm,node-gyp}`),
 browser caches (`Google`, `Arc`, `BraveSoftware`), `electron`, `ms-playwright`,
 wallpaper aerials (`~/Library/Application Support/com.apple.wallpaper/aerials`),
-Electron app `Cache`/`Code Cache` subdirectories, **and downloaded model
+Electron app `Cache`/`Code Cache` subdirectories, **and confirmed re-downloadable model
 weights** — `~/.ollama/models`, LM Studio, Hugging Face caches. A model that
 `ollama pull` restores is regenerable, not data. Delete the stale ones; never
 archive them to a drive.
 
-Sort models by last use before proposing anything — `ollama list` reports it.
-Keep what was used this week on the internal drive, drop the rest.
+`ollama list` modification times do not prove last use. Check the active process, user context, and model provenance. Custom/imported/fine-tuned weights may be the only copy and belong in Tier 3. Remove only confirmed re-downloadable, unused models within the authorized cleanup scope, using the model manager rather than deleting its entire store.
 
 Tier 2 — Docker's VM image, iOS simulator runtimes, Xcode `DerivedData`,
 sandbox VM bundles. Each destroys something. Name what is lost, per item.
@@ -135,16 +134,17 @@ all — worth flagging even though it's unrelated to space.
 `/Volumes/External-Drive` mid-session. Never cache the path; check `ls /Volumes`
 or `diskutil list external` each time.
 
-**Measure the drive before proposing it as working storage.** Write speed does
+**Benchmark only when it informs the requested storage decision.** Confirm free space, use a unique scratch file, and do not unmount a drive with active applications or transfers. Write speed does
 not predict read speed on USB enclosures — one drive benchmarked at 284 MB/s
 write and 92 MB/s read, a 3× gap. Working storage is read-bound, so the write
 figure flatters it badly:
 
 ```bash
-dd if=/dev/zero of="$DRIVE/.st" bs=1m count=4000 conv=fsync   # write
+BENCH_FILE=$(mktemp "$DRIVE/.skills-bench.XXXXXX")
+dd if=/dev/zero of="$BENCH_FILE" bs=1m count=4000 conv=fsync   # write
 diskutil unmount "$DRIVE" && diskutil mount <volume>          # drop cache
-dd if="$DRIVE/.st" of=/dev/null bs=1m                         # cold read
-rm -f "$DRIVE/.st"
+dd if="$BENCH_FILE" of=/dev/null bs=1m                         # cold read
+rm -f "$BENCH_FILE"
 ```
 
 Use `conv=fsync` or the write number is buffered and inflated, and remount
