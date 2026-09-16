@@ -198,6 +198,11 @@
       "claude",
       "cursor",
       "codex"
+    ],
+    "scheduled-sync-task": [
+      "claude",
+      "cursor",
+      "codex"
     ]
   }
 }
