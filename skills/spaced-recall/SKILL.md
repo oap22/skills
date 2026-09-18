@@ -33,8 +33,8 @@ Distinct from the generic `quiz-me` skill, which quizzes from pasted content in 
 
 Look for existing generated material before writing new questions. For the cosmology track:
 
-- Quizzes and keys: `~/Developer/active/galaxy-cluster-research/daily-lessons/YYYY-MM-DD-{lesson,quiz,answers}.md`
-- Score log: `~/Developer/active/galaxy-cluster-research/daily-lessons/progress.md`
+- Quizzes and keys: `~/Developer/active/school/sophomore/research/galaxy-cluster-research/daily-lessons/YYYY-MM-DD-{lesson,quiz,answers}.md`
+- Score log: `~/Developer/active/school/sophomore/research/galaxy-cluster-research/daily-lessons/progress.md`
 - Distilled concepts: `Personal/Research/Cosmology/` indexed by `01-Maps/MOC - Galaxy Cluster Cosmology`
 
 Read `progress.md` first. Blank Score cells mean the quiz exists and was never taken — that is always higher priority than generating anything new.

@@ -10,7 +10,7 @@ Before Linear work, verify the intended workspace and team using returned IDs an
 The intake side of the agent queue. `agent-task-runner` drains **Agent Work** every night; this skill is how anything gets *into* it in a shape that runner can actually execute.
 
 **Linear:** workspace `owenp22` · team **Owen's Operations** (`OWE`) · project **Agent Work**
-**Skills repo:** `~/Developer/active/skills` — source of truth, symlinked out by `./install.py`
+**Skills repo:** `~/Developer/active/personal/skills` — source of truth, symlinked out by `./install.py`
 
 The rule this skill exists to enforce: **every Agent Work issue names the skill that will do it.** An issue that says "clean up the tags" with no skill attached is a wish. An issue that says "run `vault-librarian` over `Personal/Research/`" is work. The runner is a queue worker, not a strategist — if you don't tell it which tool to reach for, it improvises, and improvisation at 9pm unattended is exactly what you don't want.
 
@@ -59,7 +59,7 @@ Verify `owenp22` and team `OWE` before reading or changing the intended queue. R
 Read the current roster before you assume:
 
 ```bash
-command ls -1 ~/Developer/active/skills/skills
+command ls -1 ~/Developer/active/personal/skills/skills
 ```
 
 Match the work to a skill honestly:
@@ -145,7 +145,7 @@ Batch the long tail. One issue per finding is right for ten findings and wrong f
 ## What this skill will not do
 
 - File an Agent Work issue with no `**Skill:**` line
-- Name a skill that isn't in `~/Developer/active/skills/skills` without also filing the issue to build it
+- Name a skill that isn't in `~/Developer/active/personal/skills/skills` without also filing the issue to build it
 - Set a Todo issue that has no `Done looks like`
 - Put personal, school, or research work into Agent Work
 - Create duplicates of an open issue
