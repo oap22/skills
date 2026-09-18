@@ -8,22 +8,12 @@
     "vault": "~/Owen's Awesome Vault/.claude/skills"
   },
   "skills": {
-    "clion-run-input": [
+    "adversarial-review": [
       "claude",
       "cursor",
       "codex"
     ],
     "agent-task-runner": [
-      "vault",
-      "cursor",
-      "codex"
-    ],
-    "draft-outreach": [
-      "vault",
-      "cursor",
-      "codex"
-    ],
-    "file-agent-issue": [
       "vault",
       "cursor",
       "codex"
@@ -34,6 +24,16 @@
       "codex"
     ],
     "calendar-block": [
+      "vault",
+      "cursor",
+      "codex"
+    ],
+    "clion-run-input": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
+    "collaborator-sweep": [
       "vault",
       "cursor",
       "codex"
@@ -53,8 +53,18 @@
       "cursor",
       "codex"
     ],
-    "mail-digest": [
+    "draft-outreach": [
       "vault",
+      "cursor",
+      "codex"
+    ],
+    "file-agent-issue": [
+      "vault",
+      "cursor",
+      "codex"
+    ],
+    "issue-fleet": [
+      "claude",
       "cursor",
       "codex"
     ],
@@ -73,6 +83,11 @@
       "cursor",
       "codex"
     ],
+    "mail-digest": [
+      "vault",
+      "cursor",
+      "codex"
+    ],
     "morning-interview": [
       "vault",
       "cursor",
@@ -83,17 +98,27 @@
       "cursor",
       "codex"
     ],
+    "port-lab-forward": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
+    "professor": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
     "project-sync": [
       "vault",
       "cursor",
       "codex"
     ],
-    "collaborator-sweep": [
-      "vault",
+    "publish-to-github": [
+      "claude",
       "cursor",
       "codex"
     ],
-    "publish-to-github": [
+    "python-docstrings": [
       "claude",
       "cursor",
       "codex"
@@ -119,12 +144,47 @@
       "cursor",
       "codex"
     ],
+    "resume-build": [
+      "vault",
+      "cursor",
+      "codex"
+    ],
+    "rosie": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
     "rosie-run": [
       "claude",
       "cursor",
       "codex"
     ],
+    "scheduled-sync-task": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
     "skillify": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
+    "spaced-recall": [
+      "vault",
+      "cursor",
+      "codex"
+    ],
+    "swe2410-java-setup": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
+    "token-economy-run": [
+      "claude",
+      "cursor",
+      "codex"
+    ],
+    "turing": [
       "claude",
       "cursor",
       "codex"
@@ -149,62 +209,7 @@
       "cursor",
       "codex"
     ],
-    "spaced-recall": [
-      "vault",
-      "cursor",
-      "codex"
-    ],
-    "resume-build": [
-      "vault",
-      "cursor",
-      "codex"
-    ],
-    "adversarial-review": [
-      "claude",
-      "cursor",
-      "codex"
-    ],
-    "turing": [
-      "claude",
-      "cursor",
-      "codex"
-    ],
-    "issue-fleet": [
-      "claude",
-      "cursor",
-      "codex"
-    ],
-    "professor": [
-      "claude",
-      "cursor",
-      "codex"
-    ],
-    "swe2410-java-setup": [
-      "claude",
-      "cursor",
-      "codex"
-    ],
-    "port-lab-forward": [
-      "claude",
-      "cursor",
-      "codex"
-    ],
-    "python-docstrings": [
-      "claude",
-      "cursor",
-      "codex"
-    ],
-    "token-economy-run": [
-      "claude",
-      "cursor",
-      "codex"
-    ],
-    "scheduled-sync-task": [
-      "claude",
-      "cursor",
-      "codex"
-    ],
-    "rosie": [
+    "zed-language-setup": [
       "claude",
       "cursor",
       "codex"
