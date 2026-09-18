@@ -203,6 +203,11 @@
       "claude",
       "cursor",
       "codex"
+    ],
+    "rosie": [
+      "claude",
+      "cursor",
+      "codex"
     ]
   }
 }

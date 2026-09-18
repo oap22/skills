@@ -10,11 +10,11 @@ Last full sweep: **2026-08-12** (from Owen's Mac, on MSOE VPN).
 
 | | |
 |---|---|
-| SSH host alias | `ROSIE` → `<login-node>` (already in `~/.ssh/config`) |
+| SSH host alias | `rosie` → `<login-node>` (already in `~/.ssh/config`) |
 | User | `<cluster-user>` |
 | Home | `$HOME` |
 | Login node | `dh-mgmt2` — **no GPU** (`nvidia-smi` is not installed) |
-| Compute nodes | `dh-node[1-20]`, `dh-dgx1-[1-3]`, `dh-dgxh100-[1-2]` — via `ProxyJump ROSIE` |
+| Compute nodes | `dh-node[1-20]`, `dh-dgx1-[1-3]`, `dh-dgxh100-[1-2]` — via `ProxyJump rosie` |
 | Requires | **MSOE VPN when off campus.** Without it the hostname does not resolve. |
 | SLURM | 23.11.6 |
 | Account / QOS | account `students`, QOS `interactive` |

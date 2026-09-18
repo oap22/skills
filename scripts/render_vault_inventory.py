@@ -45,7 +45,7 @@ def render(repo):
         rows.append(f"| `{name}` | {description} | {', '.join(targets)} |")
     return "\n".join([
         START,
-        "Generated from `~/Developer/active/skills/manifest.json` and each skill's description. The installer refreshes this block; edit the source skill rather than this table.",
+        "Generated from `~/Developer/active/personal/skills/manifest.json` and each skill's description. The installer refreshes this block; edit the source skill rather than this table.",
         "",
         "| Skill | Purpose | Harnesses |",
         "|---|---|---|",
@@ -128,7 +128,7 @@ def _replace_block(text, block):
     # Preserve the old section verbatim after the managed block. This makes the
     # first migration safe even when the legacy list contains user-authored text.
     insert_at = skills[0][1]
-    intro = "\nSource of truth: `~/Developer/active/skills`. Edit there and run `./install.py`; do not hand-place managed skills. See [[.system/skills-portability]].\n\n"
+    intro = "\nSource of truth: `~/Developer/active/personal/skills`. Edit there and run `./install.py`; do not hand-place managed skills. See [[.system/skills-portability]].\n\n"
     return text[:insert_at] + intro + block + "\n" + text[insert_at:]
 
 

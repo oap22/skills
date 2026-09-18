@@ -58,7 +58,7 @@ That line is the issue telling you which tool it wants. Invoke that skill and le
 Three cases where the line doesn't resolve cleanly:
 
 - **`Skill: none — one-off`** — no skill exists because the work genuinely isn't repeatable. Do it directly, following the conventions. If you notice this is the third one-off of the same shape, say so in the report; it wants a skill.
-- **The named skill isn't in `~/Developer/active/skills/skills`** — do **not** improvise a substitute. → **Blocked**, comment naming the missing skill and pointing at `skillify` to build it.
+- **The named skill isn't in `~/Developer/active/personal/skills/skills`** — do **not** improvise a substitute. → **Blocked**, comment naming the missing skill and pointing at `skillify` to build it.
 - **No `**Skill:**` line at all** (an older issue, or one Owen typed by hand) — infer the right skill from the roster and say in your comment which one you picked and why. If nothing fits, → **In Review**, and note that the issue should be refiled through `file-agent-issue`.
 
 Then read the rest of the description and decide, *before touching anything*, how far you may go. The `**Skill:**` line decides *how*; this section decides *how far*.
