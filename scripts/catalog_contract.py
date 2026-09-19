@@ -14,6 +14,7 @@ TARGET_LAYOUTS = {
     "claude": (".claude", "skills"),
     "cursor": (".cursor", "skills"),
     "codex": (".codex", "skills"),
+    "gemini": (".gemini", "skills"),
     "vault": ("Owen's Awesome Vault", ".claude/skills"),
 }
 TARGET_NAMES = frozenset(TARGET_LAYOUTS)
