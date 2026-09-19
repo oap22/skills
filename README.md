@@ -1,6 +1,6 @@
 # skills
 
-Source of truth for Owen's agent skills across every harness — Claude Code, Cursor, Codex, and the Obsidian vault.
+Source of truth for Owen's agent skills across every harness — Claude Code, Cursor, Codex, Gemini, and the Obsidian vault.
 
 Established 2026-08-06 after clearing 74 accumulated skills down to nothing. See `.system/skills-audit-2026-08-06.md` in the vault for what was removed and why.
 
@@ -30,11 +30,23 @@ scripts/catalog_contract.py     shared catalog validator and target registry
 
 Idempotent. Removing a skill from `manifest.json` and re-running unlinks it everywhere — the repo stays the only place a skill is ever edited or deleted.
 
-A harness that isn't installed on the current machine is skipped rather than conjured into being — a laptop without the vault synced still gets its Claude Code, Cursor, and Codex links, and re-running after the vault lands fills in the rest.
+A harness that isn't installed on the current machine is skipped rather than conjured into being — a laptop without the vault synced still gets its Claude Code, Cursor, Codex, and Gemini links, and re-running after the vault lands fills in the rest.
 
 Add a harness by adding a `"name": (root, subpath)` row to `TARGET_LAYOUTS`
 in `scripts/catalog_contract.py`. `root` is the home-relative directory that
 must already exist for the harness to count as present here.
+
+## Gemini
+
+The `gemini` target links into `~/.gemini/skills`, which Gemini CLI reads
+(`gemini skills list`).
+
+The Gemini macOS app is sandboxed and can only read folders you choose, so it
+may not follow symlinks that point outside `~/.gemini/skills`. Point it at this
+repo instead: Settings → Skills → Manage skills folders → add
+`~/Developer/active/personal/skills/skills`. The app then reads the source
+files directly and picks up edits with no install step. That folder holds every
+skill regardless of `manifest.json`.
 
 ## manifest.json
 

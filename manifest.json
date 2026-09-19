@@ -5,214 +5,256 @@
     "claude": "~/.claude/skills",
     "cursor": "~/.cursor/skills",
     "codex": "~/.codex/skills",
+    "gemini": "~/.gemini/skills",
     "vault": "~/Owen's Awesome Vault/.claude/skills"
   },
   "skills": {
     "adversarial-review": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "agent-task-runner": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "brain-mail-ingest": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "calendar-block": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "clion-run-input": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "collaborator-sweep": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "daily-note": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "day-check": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "deep-interview": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "draft-outreach": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "file-agent-issue": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "issue-fleet": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "linear-project-setup": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "local-routine": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "log-outreach": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "mail-digest": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "morning-interview": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "plan-then-ship": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "port-lab-forward": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "professor": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "project-sync": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "publish-to-github": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "python-docstrings": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "reclaim-disk-space": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "research-ingest": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "research-interview": [
       "claude",
       "cursor",
       "vault",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "research-loop": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "resume-build": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "rosie": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "rosie-run": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "scheduled-sync-task": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "skillify": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "spaced-recall": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "swe2410-java-setup": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "token-economy-run": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "turing": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "vault-librarian": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "vault-lifecycle": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "vault-to-linear": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "vault-triage": [
       "vault",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ],
     "zed-language-setup": [
       "claude",
       "cursor",
-      "codex"
+      "codex",
+      "gemini"
     ]
   }
 }
