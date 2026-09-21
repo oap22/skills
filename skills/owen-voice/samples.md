@@ -191,3 +191,37 @@ His deliberate, sat-down voice at length. Contact header omitted.
 > Sincerely,
 
 Note: every body paragraph closes on a reflective *That...* / *I liked...* / *I have learned...* sentence. Credit is claimed, hedging is gone, everything is quantified — but the words stay plain, "we/our" survives for the team result, and it still ends on an exclamation point. "I would love" appears twice in the last paragraph; it is the most consistent phrase in the whole corpus.
+
+---
+
+## Part 4 — Academic reflection (high gear, co-edited)
+
+### CSC 2210 SPA 1 reflection, Q3 (2026-09-20)
+
+**Provenance, read before using as evidence.** Owen drafted this answer himself; Claude then corrected facts, restructured it, and rewrote the sentences to the rules in `SKILL.md`. Owen approved the result and asked for it to be added here. It is the first academic sample in this file, but because it passed through these rules, it partly confirms them rather than testing them. Treat it as a worked example of the register, not independent evidence. His own unedited sentences survive in the first two paragraphs and the three bullets.
+
+Prompt: *Did the LLM invent requirements, give an incorrect explanation, add unnecessary features, or use concepts beyond what we have covered? If you found none, say so.*
+
+> The LLM did give an incorrect explanation in one category, but it did not invent any requirements, add unnecessary features, or use concepts beyond what we have covered, and it did what I asked.
+>
+> There were no invented requirements, no added validation, and no error codes. The LLM also brought up two things that it decided not to add: a `FluidRecord` struct and anonymous namespaces. I do not know exactly what the struct would have done, so it is not something I would have added either.
+>
+> The LLM response contained three incorrect numbers:
+>
+> - It claimed that three lines exceeded 100 characters, but only lines 19 and 20 did. Its own explanation describes the third line as already wrapped and not a violation, and then counts it anyway.
+> - It said those two lines were 113 and roughly 137 characters long, but they are actually 121 and 135.
+> - It said the longest line in its version was 79 characters, but it is actually 80.
+>
+> Everything else it said about how the code was structured was correct. The only mistakes were in counting, and it never said that it could not count.
+>
+> It also changed the banner without mentioning it, swapping an em dash for a hyphen. It overstated one thing as well. It said the three item names now appear only once, which is true for where they are written, but `isLossOfFluid` is still called twice for every record.
+>
+> To be fair, it argued against its own suggestions in three places. It flagged the banner change as a possible error because it could not check it, it called change 5 a preference and said that undoing it would cost nothing, and it said that for change 6, writing the line inline would work just as well and use one less function.
+>
+> It was careful about the one thing it could not check, but it made up three numbers that it could have checked, and it said both with the same confidence. That taught me that an LLM sounding sure of itself does not mean it is right, and that specific numbers are something I need to check myself.
+
+Note: no contractions (graded writing to a professor). Verdict first, echoing the question's own categories. Evidence, then a closing *That...* sentence. Plain words throughout; "made up" instead of "fabricated". His own first draft used one contraction ("couldn't count"), so the no-contraction rule for class writing is inferred from the register dial, not observed. Confirm it with an unedited reflection before relying on it.
+
+Owen rejected an earlier wording of the second paragraph, "it considered a `FluidRecord` struct but rejected it," as sounding like an LLM. His own phrasing for the idea was "the two things that the LLM suggested and that I did not implement." Plain verbs like "brought up" and "decided not to add" beat "considered and rejected."
+
+A second pass (same day) replaced the remaining jargon and LLM-sounding phrases with plainer ones at Owen's request: "structural claims" became "what it said about how the code was structured", "call sites" became "where they are written", "confidence is not a reliable signal" became "an LLM sounding sure of itself does not mean it is right". He does not use terms he cannot explain, and said so about the struct: "I didn't really know exactly what the struct was."
