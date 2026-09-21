@@ -56,7 +56,7 @@ You can read everything the desktop shows: the JSONL/JSON files above, the SVG/P
 
 ## Orientation
 
-- Repo conventions: `CLAUDE.md` at the Turing repo root (issue-claiming, branch naming, PR tiers, GitNexus).
+- Repo conventions: `AGENTS.md` at the Turing repo root (issue-claiming, branch naming, PR tiers, GitNexus).
 - Research state: `research/HANDOFF.md`, `research/JOURNAL.md`, the agreed brief in `research/briefs/`.
 - Desktop app usage/keymap: `desktop/README.md` (mod=⌘, ⌘P launcher, workspaces 1–5).
 - The gateway panes (queue/chat/obs) talk to the dormant coordinator stack — offline is their normal state until that wakes.
