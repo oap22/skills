@@ -69,6 +69,13 @@
       "codex",
       "gemini"
     ],
+    "feature-interview": [
+      "claude",
+      "cursor",
+      "vault",
+      "codex",
+      "gemini"
+    ],
     "file-agent-issue": [
       "vault",
       "cursor",
