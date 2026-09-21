@@ -1,0 +1,15 @@
+{
+  "output": "SPA1_Reflection_Owen_Pacetti.docx",
+  "title": "SPA 1 Reflection: My Functions vs. the LLM's",
+  "author": "Owen Pacetti",
+  "meta": ["CSC 2210, Fall 2026", "September 20, 2026"],
+  "llm": "Claude Opus 5",
+  "note": "Note: This document was formatted with assistance from Claude Opus 5.",
+  "footer": "SPA 1 Reflection",
+  "sections": [
+    {"heading": "1. My function-based code", "type": "code", "file": "tracking_fluids.cpp"},
+    {"heading": "2. My prompt to the LLM", "type": "markdown", "file": "notes/prompt_as_sent.md", "headingShift": 1},
+    {"heading": "3. The LLM's output (critique and revised code)", "type": "llm-output", "file": "notes/llm_output.md", "pageBreakBefore": true},
+    {"heading": "4. Reflection", "type": "markdown", "file": "notes/reflection.md"}
+  ]
+}
