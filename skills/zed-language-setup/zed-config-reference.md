@@ -85,7 +85,8 @@ Adapter name comes from the extension's `extension.toml` (`[debug_adapters.Java]
     "adapter": "Java",
     "request": "launch",
     "mainClass": "<MainClass>",
-    "vmArgs": "--module-path \"<JFX_DIR>/lib\" --add-modules=javafx.controls,javafx.fxml --enable-native-access=javafx.graphics",
+    "modulePaths": ["<JFX_DIR>/lib"],
+    "vmArgs": ["--add-modules=javafx.controls,javafx.fxml", "--enable-native-access=javafx.graphics"],
     "cwd": "$ZED_WORKTREE_ROOT",
     "stopOnEntry": false
   },
@@ -98,6 +99,12 @@ Adapter name comes from the extension's `extension.toml` (`[debug_adapters.Java]
   }
 ]
 ```
+
+Put the JavaFX path in `modulePaths`, never in `vmArgs`. The adapter does not shell-parse
+`vmArgs`, so a quoted path (`--module-path \"...\"`, copied from an IntelliJ
+`VM_PARAMETERS` string) reaches the JVM with the quote characters included and fails with
+`FindException: Module javafx.controls not found`. The adapter also builds its own module
+path, and a second one passed through `vmArgs` can conflict with it.
 
 Launch options: `mainClass`, `projectName`, `args`, `vmArgs`, `classPaths`
 (`$Auto`/`$Runtime`/`$Test`), `modulePaths`, `cwd`, `env`, `stopOnEntry`.
@@ -116,24 +123,128 @@ C/C++ uses the built-in `CodeLLDB` adapter:
 ]
 ```
 
-## `<project>/.zed/tasks.json` — JavaFX build/run without the debugger
+## Running Java: the gutter ▶ and tasks
+
+### Rules learned the hard way
+
+- **Zed expands `$NAME` in task `command`/`args` itself**, before any shell runs. A shell
+  variable Zed doesn't know (`JFX=...; javac --module-path "$JFX"`) becomes an empty
+  string, and `javac --module-path ""` fails with `error: module not found: javafx.fxml`.
+  Put the logic in a script and pass the script only `$ZED_*` variables. Running a task's
+  args by hand in bash skips this substitution, so a passing bash test does not prove the
+  task works. Only a run from inside Zed does.
+- **The Java extension's own ▶ task ("Run Main") cannot run JavaFX.** For projects with no
+  pom.xml or build.gradle, it runs `javac -d bin` and `java -cp bin` with no module path,
+  and it never copies `.fxml` files.
+- **A task tagged `java-main` takes over the ▶.** Zed's precedence is worktree
+  `.zed/tasks.json`, then global `~/.config/zed/tasks.json`, then the extension
+  (`templates_with_tags` in `crates/editor/src/runnables.rs`). Every ▶ the extension draws
+  (main method, main class, implicit class) uses the `java-main` tag.
+- **The ▶ binding is cached per open file.** Zed resolves it once and keeps it until the
+  buffer changes (`has_cached`). After changing `tasks.json`, reopen the file or restart
+  Zed. Otherwise the old task keeps running and the new config looks broken.
+
+### Global runner: install once, every Java project works
+
+`~/.config/zed/java-run.sh`:
+
+```bash
+#!/usr/bin/env bash
+# Called by the java-main task in ~/.config/zed/tasks.json:
+#   bash ~/.config/zed/java-run.sh <worktree-root> <package> <class>
+set -euo pipefail
+
+root="$1"; pkg="${2:-}"; cls="$3"
+main="${pkg:+$pkg.}$cls"
+cd "$root"
+
+if [ -f pom.xml ]; then
+    mvn -q compile exec:java -Dexec.mainClass="$main"
+    exit
+fi
+if [ -f build.gradle ] || [ -f build.gradle.kts ]; then
+    if [ -x ./gradlew ]; then ./gradlew run; else gradle run; fi
+    exit
+fi
+
+if [ -d src/main/java ]; then srcdir=src/main/java
+elif [ -d src ]; then srcdir=src
+else srcdir=.
+fi
+
+mkdir -p out
+find "$srcdir" -name '*.java' -not -path '*/test/*' -not -path './out/*' > out/sources.txt
+
+fx=()
+if grep -rqs --include='*.java' '^import javafx' "$srcdir"; then
+    sdk=$(ls -d "$HOME"/Library/Java/javafx-sdk-*/lib 2>/dev/null | sort -V | tail -1 || true)
+    if [ -z "$sdk" ]; then
+        echo "This project uses JavaFX but no SDK was found at ~/Library/Java/javafx-sdk-*/lib" >&2
+        exit 1
+    fi
+    echo "JavaFX: $sdk"
+    fx=(--module-path "$sdk" --add-modules=ALL-MODULE-PATH)
+    fxrun=("${fx[@]}" --enable-native-access=javafx.graphics)
+fi
+
+# ${a[@]+...} guards empty arrays under set -u on macOS's bash 3.2.
+javac ${fx[@]+"${fx[@]}"} -d out @out/sources.txt
+rsync -a --exclude='*.java' --exclude='out/' --exclude='.*' "$srcdir"/ out/
+
+echo "--- running $main ---"
+exec java ${fxrun[@]+"${fxrun[@]}"} -cp out "$main"
+```
+
+The script picks the newest SDK itself, so a new JavaFX version needs no config change.
+The `rsync` step copies `.fxml`, `.css`, and images next to the classes. `javac` does not
+move resources, and a missing `.fxml` surfaces as a confusing `LoadException` at runtime.
+
+Global `~/.config/zed/tasks.json` entry:
+
+```jsonc
+{
+  "label": "Java: run $ZED_CUSTOM_java_class_name",
+  "command": "bash",
+  "args": [
+    "<HOME>/.config/zed/java-run.sh",
+    "$ZED_WORKTREE_ROOT",
+    "${ZED_CUSTOM_java_package_name:}",
+    "$ZED_CUSTOM_java_class_name"
+  ],
+  "reveal": "always",
+  "allow_concurrent_runs": false,
+  "tags": ["java-main"]
+}
+```
+
+`ZED_CUSTOM_java_package_name` and `ZED_CUSTOM_java_class_name` come from the extension's
+`runnables.scm` captures. `${VAR:}` gives an empty default for classes with no package.
+
+Verified on 2026-09-18 with Zed 1.20.2 and `java` extension v6.8.27: the checkers JavaFX
+lab (package + fxml), a plain packaged class, and a single-file class with no `src/`.
+Maven and Gradle handoff is untested.
+
+### Per-project override (optional)
+
+A project needs its own task only when the global runner guesses wrong, for example a
+different source root or a non-JavaFX module. Use the same pattern: a script in `.zed/`,
+and a thin task that calls it.
 
 ```jsonc
 [
   {
     "label": "<App>: run",
     "command": "bash",
-    "args": ["-lc", "JFX=\"<JFX_DIR>/lib\"; mkdir -p out && javac --module-path \"$JFX\" --add-modules=javafx.controls,javafx.fxml -d out $(find src -name '*.java') && rsync -a --include='*/' --include='*.fxml' --include='*.css' --exclude='*' src/ out/ && java --module-path \"$JFX\" --add-modules=javafx.controls,javafx.fxml --enable-native-access=javafx.graphics -cp out <MainClass>"],
+    "args": [".zed/<app>.sh", "run"],
     "cwd": "$ZED_WORKTREE_ROOT",
-    "reveal": "always"
+    "reveal": "always",
+    "tags": ["java-main"]
   }
 ]
 ```
 
-`.fxml` and `.css` must be copied next to the compiled classes — `javac` does not move
-resources, and a missing `.fxml` surfaces as a confusing `LoadException` at runtime.
-
-Task variables: `$ZED_FILE`, `$ZED_DIRNAME`, `$ZED_WORKTREE_ROOT`.
+Task variables: `$ZED_FILE`, `$ZED_DIRNAME`, `$ZED_WORKTREE_ROOT`, plus the
+`ZED_CUSTOM_*` captures from the language's `runnables.scm`.
 
 ## Validating JSONC before trusting it
 

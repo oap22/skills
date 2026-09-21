@@ -80,7 +80,9 @@ for a language they edit elsewhere causes cross-editor fights.
 
 ## Step 4 — Per-project `.zed/`
 
-`.zed/debug.json` and `.zed/tasks.json` in the project root. Get the debug adapter name from the
+Running needs nothing per-project once the global runner (see Rules) is installed. Add
+`.zed/debug.json` for breakpoints, and `.zed/tasks.json` only when the global runner guesses
+wrong. Get the debug adapter name from the
 extension's own `extension.toml` (`[debug_adapters.<Name>]`) — for `zed-extensions/java` it is
 `"Java"`. Do not guess adapter names.
 
@@ -93,6 +95,9 @@ Config that parses is not config that works.
 2. Compile a throwaway JavaFX app against the module path. A successful `javac` proves the
    module path; a visible window proves the natives loaded.
 3. Open the real project and confirm `import javafx.*` resolves and a breakpoint binds.
+4. Have the user click ▶ next to `main` in Zed and paste the terminal output. The
+   `⏵ Task <label>` line names the task that actually ran. Running a task's args yourself in
+   bash is not verification, because it skips Zed's variable substitution.
 
 ## Rules
 
@@ -104,6 +109,17 @@ Config that parses is not config that works.
   sees only jars in `java.project.referencedLibraries`. This is the single most common cause of
   unresolved `javafx.*` imports. Fallback if it doesn't take: a `lib/` folder of symlinks in the
   project, which the default `lib/**/*.jar` glob already covers.
+- **Install the global Java runner once** (`java-run.sh` plus a `java-main`-tagged task in
+  `~/.config/zed/tasks.json`, both in `zed-config-reference.md`). The Java extension's own ▶
+  task runs `javac` with no JavaFX and drops `.fxml`, so it can never run a course lab. With the
+  global runner in place, a new project needs no per-project run config.
+- **No shell variables in `tasks.json` `command`/`args`.** Zed substitutes `$NAME` itself and
+  blanks names it doesn't know, which turned `--module-path "$JFX"` into
+  `--module-path ""` and caused `module not found: javafx.fxml`. Put logic in a script.
+- **The ▶ binding is cached per open file.** After changing `tasks.json`, tell the user to
+  reopen the file or restart Zed before testing, or the old task keeps running.
+- **Debug `vmArgs` are not shell-parsed.** Never quote paths inside them. Put the JavaFX path in
+  `modulePaths` instead. A quoted `--module-path` gives `Module javafx.controls not found`.
 - **`xattr -dr com.apple.quarantine` the unpacked JavaFX SDK.** macOS quarantines downloaded
   dylibs and JavaFX natives will refuse to load. This failure does not exist on Windows, so
   course docs never mention it.
