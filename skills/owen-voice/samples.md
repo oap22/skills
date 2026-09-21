@@ -169,3 +169,25 @@ Note: he justifies even a trivial request.
 > Hi [Firstname], Sounds good. I will go apply on the site now.
 
 Note: warm, exclamation-heavy, and never padded. An acknowledgment is one line.
+
+---
+
+## Part 3 — Long-form writing (high gear)
+
+His deliberate, sat-down voice at length. Contact header omitted.
+
+### Cover letter — [Company] [Program] (2026-09-08)
+
+> Dear [Company] Hiring Team:
+>
+> I am applying for the [Program] Intern - Software position ([requisition ID]). I am a sophomore studying computer science at the Milwaukee School of Engineering with a [x.xx] GPA. I recently finished a software engineering internship at Cognex, and I currently work on galaxy cluster research at MSOE. I am especially interested in this role because it combines software engineering with healthcare and gives interns the chance to work on real projects with experienced mentors. That is exactly what I am looking for in my next internship.
+>
+> At Cognex, I worked on In-Sight Vision Suite, a .NET application for industrial vision systems. My largest project was leading role-based access control in C# and WPF. The feature gated 12 utilities behind two firmware-secured permission levels, and I designed the permission model so new configurations could be added without code changes. I also migrated five OPC-UA test suites to pytest and fixed UI and logic defects in C# and Python. That experience taught me how important clear design and thorough testing are when a feature touches several parts of a large product.
+>
+> I first became interested in healthcare software through Hack 4 Health, an event run by MSOE and the Medical College of Wisconsin. Our team placed second after building a tested Qdrant RAG layer that grounded patient-friendly summaries in biomedical source text. I liked working on a problem where getting the software right could make complicated medical information easier to understand. My current research has also pushed me to learn a large Python codebase and work through problems that do not have obvious answers. Between research, AI Club, and varsity soccer, I have learned how to take initiative while still being a dependable teammate.
+>
+> I would love the chance to bring that experience to [Company] and keep growing as a software engineer in the [Program]. Thank you for taking the time to consider my application. I would love to talk more about this opportunity!
+>
+> Sincerely,
+
+Note: every body paragraph closes on a reflective *That...* / *I liked...* / *I have learned...* sentence. Credit is claimed, hedging is gone, everything is quantified — but the words stay plain, "we/our" survives for the team result, and it still ends on an exclamation point. "I would love" appears twice in the last paragraph; it is the most consistent phrase in the whole corpus.
