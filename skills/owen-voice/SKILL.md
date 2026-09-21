@@ -25,19 +25,21 @@ This is the single thing to get right. His register does not move on a formal/in
 
 **Formality is not what suppresses his contractions — authority is.** He writes "I'm running into some blockers" to a teammate he's failing, and "I do think that next time you should reach out to me" to a teammate he's correcting. Getting this backwards is the most likely way a draft stops sounding like him.
 
-### Effort tier
+### Effort tier — read this before drafting anything he cares about
 
-Inside the formal register he has two gears, and which one he uses depends on how much he cared, not on who he is writing to.
+Owen has two gears, and which one he uses depends on **how much effort he is putting in**, not on who he is writing to.
 
-Going quick, he is short and functional: *"I hope to join their [specialty] unit and the Officer Program is the first step in that process."*
+*Dictating, or moving fast:* short sentences, plain words, loose construction. Most of `samples.md` is this gear, because most of it was dictated.
 
-Deliberately trying, he writes fuller reasoning with real subordination:
+*Sitting down and actually focusing:* the sentences get longer, the construction gets more complex, and the vocabulary genuinely elevates. In his own words — *"Definitely write with more complex language when I actually sit down and really focus and write, whereas if I'm just doing the voice dictation, I'm not going to speak like that."*
 
 > I learned a great deal in your AP Chemistry class, and I attribute much of my academic success to the rigor of your course. I believe you have a strong understanding of my character and that your recommendation would be a significant asset to my application.
 
-Both are his, confirmed 2026-09-20. Match the gear to the stakes — a scheduling reply gets the quick one, a reference request or a sponsor ask gets the considered one.
+That is his high gear, written by him, deliberately. "I attribute much of my academic success to the rigor of your course" is not a sentence he would ever say out loud.
 
-The considered gear is still plain. It adds reasoning and subordinate clauses, **not vocabulary**. He never reaches for a fancier word, only a more complete thought. If a draft in the high gear contains a word he would not have used in the low gear, that is drift, not effort.
+**Consequence for everything below:** the rules in this file were derived mostly from dictation, so they describe his *low* gear. They are a floor, not a ceiling. When the stakes are real — a reference request, a sponsor ask, a paper, an application essay, a cover letter — write the high gear and do not flatten it back down to match the samples. When the task is a scheduling reply or a quick message, use the low gear.
+
+The register dial above still governs in both gears. Authority still controls contractions; a high-gear email to someone he is asking a favor of still has no contractions in it.
 
 ## Signature constructions
 
@@ -106,6 +108,6 @@ Built 2026-09-20 from two sources:
 Honest gaps. Fill these before trusting the file outside what it covers.
 
 - **Casual/peer register rests on two dictated samples.** Owen confirms he uses the same voice in Slack and Discord as everywhere else, so the risk here is lower than the sample count suggests — but no actual chat corpus was read. If a casual draft misses, that is the likeliest reason.
-- **Dictated formal prose is low-fidelity.** Owen flagged this himself: "it is hard to voice dictate well." The formal rules above lean on the real sent mail, not the dictated sponsor email.
+- **Seven of eight samples are dictation, and dictation understates him.** Owen flagged both halves of this: "it is hard to voice dictate well," and that he writes with more complex language when he focuses. Treat `samples.md` Part 1 as his speaking voice. The written voice is in Part 2 and in the high gear described above.
 - **Wispr Flow dictation history was never read.** `~/Library/Application Support/Wispr Flow` is a protected macOS location the device tools refuse, and Wispr's cloud sync is off, so the scratchpad API returns nothing. If that history is ever exported to an accessible folder it is the best available corpus and this file should be rebuilt from it.
-- **No long-form writing sample.** Nothing here covers how he sounds in a paper, an essay, or documentation at length. The `## The trap` section is the only guidance for that case and it is inference, not evidence.
+- **No long-form writing sample, and this is now the biggest gap.** Nothing here covers a paper, an essay, or documentation at length — which is exactly where the high gear lives and where the dictated evidence is weakest. One real essay or paper section from him would improve this file more than any other addition.
