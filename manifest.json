@@ -94,6 +94,12 @@
       "codex",
       "gemini"
     ],
+    "llm-reflection-submission": [
+      "claude",
+      "cursor",
+      "codex",
+      "gemini"
+    ],
     "local-routine": [
       "claude",
       "cursor",
