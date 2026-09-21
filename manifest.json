@@ -111,6 +111,12 @@
       "codex",
       "gemini"
     ],
+    "owen-voice": [
+      "claude",
+      "cursor",
+      "codex",
+      "gemini"
+    ],
     "plan-then-ship": [
       "claude",
       "cursor",
