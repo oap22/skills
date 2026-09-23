@@ -124,15 +124,13 @@ Use the helper with all loop metadata explicit; omitted costs or intervention
 counts are not treated as zero:
 
 ```bash
-log_run.py trajectory ~/research-results/loop-verifiable --round 0 \
+python3 "$LOG_RUN" trajectory ~/research-results/loop-verifiable --round 0 \
   --run-dir ~/research-results/2026-08-14-loop-verifiable-r00 \
   --primary 0.629 --noise-floor 0.011 --secondary 0.510 \
   --gpu-hours 4.2 --dollars 1.85 --human-interventions 1
 ```
 
-The metrics updater uses an exclusive lock and atomic replacement. A lock left
-by an interrupted process is a deliberate stop condition; inspect it before
-removing it rather than allowing two writers to merge from stale state.
+Lock and stale-lock behavior of the metrics updater: `conventions.md` § metrics.json.
 
 ## Sweeping
 

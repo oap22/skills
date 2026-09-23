@@ -1,6 +1,6 @@
 ---
 name: rosie-run
-description: Dispatch work from this Mac to MSOE's Rosie cluster and bring results back — preflight the VPN and SSH, push code by git, submit an sbatch job or array sweep, poll without babysitting, then pull results back to the Mac's shared results root. Use when Owen says "run this on Rosie", "submit to the cluster", "sbatch this", "run the sweep on ROSIE", "check my Rosie job", or when an experiment is too large for the Mac. Pairs with research-loop, which owns the experiment discipline.
+description: "Dispatch work from this Mac to MSOE's Rosie cluster and bring results back: preflight VPN and SSH, push by git, submit an sbatch job or array sweep, poll, pull results to the shared results root. Use for \"run this on Rosie\", \"sbatch this\", \"check my Rosie job\". Experiment discipline is research-loop."
 ---
 
 # Rosie Run
@@ -57,17 +57,7 @@ Capture: which management node you landed on, home quota and how full it is, ava
 
 ### 3. Pick the partition
 
-Verified 2026-08-12 — full detail and current contention in `rosie-facts.md`:
-
-| Partition | Time limit | Use for |
-|---|---|---|
-| `teaching` (default) | 7 days | Short jobs, smoke tests, CPU work |
-| `batch` | 2 days | General batch |
-| `highmem` | 7 days | Memory-bound work (`dh-node[19-20]`) |
-| `dgx` | **21 days** | Long GPU runs (3× DGX-1) |
-| `dgxh100` | **21 days** | 8× H100/node, 1.9TB RAM, 224 CPUs |
-
-**The 21-day limit on `dgx`/`dgxh100` is what makes a long flywheel run possible** (`OWE-13`). But check contention first — at the 2026-08-12 sweep `dgx` was fully allocated and one of the two H100 nodes was draining, leaving a single usable H100 node. Plan for 8 GPUs, not 16, until `sinfo -p dgxh100` says otherwise.
+Partition table, node detail, and last-observed contention: `rosie-facts.md` § Partitions. **Wall time: QoS `interactive` caps every job at 1 day and 4 running jobs per user, overriding the partition maxima** (verified 2026-09-17). A longer QoS for a multi-day flywheel run is unverified (was tracked as OWE-13; that workspace was retired 2026-09-18) — check `sacctmgr -n -P show assoc user=$USER format=qos` before planning one. Run `sinfo -p dgx,dgxh100` before planning around 16 H100s; the contention note in `rosie-facts.md` is dated 2026-08-12.
 
 ### 4. Environment discovery — do not assume
 
@@ -77,9 +67,7 @@ Module systems, Python versions, container runtimes, and partition names are clu
 ssh rosie 'module avail 2>&1 | head -40; echo ---; python3 -V; echo ---; which singularity conda uv 2>&1'
 ```
 
-As of 2026-08-12: Python 3.12.11 on the login node, `cuda/12.9` default, singularity 3.10.0, miniforge conda, and `uv` at `/snap/bin/uv`.
-
-**The compute nodes run a different Python patch than the login node** — 3.12.10 on `dh-node3` vs 3.12.11 on `dh-mgmt2`. Build environments *inside the job* or use a container; anything validated only against the login interpreter is not guaranteed on a node. (This is why `log_run.py` is stdlib-only, and it ran unmodified on `dh-node3` with zero setup.)
+Versions, modules, and the login-vs-compute Python mismatch are in `rosie-facts.md` § Software. Build environments *inside the job* or use a container; anything validated only against the login interpreter is not guaranteed on a node.
 
 `rosie-facts.md` § Open / Unverified lists what nobody has confirmed yet. **Do not build a job script on an unverified fact** — check it, then record it with the date.
 
@@ -105,13 +93,11 @@ If `git status --porcelain` is non-empty, do not continue with the commands abov
 
 **Compare the SHA Rosie reports against your local `HEAD`.** If they differ, you are about to run code you have not read. This check takes two seconds and catches a whole category of confusing results.
 
-**Use SSH remotes, not HTTPS** — verified 2026-08-12. Rosie already has a GitHub SSH key registered for `oap22`, so `git@github.com:oap22/<repo>.git` clones and pulls with no setup. HTTPS against a private repo fails there (no stored credential) and the error reads like a missing repository rather than an auth problem, which sends you debugging the wrong thing.
-
-GitLab is different: the Revit-to-Robot repos live there and the `gitlab-rosie` PAT expired around 2026-04-26 (`OWE-12`, still open). Assume GitLab access from Rosie is broken until that's reissued.
+**Use SSH remotes (`git@github.com:oap22/<repo>.git`), not HTTPS**, and assume GitLab access from Rosie is broken (expired PAT, see § Network). Why, and the 2026-08-12 evidence: `rosie-facts.md` § Network.
 
 ### 2. Stage data with rsync
 
-**Large data goes to `/data`, not home.** `/home` was **97% full** on 2026-08-12 (a 102T filesystem shared by every user, with Owen at 97G of it). Filling it fails your job *and* other people's, and out-of-space on a shared mount surfaces as unrelated crashes rather than a clear error.
+**Large data goes to `/data`, not home.** `/home` is a shared mount that was near full at the last check (`rosie-facts.md` § Storage). Filling it fails your job *and* other people's, and out-of-space on a shared mount surfaces as unrelated crashes rather than a clear error.
 
 ```bash
 ssh rosie 'df -h /home /data'          # ALWAYS before a multi-GB transfer
@@ -121,11 +107,9 @@ rsync -avzP --exclude='.git' --exclude='__pycache__' --exclude='*.pyc' \
       <local-data>/ rosie:/data/<...>/
 ```
 
-`-P` matters: it gives progress and resumes a partial transfer instead of restarting a multi-GB copy from zero.
+`-P` matters: it gives progress and resumes a partial transfer instead of restarting a multi-GB copy from zero. Capacity questions: `df`, not `quota` or `du -sh ~` (see § Storage).
 
 **Never ship the local results root up.** It lives outside every repo now (`~/research-results`), so it usually isn't inside the tree you're syncing anyway — but if you're rsyncing from `~`, exclude it. Rosie writes its own results into its own `~/research-results`; pushing the Mac's copy up would overwrite fresh cluster output with stale local output and cost you the transfer twice.
-
-There is **no `quota` command** on Rosie — capacity questions are answered with `df`. Don't reach for `du -sh ~` either; it takes over two minutes on this filesystem. Background it if you truly need it.
 
 ### 3. Submit
 
@@ -133,7 +117,8 @@ Templates are in `templates/`. Copy, fill, submit — never write one from scrat
 
 ```bash
 scp templates/job.sbatch rosie:~/<repo>/jobs/
-ssh rosie 'cd ~/<repo> && sbatch jobs/job.sbatch'   # prints the job ID — record it
+scp <resolved-research-loop-skill-directory>/log_run.py rosie:~/<repo>/   # templates call it from $SLURM_SUBMIT_DIR
+ssh rosie 'cd ~/<repo> && mkdir -p logs && sbatch jobs/job.sbatch'   # prints the job ID — record it
 ```
 
 **The job script runs `log_run.py` inside the job**, so the record is written where the compute happened, with the real SLURM IDs captured (`log_run.py` picks up `SLURM_JOB_ID` and `SLURM_ARRAY_TASK_ID` into `run.json` automatically). Do not run the experiment bare and reconstruct a record afterward.
@@ -206,13 +191,3 @@ Rules that keep a sweep interpretable:
 - **Write results to a per-task directory** keyed by `SLURM_ARRAY_TASK_ID`. Concurrent tasks writing one file corrupt it, and the corruption is silent.
 - **Throttle with `%`** (`--array=0-63%8`) to cap concurrent tasks. Uncapped, you take the whole partition and make enemies.
 - **Log what was dropped.** If tasks fail, say how many and which. A sweep reported as complete when 12 of 64 tasks died is a false result.
-
-## Never
-
-- Start the VPN, or touch VPN configuration. Ask Owen.
-- Run compute on the login node.
-- Submit a job whose cost you haven't stated.
-- Rsync source code for a run that will be logged as a result.
-- Cite a run whose Rosie SHA didn't match local `HEAD`.
-- Delete anything from Rosie storage without explicit, scoped cleanup authorization — cluster home directories are not backed up the way you'd hope.
-- Write a fact into `rosie-facts.md` you did not observe in command output.

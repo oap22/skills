@@ -1,6 +1,6 @@
 ---
 name: adversarial-review
-description: Red-teams a code change by fanning out several independent reviewers with distinct assigned lenses, each required to produce a concrete failure scenario, then fixing and running a verifier pass whose job is to break the fix. Use when the user says "adversarial code review", "red-team this diff", "try to break this change", "review this hard", "use adversarial review to check the work", or asks for multiple independent reviewers on a change.
+description: "Red-team a code change: several reviewers with distinct lenses each produce a concrete failure scenario, then a verifier tries to break the fix. Use for \"adversarial review\", \"red-team this diff\", \"try to break this change\". Spec-free; plan-then-ship delegates its review step here."
 ---
 
 # Adversarial Review
@@ -11,7 +11,7 @@ Several reviewers attack one diff from different angles at the same time, none o
 
 Use it on any change worth being sure about — your own, a subagent's, a collaborator's. It does not need a spec and does not need the `plan-then-ship` pipeline.
 
-**Related, do not confuse:** `plan-then-ship` owns the full plan → implement → ship pipeline, and its `review.md` is a sequential review scored against a written spec. This skill is the standalone, spec-free, parallel version. `plan-then-ship` may call into this skill for its review step; this skill never invokes that pipeline.
+**Related, do not confuse:** `plan-then-ship` owns the full plan → implement → ship pipeline, and its `review.md` scores findings against a written spec and runs the repair loop. This skill is the standalone, spec-free version it delegates to. `plan-then-ship` calls into this skill for its review step (its `review.md` adds spec fidelity and the repair loop); this skill never invokes that pipeline.
 
 Read `lenses.md` before spawning anyone — it holds the lens catalog and the reviewer prompt template.
 
@@ -39,14 +39,7 @@ Choose by what this change could plausibly break, not by a fixed checklist. A ch
 
 If the harness can spawn parallel subagents, launch them in one batch so they run concurrently — a mid-tier model at high reasoning effort is right for this; the lens is doing the work, not raw model strength. If it cannot, run the lenses sequentially yourself in separate passes, resetting your framing between them.
 
-Build each prompt from the template in `lenses.md`. Every prompt must carry:
-
-- **"You are an adversarial reviewer. Your job is to break this, not to praise it."**
-- **"Do not trust the author's summary."** Prose claims like "this falls out for free" are exactly what needs checking in code.
-- The scope, the out-of-scope list, and the one lens.
-- **The concrete-failure-scenario bar** (step 4).
-- **"Do not edit any repo files."** Parallel reviewers writing to one tree corrupt each other's reads. Give them a scratch directory instead.
-- Permission to run the test suite and to write throwaway tests in scratch.
+Build each prompt from "Reviewer prompt template" in `lenses.md`; keep every unbracketed sentence. Give each reviewer its own scratch directory — parallel reviewers writing to one tree corrupt each other's reads.
 
 ### 4. Hold findings to the failure-scenario bar
 
@@ -61,18 +54,11 @@ Every finding must state: **exact starting state → exact action → exact wron
 
 ### 6. Fix
 
-One fixer, given the findings, the intended new behavior stated as a rule, and an explicit "do not touch \<the out-of-scope items\>". Specify the desired contract in one sentence — if you only hand over the findings, the fixer invents a rule and it will be nearly-right.
-
-For behavioral fixes, require a regression check that fails before the fix. Run the before/after comparison in a disposable worktree or scratch copy; never revert or stash a shared working tree to prove it.
+One fixer, prompted per "Fixer prompt notes" in `lenses.md`: the one-sentence contract, the ranked findings, and an explicit "do not touch \<the out-of-scope items\>". The fail-first regression check and the disposable-copy rule are in those notes.
 
 ### 7. Verify — the round people skip
 
-Use a **fresh** reviewer when available; otherwise do a distinct sequential verification pass and disclose that it is not independent. The verifier is told to disprove the fix. Give it the claimed contract verbatim and a numbered list of properties to prove or disprove.
-
-It must:
-- Test against the **real exported code path**, not the helper in isolation and not a re-implementation of the reducer/handler.
-- **Flag any test that would still pass if the fix were reverted** — the sharpest finding available, and the one that catches a hollow fix.
-- Re-check that the fix did not break something adjacent, and that renames left no stale references, comments, or docs.
+Use a **fresh** reviewer when available; otherwise do a distinct sequential verification pass and disclose that it is not independent. Prompt it per "Verifier prompt template" in `lenses.md`: the claimed contract verbatim plus a numbered list of properties to prove or disprove. The real-code-path, revert-still-passes, and adjacent-breakage checks are in that template.
 
 If it finds something real, go back to step 6. Two fix→verify rounds is normal; more than three means the contract itself is wrong — stop and re-decide the design with the user rather than looping.
 
@@ -84,15 +70,7 @@ Report: what each lens found, what converged, what was fixed, what was discarded
 
 ## Rules
 
-- **One lens per reviewer.** Unlensed parallel reviewers are redundant reviewers.
-- **Reviewers never edit the tree.** Read-only, scratch directory for experiments.
-- **Never skip the verify round** because the fix looked clean. That round is where this skill earns its cost.
-- **The author's summary is a hypothesis.** Including your own, when you were the author.
-- **Name what is out of scope up front**, or you will triage noise.
-- **Convergent findings first.** Independent paths to one defect is the strongest signal you get.
-- **A test that passes against the unfixed code proves nothing.** Demand the fail-first confirmation.
-- **Discard speculation.** No failure scenario, no finding.
-- **Don't ship on a subagent's pasted green tests.** Re-run them.
+The steps are the rules. The ones most often skipped: the verify round (step 7) — it is where this skill earns its cost; the fail-first confirmation (step 6); re-running tests yourself (step 8). The author's summary is a hypothesis even when you were the author.
 
 ## Failure modes
 

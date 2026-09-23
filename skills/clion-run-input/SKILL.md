@@ -1,6 +1,6 @@
 ---
 name: clion-run-input
-description: Switch a CLion CMake run configuration between reading stdin from a file and reading it interactively from the console. Use when the user says a program "uses sample.in", wants to "stop using the sample input file", "type input by hand", "run it interactively instead of redirecting", or wants to "set input via a file" / "redirect input from a file" for a CLion target.
+description: "Switch a CLion CMake run configuration between stdin from a file and interactive console input. Use for \"stop using sample.in\", \"type input by hand\", or \"redirect input from a file\" on a CLion target."
 ---
 
 # CLion run-configuration stdin redirect
@@ -40,6 +40,4 @@ no `REDIRECT_INPUT_PATH` attribute at all.
 
 ## Rules
 
-- Never edit the source `.cpp`/`.cmake` files to solve this — a program reading `cin` correctly has nothing to change; the input source is purely a run-config setting.
-- Don't confuse this with the `CMakeRunConfigurationManager` `<config projectName=... targetName=.../>` entries earlier in the file — those just register the target for the CMake tool window and have no stdin fields.
 - If no `<configuration>` block exists yet for the target (first run), CLion generates one automatically the first time the target is run from the IDE; edit it after that first run rather than hand-authoring the whole block.
