@@ -1,13 +1,13 @@
 ---
 name: mail-digest
-description: Sweep Gmail for the few things that actually matter today — packages arriving, real people waiting on a reply, and hard deadlines — and write a short digest into the daily note. Use when Owen says "check my mail", "anything important in my inbox", "did my package ship", "who's waiting on me", "morning mail", or when the 6:15 mail routine fires.
+description: "Sweep Gmail for what matters today (packages arriving, real people waiting on a reply, hard deadlines) and write a short digest into the daily note. Use for \"check my mail\", \"anything important in my inbox\", \"who's waiting on me\", or the morning mail routine."
 ---
 
 # Mail Digest
 
-Before saving a daily note, use the vault's documented helper for every create or marker update. Its `note_lock` takes `.system/locks/daily-note.lock`; its update path re-reads the expected bytes under the lock and uses an atomic replace. Re-read the note and merge only this workflow's owned region. If the helper, lock, expected-bytes check, or atomic replace is unavailable, do not improvise a whole-file fallback: preserve the note and report the blocker. If markers are duplicated or unbalanced, preserve the file and report the structural problem. Scheduling statements below are historical setup notes: inspect the live task before reporting its status or changing it.
+Every create or marker write goes through the vault helper under its `note_lock` (`.system/locks/daily-note.lock`); no whole-file fallback, and duplicated or unbalanced markers mean preserve the file and report. Scheduling statements below are setup notes: inspect the live task before reporting or changing it.
 
-A narrow question such as "did my package ship?" is answered in chat from the relevant evidence. By default, a digest request or its configured scheduled run writes only this skill's mail block and mail-digest cursor. It does not write Brain notes, Commitments, or `unfiled-work.md`. If the user explicitly authorizes durable ingestion, hand the evidence to `brain-mail-ingest` as the single owner of People, Threads, and Commitments, passing source thread/message IDs and the obligation identity for deduplication; do not create a second ledger entry here. Complete every result page for the chosen bounded window, deduplicate message IDs, and advance a source cursor only after its reads and writes succeed.
+A narrow question such as "did my package ship?" is answered in chat from the evidence. A digest request or scheduled run writes only this skill's mail block and cursor — no Brain notes, Commitments, ledger rows, or tracker issues (OWE workspace retired 2026-09-18; this skill never needed Linear). Complete every result page for the bounded window, deduplicate message IDs, and advance the cursor only after reads and writes succeed.
 
 Owen's inbox is mostly noise. This reads it every morning and answers three questions in under ten lines:
 
@@ -23,7 +23,7 @@ Everything else is not mentioned. A digest that lists twelve things is a second 
 **Cursor:** `30-Brain/Sources/mail-digest-state.md`
 **Timezone:** `America/Chicago`
 
-This is the *triage* half of the mail story. `brain-mail-ingest` is the *memory* half — it distills durable correspondence into `30-Brain/` and deliberately throws away shipping and order mail. Don't merge them: this skill cares about today and forgets; that one cares forever and ignores today. Step 6 is the handoff.
+This is the *triage* half of the mail story. `brain-mail-ingest` is the *memory* half — it distills durable correspondence into `30-Brain/` and deliberately throws away shipping and order mail. Don't merge them: this skill cares about today and forgets; that one cares forever and ignores today. Step 6 states the handoff rule once.
 
 ## Steps
 
@@ -107,14 +107,14 @@ Include the Gmail thread link on anything he'd want to open. Keep each line to o
 
 ### 6. Hand off, don't duplicate
 
-- **Durable correspondence** (a new person, a decision, something that changes a project) → mention it in the report. Only an explicit ingestion request may hand it to `brain-mail-ingest`, which alone writes the `30-Brain/` People, Thread, or Commitment notes. This skill does not write those notes.
-- **A real commitment either direction** → keep it in the digest until an explicitly authorized `brain-mail-ingest` handoff; pass its source thread/message ID and obligation identity so the owner can dedupe it. A scheduled digest never creates a Commitment or `unfiled-work.md` entry silently.
-- **Needs a reply** → say so. Do not draft unprompted; `draft-outreach` writes it when he asks and does not send as part of drafting; an explicit send request is a separate authorized mail workflow.
-- **A consequential dated obligation** → report it with its source link, stated due date (blank if unknown), and explicit open/unknown-completion evidence. If the user separately authorizes durable ingestion, hand it to `brain-mail-ingest` with the source pointer and obligation identity; that owner dedupes by source thread plus obligation and decides whether a Commitment is warranted. Do not write `30-Brain/Sources/unfiled-work.md` from this digest. Promotion to Linear remains `vault-to-linear`'s job with him present; the digest does not write to Linear. An old completed obligation about the same account is not completion of a new notice.
+**The handoff rule, stated once:** durable correspondence (a new person, a decision, a project change) and real commitments either direction are *mentioned* in the digest. Only an explicit ingestion request hands them to `brain-mail-ingest`, the single owner of `30-Brain/` People, Threads, and Commitments — pass source thread/message IDs and the obligation identity so it can dedupe. This skill never writes those notes, the ledger, or a tracker.
+
+- **Needs a reply** → say so. Do not draft unprompted; `draft-outreach` writes on request and never sends.
+- **A consequential dated obligation** → report it with source link, stated due date (blank if unknown), and explicit open/unknown-completion evidence. An old completed obligation about the same account is not completion of a new notice. Promotion is Owen's decision at triage.
 
 ### 7. Update the cursor and report
 
-Write a compact current record in `30-Brain/Sources/mail-digest-state.md`: last-run timestamp, window used, threads scanned/kept, query definitions, exact active ID set needed for diffs, and bounded exclusion reasons. Keep older evidence in existing history rather than re-narrating it. Keep unresolved obligations in the current mail block and cursor evidence; an explicitly authorized `brain-mail-ingest` handoff owns any durable Commitment note. Aging out of the query never closes an obligation, so a later sweep or authorized handoff must re-check it. Without that, every run re-litigates the same newsletter.
+Write a compact current record in `30-Brain/Sources/mail-digest-state.md`: last-run timestamp, window used, threads scanned/kept, query definitions, exact active ID set needed for diffs, and bounded exclusion reasons. Keep older evidence in existing history rather than re-narrating it. Unresolved obligations stay in the mail block and cursor; aging out of the query never closes one, so a later sweep must re-check it. Without the exclusion list, every run re-litigates the same newsletter.
 
 Report meaningful changes, new consequential deadlines, or required user action. Finish quietly when nothing changed; preserve the scheduler notification policy. Unchanged delivery status or an unchanged connector blocker is not fresh news.
 
@@ -137,7 +137,7 @@ Report meaningful changes, new consequential deadlines, or required user action.
 
 Live routine: `mail-digest`, `15 6 * * *` America/Chicago — fifteen minutes ahead of `morning-interview` (`30 6 * * *`), so the mail block is already in the note when the interview renders and Owen can be asked about what's in it.
 
-The two tasks share the daily note. They don't collide because each owns disjoint markers — this one owns `<!-- mail:* -->`, the interview owns `<!-- linear:* -->` and `<!-- interview:* -->`, and both create the note from the same template if it's missing. **Never widen either one's write scope.**
+The two tasks share the daily note and don't collide because each owns disjoint markers — this one owns `<!-- mail:* -->`; `daily-note` owns `<!-- linear:* -->` (rendered during the interview routine); `morning-interview` owns `<!-- interview:* -->`. All create the note from the same template if missing. **Never widen any write scope.**
 
 Two things that surprise people, both true here:
 

@@ -4,6 +4,7 @@ This module is intentionally dependency-free and contains no OAS concepts.
 Installers, renderers, and exporters must consume this validator instead of
 growing their own interpretations of ``manifest.json`` or skill frontmatter.
 """
+from contextlib import contextmanager
 import json
 from pathlib import Path
 import re
@@ -19,6 +20,30 @@ TARGET_LAYOUTS = {
 }
 TARGET_NAMES = frozenset(TARGET_LAYOUTS)
 NAME = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
+
+
+@contextmanager
+def install_lock(repo):
+    """Serialize cooperating installers and inventory writers with a lock beside the checkout."""
+    lock_path = Path(repo) / ".install.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open("a+") as handle:
+        try:
+            import fcntl
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+            unlock = lambda: fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        except ImportError:  # pragma: no cover - exercised on Windows only.
+            import msvcrt
+            handle.seek(0)
+            handle.write("0")
+            handle.flush()
+            handle.seek(0)
+            msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
+            unlock = lambda: msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+        try:
+            yield
+        finally:
+            unlock()
 
 
 def _unique_object(pairs):

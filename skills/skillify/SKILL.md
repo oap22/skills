@@ -1,6 +1,6 @@
 ---
 name: skillify
-description: "Distill a completed workflow into a portable skill, or improve an overlapping skill, then register and validate it in the skills repo. Use for \"skillify\", \"make this a skill\", or \"save this workflow\". Suggest it when useful; do not automatically edit skills at the end of unrelated work."
+description: "Distill a completed workflow into a portable skill, or improve an overlapping one, then register and validate it in the skills repo. Use for \"skillify\", \"make this a skill\", or \"save this workflow\". Suggest it when useful; never edit skills at the end of unrelated work."
 ---
 
 # Skillify
@@ -66,8 +66,9 @@ This is the whole routing mechanism. Every harness matches requests against it. 
 - One line, third person, starts with what it does.
 - Name the **trigger phrases** the user would actually say — their words, not formal ones.
 - Be specific enough to *not* match neighboring requests. `description: helps with code` matches everything and therefore nothing.
+- Trigger lists are 2–4 representative phrases plus one boundary sentence naming what the skill is *not* for. Catch-all lists hurt routing (README rule 1).
 
-Pattern: `<What it does>. Use when the user says "<phrase>", "<phrase>", or <situation>.`
+Pattern: `<What it does>. Use when the user says "<phrase>", "<phrase>", or <situation>. Not for <neighbor>.`
 
 ### 5. Draft SKILL.md
 
@@ -108,15 +109,15 @@ Also: relative paths for bundled files, never absolute. Absolute vault paths are
 
 ### 7. Run the compliance checklist
 
-Read `compliance.md` (bundled with this skill) and walk the draft through all five practices — description-as-trigger, real expertise, context economy, deterministic scripts, security/trust — plus the repo rules. Failures involving trust or prompt injection, secrets, destructive writes, or an unresolved trigger collision block install and must be fixed before proceeding. A non-safety check may be recorded in the skill's `## Untested` section only when it is genuinely inapplicable or its required tool or input is unavailable; name the missing evidence and do not claim the check passed. Never use `## Untested` to waive a safety failure. The two checks most often failed are the P1 collision check against existing descriptions and the P5 prompt-injection posture for skills that read external content.
+Read `compliance.md` (bundled with this skill) and walk the draft through every section of it, especially the Discovery collision check, plus the repo rules. Failures involving trust or prompt injection, secrets, destructive writes, or an unresolved trigger collision block install and must be fixed before proceeding. A non-safety check may be recorded in the skill's `## Untested` section only when it is genuinely inapplicable or its required tool or input is unavailable; name the missing evidence and do not claim the check passed. Never use `## Untested` to waive a safety failure. The two checks most often failed are the Discovery collision check against existing descriptions and the Scope-and-trust posture toward external content for skills that read it.
 
 ### 8. Install
 
-1. Write to `~/Developer/active/personal/skills/skills/<name>/SKILL.md`.
+1. Write to `skills/<name>/SKILL.md` in the skills repo, in whatever branch or worktree the session's instructions require.
 2. Add to `manifest.json` under `skills`, mapping the name to its harnesses:
    - `claude`, `cursor`, `codex` — general coding and workflow skills
    - `vault` — **only** for skills specific to the Obsidian vault. Global Claude Code skills already resolve inside the vault, so adding both `claude` and `vault` registers it twice.
-3. Run `python3 install.py --check` and `python3 install.py --dry-run` in the reviewed checkout. Integrate changes into the permanent repo before applying `install.py` there; never point live harness links at a temporary worktree. Confirm links before claiming installation.
+3. Run `python3 install.py --check` and `python3 install.py --dry-run` in the reviewed checkout. Install only from the permanent checkout (`~/Developer/active/personal/skills`) after integrating any branch or worktree changes; never point live harness links at a temporary worktree. Confirm links before claiming installation.
 4. Commit: `skillify: add <name>`.
 
 ### 9. Report

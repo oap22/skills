@@ -8,7 +8,6 @@ Applying installs use a local lock, stage the vault inventory, and roll back
 ordinary filesystem failures where possible.
 """
 import argparse
-from contextlib import contextmanager
 import importlib.util
 import os
 from pathlib import Path
@@ -19,7 +18,7 @@ HOME = Path.home()
 SCRIPTS = REPO / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
-from catalog_contract import TARGET_LAYOUTS, load_catalog  # noqa: E402
+from catalog_contract import TARGET_LAYOUTS, install_lock, load_catalog  # noqa: E402
 
 TARGETS = {
     name: (HOME / root, subpath)
@@ -98,39 +97,12 @@ def inventory_module():
     return module
 
 
-@contextmanager
-def install_lock():
-    """Serialize cooperating installers with a lock beside this checkout."""
-    lock_path = REPO / ".install.lock"
-    with lock_path.open("a+") as handle:
-        try:
-            import fcntl
-            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
-            unlock = lambda: fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
-        except ImportError:  # pragma: no cover - exercised on Windows only.
-            import msvcrt
-            handle.seek(0)
-            handle.write("0")
-            handle.flush()
-            handle.seek(0)
-            msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
-            unlock = lambda: msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
-        try:
-            yield
-        finally:
-            unlock()
-
-
 def _path_state(path):
     if path.is_symlink():
         return ("symlink", os.readlink(path))
     if path.exists():
         return ("other", None)
     return ("absent", None)
-
-
-def _state_matches(path, state):
-    return _path_state(path) == state
 
 
 def _source_ready(src):
@@ -252,7 +224,7 @@ def apply_links(actions):
     )
     try:
         for action, link, src in actions:
-            if not _state_matches(link, before[link]):
+            if _path_state(link) != before[link]:
                 raise RuntimeError(f"target changed during install: {link}")
             touched.append(link)
             try:
@@ -313,7 +285,7 @@ def main(argv=None):
         return 1
     selected = set(args.target or TARGETS)
 
-    def show_plan(targets, absent, actions, plan_problems, dry=False):
+    def show_plan(absent, actions, plan_problems, dry=False):
         for harness, root in absent:
             print(f"SKIP {harness}: {root} is absent")
         if plan_problems:
@@ -327,7 +299,7 @@ def main(argv=None):
 
     if args.dry_run:
         targets, absent, actions, plan_problems = _selected_plan(wanted, selected)
-        if not show_plan(targets, absent, actions, plan_problems, dry=True):
+        if not show_plan(absent, actions, plan_problems, dry=True):
             return 1
         if "vault" in targets:
             try:
@@ -343,7 +315,7 @@ def main(argv=None):
         return 0
 
     try:
-        with install_lock():
+        with install_lock(REPO):
             # Re-read the catalog and targets after taking the lock. Another
             # cooperating installer may have changed either while we waited.
             wanted, problems = load_manifest()
@@ -351,7 +323,7 @@ def main(argv=None):
                 _print_manifest_error(problems)
                 return 1
             targets, absent, actions, plan_problems = _selected_plan(wanted, selected)
-            if not show_plan(targets, absent, actions, plan_problems):
+            if not show_plan(absent, actions, plan_problems):
                 return 1
 
             inventory = None

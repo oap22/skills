@@ -1,6 +1,6 @@
 ---
 name: plan-then-ship
-description: Plans a code change in exhaustive detail with a strong model, hands the spec to a weaker model to implement, then adversarially reviews, tests, and ships. Use when the user says "pipeline this", "plan then implement", "strong plan weak impl", or "plan then ship". Not for ordinary coding, research experiments, or work that was not explicitly invoked this way.
+description: "Plan a code change in exhaustive detail with a strong model, hand the spec to a weaker model to implement, then adversarially review, test, and ship. Use only when explicitly invoked: \"pipeline this\", \"plan then ship\", \"strong plan weak impl\". Not for ordinary coding or research."
 ---
 
 # Plan Then Ship
@@ -35,15 +35,15 @@ Three roles. Model selection and fallback rules live in `models.md`.
 
 ### 1. Choose roles
 
-Read `models.md` and use the models available in this harness. No historical model-name deny-list determines whether the current session may plan.
+Per `models.md`. No historical model-name deny-list determines whether the current session may plan.
 
-### 2. Draft the concrete spec
+### 2. Interview and draft the spec
 
-Follow `interview.md`: read first, resolve consequential unknowns one at a time, and draft `.plan-then-ship/SPEC.md` from `spec-template.md`. Routine implementation choices come from the repository and your judgment. Keep `.plan-then-ship/` ignored and out of commits.
+Per `interview.md`, drafting `.plan-then-ship/SPEC.md` from `spec-template.md`. Keep `.plan-then-ship/` ignored and out of commits.
 
 ### 3. Present the plan
 
-Present the completed spec and acceptance criteria. Follow `interview.md` for a single concrete approval when needed; existing authorization or explicit delegation is sufficient. Do not begin dependent implementation while a required answer is pending.
+Per `interview.md` (approval section). Do not begin dependent implementation while a required answer is pending.
 
 ### 4. Branch, then hand off
 
@@ -71,12 +71,7 @@ Send criticals back to the implementer (same handoff rules as step 4). Re-review
 
 **Repair within the agreed budget.** Track whether the concrete defect is resolving; counts alone can hide progress when one root cause exposes another.
 
-Hard stop at **4 repair loops**: review pass 1 is the initial review; each repair is followed by another review; after repair 4 comes review pass 5. If pass 5 still has criticals or red tests, stop. Do not start a fifth repair. Also stop *earlier* if any of these fire:
-
-- **No progress.** The same root cause remains unresolved with no new evidence or working correction.
-- **Same finding, unchanged.** A critical at the same location with the same claim survived a repair.
-- **Oscillation.** Round N reintroduces a critical that round N-1 had closed.
-- **Spec is the problem.** Implementer or reviewer can show the spec is contradictory, incomplete, or wrong. Looping the weak model cannot fix a bad contract — escalate to Owen.
+Stop when the loop cap or a stuck rule in `review.md` § Stuck rules fires (no progress, same finding, oscillation, spec is the problem). Looping the weak model cannot fix a bad contract — escalate to Owen.
 
 **Escalate within budget.** When a stuck rule fires — or when Owen tests the live artifact and reports a defect still present after repairs, even with green tests (tests cannot see pixels) — the cheap implementer has hit its ceiling. Do not stop cold and do not spend another cheap pass on the same defect. Run **one escalation pass**: re-spawn the implementer on the **planner-tier model** from `models.md`, at an available reasoning effort appropriate to the remaining investigation and budget, scoped to only the surviving defects, with an investigation mandate — question the standing diagnosis rather than iterating on it, research known issues in the involved libraries/platforms, and full license to re-architect the failing component within the spec's boundaries. Do this only when a coherent spec and the remaining authorized budget support another pass. If the escalation pass also fails, stop and report per the rules above.
 
@@ -105,13 +100,12 @@ Review clean and tests green. Then follow `ship.md` in full: permission check, n
 ## Failure modes
 
 - Spec was a paragraph of intent. Weak model designed anyway. The planner failed, not the implementer.
-- Planner wrote the spec straight from Owen's one-liner without interviewing, then discovered the ambiguity at review instead of before the implementer ever ran.
+- Planner wrote the spec straight from Owen's one-liner without interviewing; the thin spec left consequential behavior ambiguous until review instead of before the implementer ever ran. Routine file choices, by contrast, did not need a separate interview.
 - Owen said "looks good" after the first section and the planner took that as full approval instead of finishing the closing loop.
 - Parent "helped" by writing the hard files. Cost savings gone; review is now self-review.
 - Reviewer skipped the test commands because the code "looked right."
 - Repair loop treated new nits as criticals, so the finding set never shrank.
 - Shipped with WRITE but not merge rights, because the push succeeded.
-- A thin spec left consequential behavior ambiguous; routine file choices did not need a separate interview.
 - Implemented on `main`, then `git push` updated the default branch before a PR existed.
 - Merged after `gh pr checks --watch` returned because "wait" was treated as "pass."
 - Spawned a cloud agent with only a spec path, so it never saw the contract.

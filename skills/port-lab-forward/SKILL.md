@@ -1,6 +1,6 @@
 ---
 name: port-lab-forward
-description: Carry your own completed coursework forward from an old course repo into the fresh starter repo handed out for the next lab or checkpoint — find the real source, diff it against the starter, verify the dependency surface still matches, then copy only what was asked. Use when the user says "copy X from my old repo into the new one", "my professor gave us a new repo", "port my lab forward", "bring my work into the starter", or has two course repos where one holds finished work the other needs.
+description: "Carry Owen's finished coursework from an old course repo into the fresh starter repo for the next lab: find the real source, diff against the starter, verify dependencies, copy only what was asked. Use for \"port my lab forward\", \"copy X from my old repo into the new one\", or \"my professor gave us a new repo\"."
 ---
 
 # Port Lab Forward

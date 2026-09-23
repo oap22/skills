@@ -1,6 +1,6 @@
 ---
 name: research-ingest
-description: Distill an external body of material — a folder of papers, generated lessons, a textbook, a course, a codebase — into the Obsidian vault as linked research notes under a MOC. Use when the user says "add this to my brain", "ingest this folder", "add these papers to the vault", "there's a folder with X in it", or points at material on disk that should become durable vault knowledge. For email, use brain-mail-ingest instead.
+description: "Distill external material (a folder of papers, a textbook, a course, a codebase) into linked Obsidian research notes under a MOC. Use for \"add this to my brain\", \"ingest this folder\", \"add these papers to the vault\", or material on disk that should become durable vault knowledge."
 ---
 
 # Research Ingest

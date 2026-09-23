@@ -1,6 +1,6 @@
 ---
 name: python-docstrings
-description: Writes Google-style docstrings (one-line summary, Args, Returns) for Python functions, in any project. Use whenever adding or reviewing a docstring, or when the user says "add a docstring", "docstring this", "document this function", or asks for docstrings that follow "the standard"/"proper format" without naming a specific style.
+description: "Write Google-style docstrings (one-line summary, Args, Returns) for Python functions in any project. Use for \"add a docstring\", \"document this function\", or a request for docstrings in \"the standard format\" with no style named."
 ---
 
 # Python Docstrings

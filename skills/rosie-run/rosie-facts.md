@@ -17,29 +17,28 @@ Last full sweep: **2026-08-12** (from Owen's Mac, on MSOE VPN).
 | Compute nodes | `dh-node[1-20]`, `dh-dgx1-[1-3]`, `dh-dgxh100-[1-2]` — via `ProxyJump rosie` |
 | Requires | **MSOE VPN when off campus.** Without it the hostname does not resolve. |
 | SLURM | 23.11.6 |
-| Account / QOS | account `students`, QOS `interactive` |
+| Account / QOS | account `students`, QOS `interactive` — max wall **1 day**, max 4 running jobs per user; the QoS cap overrides partition maxima (verified 2026-09-17) |
 
-**`Could not resolve hostname <login-node>` means the VPN is off.** It is not a cluster outage. Verified 2026-08-12 — this exact failure occurred before the VPN was connected, and connecting it fixed it.
+**`Could not resolve hostname <login-node>` usually means the VPN or campus DNS is unavailable**, not a cluster outage; check the host alias and network context before concluding. Observed 2026-08-12 — this exact failure occurred before the VPN was connected, and connecting it fixed it.
 
-## Partitions — verified 2026-08-12
+## Partitions — verified 2026-09-17 (single source; the `rosie` skill points here)
 
-```
-PARTITION  TIMELIMIT   NODES  NODELIST
-teaching*  7-00:00:00  20     dh-node[1-20]      ← default
-batch      2-00:00:00  20     dh-node[1-20]
-highmem    7-00:00:00  2      dh-node[19-20]
-desktop    7-00:00:00  20     dh-node[1-20]
-dgx        21-00:00:0  3      dh-dgx1-[1-3]
-dgxh100    21-00:00:0  2      dh-dgxh100-[1-2]
-```
+| Partition | Nodes | GPUs per node | CPUs / RAM per node | Partition max time |
+|---|---|---|---|---|
+| `teaching` (default) | dh-node[1-20] | 4x T4 | 72 / ~358 GB | 7 days |
+| `batch` | dh-node[1-20] | 4x T4 | 72 / ~358 GB | 2 days |
+| `desktop` | dh-node[1-20] | 4x T4 | 72 / ~358 GB | 7 days |
+| `highmem` | dh-node[19-20] | 4x T4 | 72 / ~717 GB | 7 days |
+| `dgx` | dh-dgx1-[1-3] | 8x V100 | 80 / ~478 GB | 21 days |
+| `dgxh100` | dh-dgxh100-[1-2] | 8x H100 | 224 / ~1.9 TB | 21 days |
 
-`teaching` is the default and takes anything short. **`dgx` and `dgxh100` allow 21-day jobs** — that is the home for a long flywheel run (`OWE-13`).
+`teaching` is the default and takes anything short. The 21-day `dgx`/`dgxh100` partition maxima do **not** apply: QoS `interactive` caps every job at **1 day** (verified 2026-09-17). A longer QoS for a multi-day flywheel run is unverified (was tracked as OWE-13; that workspace was retired 2026-09-18).
 
-**dgxh100 detail:** `gpu:h100:8` per node · 1,960,812 MB RAM · 224 CPUs. At the 2026-08-12 check `dh-dgxh100-1` was `mix` and `dh-dgxh100-2` was `drain` — i.e. **one usable H100 node**, so contention is real. Check `sinfo -p dgxh100` before planning around 16 GPUs; you may only have 8.
-
-`dgx` was fully allocated (3/3) at the same check.
+**dgxh100 detail:** `gpu:h100:8` per node · 1,960,812 MB RAM · 224 CPUs. Contention observed 2026-08-12 (re-verify with `sinfo -p dgx,dgxh100` before planning): `dh-dgxh100-1` was `mix` and `dh-dgxh100-2` was `drain` — one usable H100 node, so plan for 8 GPUs, not 16, until `sinfo` says otherwise; `dgx` was fully allocated (3/3).
 
 ## Storage — verified 2026-08-12
+
+- Owen's groups include `ai_club`; `/data/ai_club` is group-writable (datasets).
 
 | Mount | Size | Used | Note |
 |---|---|---|---|
@@ -49,7 +48,7 @@ dgxh100    21-00:00:0  2      dh-dgxh100-[1-2]
 
 **Owen's home usage: 97G** (2026-08-12). `quota` is **not installed** on Rosie, so there is no per-user quota command — capacity questions are answered with `df` against the shared mount, and your own footprint with a (slow) `du`.
 
-**`/home` was at 97% on 2026-08-12.** This is the highest-risk fact in the file. A large rsync into home can fail mid-transfer or fail *someone else's* job, and out-of-space failures on a shared filesystem present as unrelated crashes. **Stage datasets and checkpoints under `/data`, not home.** Check `df -h /home /data` before any multi-GB transfer.
+**`/home` was at 97% on 2026-08-12 and 96% on 2026-09-17.** This is the highest-risk fact in the file. A large rsync into home can fail mid-transfer or fail *someone else's* job, and out-of-space failures on a shared filesystem present as unrelated crashes. **Stage datasets and checkpoints under `/data`, not home.** Check `df -h /home /data` before any multi-GB transfer.
 
 Do not run `du -sh ~` casually — on this networked filesystem it took **over two minutes** to return (measured 2026-08-12). If you need it, background it; never block a session on it. Use `df` for capacity questions.
 
@@ -89,7 +88,7 @@ matlab/current (L)    matlab/R2022a      matlab/R2024b (D)
 
 **Use SSH remotes on Rosie, not HTTPS.** A GitHub SSH key for `oap22` is already registered from Rosie, so `git@github.com:` clones and pulls work today with no setup. HTTPS fails on private repos because there's no stored token, and the error looks like a missing repo rather than an auth problem.
 
-**GitLab is a separate story.** The Revit-to-Robot repos are on GitLab, and the `gitlab-rosie` PAT expired around 2026-04-26 (`OWE-12`, still open). GitLab access from Rosie is presumed broken until that's reissued — **not yet re-tested.**
+**GitLab is a separate story.** The Revit-to-Robot repos are on GitLab, and the `gitlab-rosie` PAT expired around 2026-04-26 (formerly tracked as OWE-12; that workspace was retired 2026-09-18, so the reissue is untracked). GitLab access from Rosie is presumed broken until that's reissued — **not yet re-tested.**
 
 ## Verified Round Trip — 2026-08-12
 
@@ -107,7 +106,9 @@ The smoke-test directory was removed from Rosie afterward.
 
 - `/scratch` capacity, purge policy, and whether it's node-local or shared
 - Per-user quota policy — `quota` is not installed, so whether a per-user limit is even enforced is unknown
-- GitLab access after the `gitlab-rosie` PAT is reissued (`OWE-12`)
+- GitLab access after the `gitlab-rosie` PAT is reissued
 - Array-job behavior end to end, including `%` throttling
 - Whether `dgxh100` requires a reservation or special account beyond QOS `interactive`
+- Whether any QoS other than `interactive` (1-day cap) is available to Owen for multi-day runs
+- Current `dgx`/`dgxh100` node states — the drain/full observation is from 2026-08-12
 - Real GPU job: nothing in this file has yet been verified on a node with a GPU attached

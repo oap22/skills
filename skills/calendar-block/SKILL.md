@@ -1,6 +1,6 @@
 ---
 name: calendar-block
-description: Create or recolor Google Calendar events using Owen's category color scheme, padding real-world commitments into blocks that actually protect the time, and fit undated tasks into whatever free time he actually has. Use when he says "block out", "put X on my calendar", "I can't do anything then", "nothing before 10", "add this to my calendar", "when am I free", "fit this in", "find me time for", or when any other skill needs to write an event.
+description: "Create or recolor Google Calendar events with Owen's category colors, padding real commitments into blocks that protect the time, and fit undated tasks into actual free time. Use for \"block out\", \"put X on my calendar\", \"when am I free\", \"fit this in\"."
 ---
 
 # Calendar Block
@@ -13,6 +13,8 @@ Owen's calendar is the system of record for fixed time. Every event carries a ca
 **Source of truth:** `$HOME/Owen's Awesome Vault/.system/calendar-conventions.md` — read it before writing anything; it may have drifted ahead of this file.
 
 ## The color scheme
+
+Rows below mirror `.system/calendar-conventions.md`; that file wins on any disagreement.
 
 | Category | `colorId` | Color |
 |---|---|---|
@@ -139,13 +141,7 @@ Never recolor an event Owen didn't create (Gmail-derived events, invitations fro
 
 ## For other skills
 
-`daily-note` and `morning-interview` create focus blocks. Those inherit the **Linear project's** color, not a fixed one:
-
-| Linear project | `colorId` |
-|---|---|
-| School | `9` |
-| Research | `6` |
-| Personal | `8` |
+Only `daily-note` creates focus blocks, and only when time-blocking is explicitly requested; `morning-interview` never creates events. A focus block inherits the category of the work, per `.system/calendar-conventions.md` § Rules — a RES issue is Research (`6`). OWE workspace retired 2026-09-18; RES remains.
 
 ## Rules
 

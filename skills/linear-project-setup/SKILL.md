@@ -1,6 +1,6 @@
 ---
 name: linear-project-setup
-description: Verify which Linear workspace is connected, then scaffold a team's projects to match a taxonomy. Use when the user says "set up Linear", "check my Linear connection", "am I using the right Linear workspace", "organize my Linear tasks into projects", or wants Linear projects created to mirror folders or life areas.
+description: "Verify which Linear workspace is connected, then scaffold a team's projects to match a taxonomy. Use for \"set up Linear\", \"am I using the right Linear workspace\", or \"organize my Linear tasks into projects\"."
 ---
 
 # Linear Project Setup
@@ -13,7 +13,7 @@ Do them in that order. Writing projects into the wrong workspace is annoying to 
 
 ### 1. Identify the connection before writing anything
 
-Call the Linear "get user" tool with `me`. One call answers everything that matters:
+Inspect the connected Linear tool schema before relying on tool or field names; the names in this file are examples. Call the Linear "get user" tool with `me`. One call answers everything that matters:
 
 - `name` / `email` — whose account is connected
 - `teams[]` — every team they belong to, with `id` and `key`
@@ -62,15 +62,11 @@ Give the user the project URLs from each response.
 
 ### 6. Persist the setup
 
-Report the workspace slug, team IDs, and project URLs. Persist them in an authorized project configuration when needed. Write to harness memory only when the user explicitly asks and the memory mechanism permits it; this skill does not grant memory-write authority. Treat the field names below as examples and inspect the connected tool schema before each mutation.
+Report the workspace slug, team IDs, and project URLs. Persist them in an authorized project configuration when needed. Write to harness memory only when the user explicitly asks and the memory mechanism permits it; this skill does not grant memory-write authority. Treat the field names above as examples and inspect the connected tool schema before each mutation.
 
 ## Rules
 
-- **Verify before you write.** A `get_user` call is cheap; a project in the wrong team is manual cleanup.
-- **The workspace slug lives in URLs**, not in the user payload. Extract it from an issue or project URL.
-- **Onboarding issues are not real work.** Name them as defaults when reporting.
-- **`addTeams` is mandatory on create** and is the most common failure — the error is not obvious.
-- **Icons are codes, not emoji.** `":microscope:"` works, `"🔬"` does not.
+- Steps 1–4 are the rules; step 4's table holds the two most common create failures (`addTeams` omitted, raw emoji as `icon`).
 - **Never delete or archive** a Linear project to "clean up" — ask first, always.
 - Creating projects is a write to an external service the user owns. Fine on an explicit request; don't scaffold speculatively while doing something else.
 

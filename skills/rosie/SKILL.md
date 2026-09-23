@@ -1,6 +1,6 @@
 ---
 name: rosie
-description: Helper for MSOE's ROSIE HPC cluster and its Slurm scheduler. Use when Owen asks about ROSIE, Slurm commands (sbatch, srun, salloc, squeue, scancel, sinfo, sacct, scontrol), writing or fixing a job script, requesting GPUs (T4, V100, H100), checking queue or job status, partitions, modules, or containers on the cluster.
+description: "Answer questions about MSOE's ROSIE HPC cluster and Slurm: commands (sbatch, srun, squeue, sacct, scontrol), job scripts, GPU requests (T4, V100, H100), partitions, modules, containers. Use for any ROSIE or Slurm question; dispatching a real run from the Mac is rosie-run."
 ---
 
 # ROSIE Slurm helper
@@ -9,29 +9,9 @@ Answer questions about running work on ROSIE, MSOE's HPC cluster. Give the exact
 
 For dispatching a real experiment from the Mac (pushing code, submitting, polling, pulling results back), use the `rosie-run` skill instead; this one answers Slurm questions and writes job scripts.
 
-## Connecting
+## Cluster facts
 
-- SSH alias: `rosie` (login node `<login-node>`, user `<cluster-user>`). Configured in `~/.ssh/config`.
-- Compute nodes: `ssh dh-nodeN` jumps through `rosie` (only useful while you have a job on that node).
-- Run one-off checks from the laptop: `ssh rosie 'squeue --me'`.
-- The login node is for editing, submitting and light work only. Anything heavy goes through Slurm.
-
-## Cluster facts (verified 2026-09-17, re-check with the commands below if it matters)
-
-| Partition | Nodes | GPUs per node | CPUs / RAM per node | Max time |
-|---|---|---|---|---|
-| `teaching` (default) | dh-node[1-20] | 4x T4 | 72 / ~358 GB | 7 days |
-| `batch` | dh-node[1-20] | 4x T4 | 72 / ~358 GB | 2 days |
-| `desktop` | dh-node[1-20] | 4x T4 | 72 / ~358 GB | 7 days |
-| `highmem` | dh-node[19-20] | 4x T4 | 72 / ~717 GB | 7 days |
-| `dgx` | dh-dgx1-[1-3] | 8x V100 | 80 / ~478 GB | 21 days |
-| `dgxh100` | dh-dgxh100-[1-2] | 8x H100 | 224 / ~1.9 TB | 21 days |
-
-- Account: `students`. QoS: `interactive` (max 1 day wall time, max 4 running jobs per user). The QoS cap wins over the partition max time, so ask for `--time` of 1 day or less.
-- Owen's groups include `ai_club`, and `/data/ai_club` is group-writable (good place for datasets).
-- Modules (Lmod): `cuda/12.9` (default), `cuda/12.5`, `cuda/12.1`, `cuda/11.7`, `openmpi/*`, `singularity/3.10.0`, `matlab/R2024b`, plus `dgx1Env` and `h100Env` for the DGX nodes.
-- Shared Singularity images live in `/data/containers` (`.sif` files).
-- `/home` is shared and was 96% full, so keep datasets and checkpoints out of home when a `/data` location is available.
+All cluster facts (host, user, partitions, QoS caps, storage, modules, network) live in one place: `rosie-run/rosie-facts.md`, installed beside this skill. Read it before answering anything that depends on a limit. Key rule: QoS `interactive` caps every job at 1 day and 4 running jobs regardless of partition max (verified 2026-09-17), so `--time` is 1 day or less. The login node is for editing and submitting only; run one-off checks as `ssh rosie 'squeue --me'`.
 
 Live checks:
 

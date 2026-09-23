@@ -1,6 +1,6 @@
 ---
 name: reclaim-disk-space
-description: Free up space on a Mac by surveying where the disk actually went, then deleting regenerable caches and archiving dormant files to an external drive. Use when the user says "my mac is full", "running out of space", "free up storage", "clean up my disk", "move my files to my external drive", "startup disk is almost full", or wants to migrate documents off the machine to save space.
+description: "Free space on a Mac: survey where the disk went, delete regenerable caches, archive dormant files to a verified external drive. Use for \"my mac is full\", \"free up storage\", or \"move my files to my external drive\"."
 ---
 
 # Reclaim Disk Space
@@ -25,15 +25,20 @@ du -sh /Applications /Library /opt /usr/local 2>/dev/null | sort -rh
 **The `~/.[!.]*` glob is not optional.** A bare `~/*` skips every dotfile, and
 that is where model stores and language caches live — `~/.ollama/models` alone
 was 46 GB on a machine where the whole survey had reported nothing bigger than
-`~/Library`. Also check `~/.cache`, `~/.cargo`, `~/.rustup`, `~/.npm`,
+`~/Library` (observed 2026-08-12; caught only when the user asked an unrelated
+Ollama question). Also check `~/.cache`, `~/.cargo`, `~/.rustup`, `~/.npm`,
 `~/.gradle`, `~/.pyenv`, `~/.docker`, `~/.lmstudio`.
 
 If the home total is far below the Data volume's used figure, the difference is
-in `/Applications`, `/Library`, and `/opt`. Drill into the largest hits with
+in `/Applications`, `/Library`, and `/opt` (observed 2026-08-12: home 123 GB
+against 388 GB used; `/Applications` 36 GB, `/Library` 26 GB, `/opt` 18 GB,
+all invisible to `du -sh ~/*`). Drill into the largest hits with
 `du -sh <dir>/*` until you reach actual files.
 
 Report the real numbers before proposing anything. If the folders the user named
-turn out to be trivial, say so plainly with the sizes.
+turn out to be trivial, say so plainly with the sizes (observed 2026-08-12:
+"migrate my documents to save space" — Documents 16 MB, Downloads 12 KB, Desktop
+empty; the 83 GB was Docker and caches).
 
 ### 2. Classify every candidate into one of three tiers
 
@@ -134,42 +139,7 @@ all — worth flagging even though it's unrelated to space.
 `/Volumes/External-Drive` mid-session. Never cache the path; check `ls /Volumes`
 or `diskutil list external` each time.
 
-**Benchmark only when it informs the requested storage decision.** Confirm free space, use a unique scratch file, and do not unmount a drive with active applications or transfers. Write speed does
-not predict read speed on USB enclosures — one drive benchmarked at 284 MB/s
-write and 92 MB/s read, a 3× gap. Working storage is read-bound, so the write
-figure flatters it badly:
-
-```bash
-BENCH_FILE=$(mktemp "$DRIVE/.skills-bench.XXXXXX")
-dd if=/dev/zero of="$BENCH_FILE" bs=1m count=4000 conv=fsync   # write
-diskutil unmount "$DRIVE" && diskutil mount <volume>          # drop cache
-dd if="$BENCH_FILE" of=/dev/null bs=1m                         # cold read
-rm -f "$BENCH_FILE"
-```
-
-Use `conv=fsync` or the write number is buffered and inflated, and remount
-before reading or the read number is page cache (it will show absurd GB/s).
-Check `mdutil -s "$DRIVE"` first — Spotlight indexing a freshly mounted volume
-corrupts the measurement.
-
-Below ~200 MB/s read, the drive is cold storage only. Memory-mapped workloads —
-Ollama, LM Studio, anything faulting pages during use — stall rather than slow
-when the mapping lives on a slow external.
-
-## Failure modes seen
-
-- **Acting on the stated premise.** Session opened with "migrate my documents to
-  save space." Documents was 16 MB; Downloads 12 KB; Desktop empty. The 83 GB
-  came from Docker and caches. Surveying first is the entire skill.
-- **Missing 46 GB by globbing `~/*`.** `~/.ollama/models` never appeared in the
-  survey because the glob skips dotfiles. Caught only when the user asked an
-  unrelated question about Ollama. Always include `~/.[!.]*`.
-- **Recommending offload before measuring the drive.** Advised moving datasets
-  and models to an external, then measured it at 92 MB/s read and had to walk
-  the advice back. Benchmark first, recommend second.
-- **Assuming the home directory is the disk.** Home was 123 GB against 388 GB
-  used. `/Applications` (36 GB), `/Library` (26 GB), and `/opt` (18 GB) were
-  invisible to `du -sh ~/*`.
-- **Reformatting without verifying the device.** Always confirm `external,
-  physical`, the media name, and the size via `diskutil info <disk>` and check
-  it against the internal disk identifier before any erase.
+**Benchmark the drive before recommending offload, and only when it informs
+the requested storage decision.** Read speed, not write speed, decides whether
+a drive can hold working data. Procedure and thresholds:
+[external-drive-layout.md](external-drive-layout.md) § Benchmark.

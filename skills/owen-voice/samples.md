@@ -136,7 +136,7 @@ Confirmed his own, 2026-09-20. More considered than the near-identical request a
 >
 > Thank you for reaching out. I have linked the completed form below. I am free any time after 6 pm next week if we can find a time that works for you. I will have questions prepared for our meeting.
 
-### Asking an HR coordinator a logistics question (2026-11-26)
+### Asking an HR coordinator a logistics question (2025-11-26; date corrected during 2026-09-23 audit)
 
 > Hi! Thank you for the reminder. Do you think you could send me the address to the Cognex location? I want to make sure I got the right place!
 >

@@ -1,6 +1,6 @@
 ---
 name: brain-mail-ingest
-description: "Distill durable Gmail correspondence into vault People, Threads, and Commitment notes. Use for \"ingest my mail\", \"sync Gmail to the vault\", or \"add my emails to my brain\". Use mail-digest for inbox triage, packages, or what matters today."
+description: "Distill durable Gmail correspondence into vault People, Threads, and Commitment notes. Use for \"ingest my mail\" or \"sync Gmail to the vault\". Inbox triage, packages, and \"what matters today\" belong to mail-digest."
 ---
 
 # Brain Mail Ingest

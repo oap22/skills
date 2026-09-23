@@ -1,6 +1,6 @@
 ---
 name: resume-build
-description: Rebuild or re-tailor Owen's resume — interview for what's new, mine the vault and local repos for evidence, apply career-center conventions, and compile the Typst source to a verified one-page PDF. Use when he says "update my resume", "work on my resume", "tailor my resume", "add this to my resume", "resume for this application", or when new experience lands that the resume doesn't reflect.
+description: "Rebuild or re-tailor Owen's resume: interview for what is new, mine the vault and repos for evidence, apply career-center conventions, compile the Typst source to a verified one-page PDF. Use for \"update my resume\", \"tailor my resume\", \"resume for this application\"."
 ---
 
 # Resume Build
@@ -76,9 +76,11 @@ don't get re-derived from web searches that surface resume-SaaS marketing conten
 - **Skip the summary** unless tailoring to a specific posting. A summary naming three target roles
   is worse than none.
 - **Dates must be true.** Check whether a role *ended*; "Present" on finished work is a real error.
-  This session caught the digital twin research listed as ongoing when it ended May 2026.
-- Older `.docx` resumes in `~/resumes/` and `~/Documents/resumes/` are superseded — never edit them.
-  The `resume.pdf` in `~/Developer/personal-website/` is a 610-byte placeholder, not a real resume.
+  Lesson from 2026-08-07: the digital twin research was listed as ongoing when it had ended May 2026.
+- The Typst source is the only editable resume. Older `.docx` copies, if any turn up (`find ~ -name
+  '*esume*.docx' -not -path '*/Library/*'`), are superseded — never edit them. The website copy at
+  `~/Developer/active/personal/personal-website/resume.pdf` is published output: verify it matches the
+  compiled PDF, and update it only when asked.
 
 ## Failure Modes Hit Before
 

@@ -8,7 +8,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=<n>
 #SBATCH --gres=gpu:<n>              # drop entirely for CPU-only work; h100 nodes are gpu:h100:8
-#SBATCH --time=<D-HH:MM:SS>         # ALWAYS set one. teaching/highmem 7d, batch 2d, dgx* 21d
+#SBATCH --time=<D-HH:MM:SS>         # ALWAYS set one. QoS interactive caps at 1-00:00:00 (verified 2026-09-17); partition maxima are higher but do not apply. Longer QoS unverified.
 #SBATCH --output=logs/slurm-%j.out
 #SBATCH --error=logs/slurm-%j.out
 

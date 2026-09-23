@@ -1,6 +1,6 @@
 ---
 name: zed-language-setup
-description: "Configure Zed on macOS for compiled-language work — Java/JavaFX through JDTLS, C/C++ through clangd — including debug configs, tasks, and translating a Windows/IntelliJ course spec into Zed's equivalents. Use when the user says \"set up Zed for Java\", \"configure Zed for C++\", \"Zed can't resolve JavaFX\", asks to move coursework from IntelliJ to Zed, or hits unresolved imports, a missing debugger, or phantom clangd errors in Zed on a Mac."
+description: "Configure Zed on macOS for Java/JavaFX (JDTLS) and C/C++ (clangd): debug configs, tasks, and translating a Windows/IntelliJ course spec to Zed. Use for \"set up Zed for Java\", \"Zed can't resolve JavaFX\", or moving coursework from IntelliJ to Zed."
 ---
 
 # Zed language setup (macOS)
@@ -15,8 +15,8 @@ config; don't retype these blocks from memory.
 ## Step 0 — Establish what you can and cannot do
 
 Agent harnesses usually **cannot type into Terminal or an IDE** on macOS — computer-use grants
-for terminals and IDEs come back as click-only tier. Find this out before promising to run
-installs, not after.
+for terminals and IDEs came back as click-only tier (observed 2026-09-17). Find this out before
+promising to run installs, not after.
 
 The split that works:
 
@@ -69,7 +69,9 @@ If the project came from IntelliJ, read `.idea/runConfigurations/*.xml` and the 
 **Back up `settings.json` first.** Then write, per `zed-config-reference.md`:
 
 - `auto_install_extensions` — `java` (C/C++ are first-party and need no extension)
-- `lsp.jdtls.settings` — `java_home` pointing at a JDK **21+**, `jdk_auto_download: false`
+- `lsp.jdtls.settings` — `java_home` pointing at a JDK **21+** (JDTLS needs it to run itself,
+  separate from the JDK your code targets) and `jdk_auto_download: false`, or the extension
+  quietly downloads a second Corretto JDK
 - `lsp.jdtls.initialization_options.settings.java` — `configuration.runtimes` and,
   for non-Maven/Gradle projects, `project.referencedLibraries`
 - `lsp.clangd.arguments`
@@ -101,10 +103,6 @@ Config that parses is not config that works.
 
 ## Rules
 
-- **Never hardcode course versions.** Re-read the course page; it changes per term.
-- **JDTLS needs JDK 21+ to run itself**, separate from the JDK your code targets. Set
-  `java_home` explicitly and `jdk_auto_download: false`, or the extension quietly downloads a
-  second Corretto JDK.
 - **Plain IntelliJ projects have no build file**, so JDTLS builds an "invisible project" and
   sees only jars in `java.project.referencedLibraries`. This is the single most common cause of
   unresolved `javafx.*` imports. Fallback if it doesn't take: a `lib/` folder of symlinks in the

@@ -1,6 +1,6 @@
 ---
-name: scheduled-sync-task
-description: "Design a recurring task that mirrors a source of truth into another system — a spreadsheet into a calendar, a form into a tracker. Use for \"check this every day and put it in X\", \"keep these in sync\", or \"watch it for changes and update Y\". Use local-routine for the scheduler mechanics; this covers the reconcile design that keeps re-runs from duplicating."
+name: sync-task-design
+description: "Design a recurring task that mirrors a source of truth into another system without duplicating on re-run: a spreadsheet into a calendar, a form into a tracker. Use for \"keep these in sync\" or \"check this every day and put it in X\". Scheduler mechanics are local-routine."
 ---
 
 # Scheduled Sync Task
@@ -70,9 +70,10 @@ design problem is making a stateless run produce the right result anyway.
   back; where automatic approval cannot be set programmatically, tell the user to switch it on and
   do not describe the task as working until they have.
 
-- **Convert schedules using the offset in effect at creation, and say both times.** A UTC-evaluated
-  cron stored verbatim shifts by an hour relative to local time when DST ends. State it as "8am
-  Central now, 7am once DST ends" rather than letting the user discover it in November.
+- **If the scheduler evaluates cron in UTC, convert using the offset in effect at creation and say
+  both times.** A UTC cron stored verbatim shifts by an hour relative to local time when DST ends;
+  state it as "8am Central now, 7am once DST ends" rather than letting the user discover it in
+  November. Local-time schedulers (the local Claude scheduler, per `local-routine`) do not need this.
 
 - **Separate inference from fact in the report.** Defaults derived from historical rows are
   guesses; say which fields the source actually specified and which you filled in.

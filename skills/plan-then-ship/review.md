@@ -2,7 +2,7 @@
 
 Run this **before commit, push, or PR**. The feature branch already exists from `SKILL.md` §4 / `ship.md`. Do not commit from the review pass. The reviewer is the planner/reviewer role in `models.md`, not the implementer.
 
-Attack the change. The job is to find reasons not to ship, then only ship if those reasons fail.
+Attack the change. The job is to find reasons not to ship, then only ship if those reasons fail. The lensed attack is `adversarial-review`; this file adds spec fidelity, scoring, and the repair loop.
 
 ## Pass 0 — evidence
 
@@ -18,12 +18,12 @@ If tests are red, that is already a critical. Repair starts; do not skip the res
 
 Score every finding **critical** (blocks ship, starts a repair loop) or **suggestion** (does not block, does not loop).
 
-1. **Spec fidelity.** Diff the working tree against `.plan-then-ship/SPEC.md`. Files not in Touch (except listed tests, and `.gitignore` if it only gained a `.plan-then-ship/` ignore) are critical. Missing edits from Per-file edits are critical. "Improvements" the spec did not ask for are critical — revert them, do not keep them because they seem better. `.gitignore` is planner work; see `ship.md`. Do not fail the implementer for it.
-2. **Do-not-touch.** Any edit in that list is critical.
-3. **Edge cases.** For each edge case and error path the spec named, confirm the code actually does it. Named in the spec and absent in the code is critical. Also hunt the ones the spec missed that will fire in production (null, empty, already-exists, timeout, concurrent call). Newly discovered production bugs are critical; style and naming are suggestions.
-4. **Silent failures.** Swallowed errors, empty catches, fallbacks that hide the bug. Critical unless the spec explicitly required that behavior.
-5. **Tests.** Commands green is necessary, not sufficient. Every acceptance-criterion and every named edge case needs an assertion. A suite that passes because it does not cover the change is critical.
-6. **Acceptance criteria.** Walk the spec's checklist. Any item that is not observably true is critical.
+**Spec fidelity (this file owns it).**
+1. Diff the working tree against `.plan-then-ship/SPEC.md`. Files not in Touch (except listed tests, and `.gitignore` if it only gained a `.plan-then-ship/` ignore) are critical. Missing edits from Per-file edits are critical. "Improvements" the spec did not ask for are critical — revert them. `.gitignore` is planner work; see `ship.md`. Do not fail the implementer for it.
+2. Any edit in the Do-not-touch list is critical.
+3. Walk the spec's acceptance-criteria checklist. Any item that is not observably true is critical.
+
+**Everything else delegates to `adversarial-review`.** Run its steps 1–5 on the same diff: scope, pick 2–4 lenses from its `lenses.md` (always include Spec conformance & completeness, plus Test honesty when existing tests changed), fan out, collect findings with a concrete failure scenario each, and run its verifier after the repair. Without parallel subagents, run the lenses sequentially yourself as that skill describes. Every finding it returns is scored here: production bugs, silent failures, and uncovered acceptance criteria are critical; style and naming are suggestions. Its fix step is not used — repairs go through the Repair prompt below so the implementer stays the single owner.
 
 Cursor: if `bugbot` or `security-review` agents exist, launch them here as well. Their criticals join this list. Their output does not replace Pass 0.
 

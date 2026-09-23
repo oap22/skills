@@ -1,6 +1,6 @@
 ---
 name: research-interview
-description: "Clarify a research effort through a one-question-at-a-time interview and write a research brief. Use for \"build a research brief\", \"interview me about this research\", or consequential unanswered design questions. Reuse an existing agreed plan; do not require a new interview for every experiment."
+description: "Clarify a research effort through a one-question-at-a-time interview and write a research brief. Use for \"build a research brief\" or \"interview me about this research\". Reuse an existing agreed plan; a new experiment does not require a new interview."
 ---
 
 # Research Interview
@@ -18,7 +18,7 @@ The interview is done only when *both* of these are true, and not before:
 1. **You can state the whole plan back and the user changes nothing.** Restate the research question, hypotheses, method, constraints, and success criteria in your own words. Any correction means you weren't done — absorb it and restate again. Loop until the restatement survives untouched.
 2. **No load-bearing word is undefined.** "Better", "works", "fast enough", "the model", "the baseline" — every one gets pinned to a number, a name, or a path. If a term in the brief could mean two things, ask which.
 
-Relentless means persistent, not rapid-fire. Keep going past the point of social comfort; do not keep going past the point of usefulness — when an answer is genuinely "we'll learn that from round 1", record it as an explicit open question with a plan to close it, and move on.
+Be persistent, not rapid-fire. Keep going past the point of social comfort; do not keep going past the point of usefulness — when an answer is genuinely "we'll learn that from round 1", record it as an explicit open question with a plan to close it, and move on.
 
 ## The Rules That Make It Work
 

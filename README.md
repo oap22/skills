@@ -13,11 +13,17 @@ Every harness reads the same format — a directory containing `SKILL.md` with `
 ## Layout
 
 ```
-skills/<skill-name>/SKILL.md    the skill; optional bundled *.md alongside
-manifest.json                   which skills go to which harnesses
-install.py                      creates and prunes the symlinks
-scripts/export_catalog.py       exports the portable catalog contract
-scripts/catalog_contract.py     shared catalog validator and target registry
+skills/<skill-name>/SKILL.md      the skill; optional bundled references, templates,
+                                  and scripts (.py/.js/.ps1/.sbatch) alongside
+manifest.json                     which skills go to which harnesses
+install.py                        creates and prunes the symlinks
+scripts/export_catalog.py         exports the portable catalog contract
+scripts/catalog_contract.py       shared catalog validator, target registry, install lock
+scripts/render_vault_inventory.py renders the managed Skills block in the vault MOC
+tests/                            unittest suites (catalog, installer, vault, regressions)
+docs/                             dated audit snapshots
+.github/                          CI workflow (validate-skills.yml)
+AGENTS.md                         instructions for coding agents working here
 ```
 
 ## Usage
@@ -64,6 +70,11 @@ skill regardless of `manifest.json`.
 Manifests without the field remain valid as legacy version 1 input; malformed
 versions and unsupported future versions fail validation instead of being
 guessed at.
+
+Target rule: vault-workflow skills are mapped to `vault` (the vault's
+`.claude/skills`) rather than `claude` (`~/.claude/skills`), so Claude Code
+sees them only when launched inside the vault, while `cursor`, `codex`, and
+`gemini` get them everywhere.
 
 ## Catalog integration
 
@@ -118,7 +129,9 @@ Validation errors, target collisions, and inventory staging failures stop instal
 
 When a vault target is selected, a needed Skills inventory update is staged in a temporary file beside the MOC, flushed, and atomically replaced after the link plan applies. Read-only or symlinked inventory files are rejected before link changes when an update is needed. Existing inventory markers replace only their own block. A legacy MOC is migrated only when it has one unique, unfenced `## Skills` heading before one unique, unfenced `## Claude Agents` heading; the old section content is retained, and ambiguous headings or markers abort without writing.
 
-The tests use temporary harness directories and tiny local subprocesses. They do not contact mail, Calendar, Linear, GitHub, or Rosie. Continuous integration runs the catalog, installer, and workflow regression checks on Ubuntu and macOS across the supported Python versions. Structural checks cannot prove a skill's reasoning or a live workflow; see [the September audit](docs/skills-audit-2026-09-04.md) and [the September 5 adversarial follow-up](docs/skills-adversarial-review-2026-09-05.md) for findings and validation limits.
+The tests use temporary harness directories and tiny local subprocesses. They do not contact mail, Calendar, Linear, GitHub, or Rosie. Continuous integration runs the catalog, installer, and workflow regression checks on Ubuntu and macOS across the supported Python versions (3.12 and 3.14). Structural checks cannot prove a skill's reasoning or a live workflow; see [the September audit](docs/skills-audit-2026-09-04.md) and [the September 5 adversarial follow-up](docs/skills-adversarial-review-2026-09-05.md) for findings and validation limits. Both audits are dated historical snapshots;
+their counts (34 skills, 103 mappings, 21/47 tests) are stale, and current
+numbers come from `python3 install.py --check`.
 
 ## Not managed here
 

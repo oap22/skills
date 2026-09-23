@@ -59,6 +59,32 @@ volume, so trees move in both directions without filename collisions. Case-
 sensitive APFS is more faithful to Linux but creates collisions on the return
 trip, which is the direction that loses data.
 
+## Benchmark before offloading working data
+
+Confirm free space, use a unique scratch file, and do not unmount a drive with
+active applications or transfers. Write speed does not predict read speed on
+USB enclosures — one drive benchmarked at 284 MB/s write and 92 MB/s read, a 3×
+gap (observed 2026-08-12, after offload had already been recommended; the
+advice had to be walked back). Working storage is read-bound, so the write
+figure flatters it badly:
+
+```bash
+BENCH_FILE=$(mktemp "$DRIVE/.skills-bench.XXXXXX")
+dd if=/dev/zero of="$BENCH_FILE" bs=1m count=4000 conv=fsync   # write
+diskutil unmount "$DRIVE" && diskutil mount <volume>          # drop cache
+dd if="$BENCH_FILE" of=/dev/null bs=1m                         # cold read
+rm -f "$BENCH_FILE"
+```
+
+Use `conv=fsync` or the write number is buffered and inflated, and remount
+before reading or the read number is page cache (it will show absurd GB/s).
+Check `mdutil -s "$DRIVE"` first — Spotlight indexing a freshly mounted volume
+corrupts the measurement.
+
+Below ~200 MB/s read, the drive is cold storage only. Memory-mapped workloads —
+Ollama, LM Studio, anything faulting pages during use — stall rather than slow
+when the mapping lives on a slow external.
+
 ## Pre-archive checks for a repo
 
 1. Confirm it is pushed. Unpushed commits exist only in that working tree:

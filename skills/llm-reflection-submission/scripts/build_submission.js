@@ -11,7 +11,7 @@ try { docx = require('docx'); } catch (e) {
 }
 const {
   Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType,
-  LevelFormat, BorderStyle, ShadingType, PageBreak, Footer, PageNumber,
+  LevelFormat, BorderStyle, ShadingType, Footer, PageNumber,
   Table, TableRow, TableCell, WidthType, LineRuleType,
 } = docx;
 
@@ -135,7 +135,6 @@ function md(src, headingShift = 0) {
         const m = lines[i].match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
         if (!m) break;
         const level = Math.min(Math.floor(m[1].length / 2), 2);
-        const numbered = /\d+\./.test(m[2]);
         let text = m[3]; i++;
         while (i < lines.length && lines[i].trim() && !lines[i].match(/^(\s*)([-*]|\d+\.)\s+/) && /^\s+/.test(lines[i])) {
           text += ' ' + lines[i].trim(); i++;
@@ -248,4 +247,6 @@ const doc = new Document({
 });
 
 const out = resolve(spec.output);
-Packer.toBuffer(doc).then((b) => { fs.writeFileSync(out, b); console.log(`Wrote ${out}`); });
+Packer.toBuffer(doc)
+  .then((b) => { fs.writeFileSync(out, b); console.log(`Wrote ${out}`); })
+  .catch((e) => { console.error(`Failed to write ${out}: ${e && e.stack ? e.stack : e}`); process.exitCode = 1; });
