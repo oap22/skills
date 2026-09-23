@@ -1,6 +1,6 @@
 ---
 name: spaced-recall
-description: "Run and log spaced retrieval practice against existing vault or curriculum material, carrying missed concepts across sessions. Use for \"spaced repetition\", \"resume my recall practice\", or a request to quiz from an existing study track. A one-off quiz from pasted content belongs to quiz-me when available."
+description: "Run and log spaced retrieval practice against existing vault or curriculum material, carrying missed concepts across sessions. Use for \"spaced repetition\", \"resume my recall practice\", or a quiz from an existing study track. A one-off quiz from pasted content is quiz-me."
 ---
 
 # Spaced Recall
@@ -63,7 +63,7 @@ Then, per question:
 
 Do not tutor mid-session. A five-paragraph derivation after question 2 turns a 30-minute quiz into a lecture and he stops booking them.
 
-**Cite carefully.** On the Ryden material, equation *numbers* are lower-confidence than the physics — the PDF is scanned and image-only, and two digest errors have already been caught (RW metric is eq. 3.25, not 3.16–3.19; P = wε is first defined at 4.50, not in Ch. 5). Verify a number against `paper-digests/long-references/` before asserting it, or state the physics and flag the number as unverified.
+**Cite carefully.** On the Ryden material, equation *numbers* are lower-confidence than the physics — the PDF is scanned and image-only, and two digest errors have already been caught (RW metric is eq. 3.25, not 3.16–3.19; P = wε is first defined at 4.50, not in Ch. 5). Verify a number against the digest or reference material in the track's repo (`find <repo> -ipath '*digest*'` — currently `UR_cluster_resources/paper-digests/`) before asserting it, or state the physics and flag the number as unverified.
 
 ### 4. Score and log
 
@@ -100,7 +100,7 @@ When no quiz exists, seven questions is the right size for 30 minutes:
 - **1 connection** — tie this chapter to the project's actual spine (for cosmology: `model → E(z) → ρ_c(z) → M_Δ`)
 - **1 re-queue** — the weakest item from the previous session
 
-The connection question matters most. Owen is not learning cosmology in the abstract; he's learning it because cluster mass is *defined* against the critical density. A question that never reaches the project is a question he'll forget by September.
+The connection question matters most. Owen is not learning cosmology in the abstract; he's learning it because cluster mass is *defined* against the critical density. A question that never reaches the project is a question he'll forget within a term.
 
 ## Rules
 
@@ -109,7 +109,7 @@ The connection question matters most. Owen is not learning cosmology in the abst
 - **Read the answer key privately before scoring; never show it before he answers.** Check questionable answers against primary material. A wrong key must not become a wrong grade.
 - **Log every score.** An unlogged session is a session that didn't happen, because the schedule can't see it.
 - **"Skip" is instant and free.** It re-queues; it doesn't count as a miss.
-- **Never mark a quiz complete in Linear.** Scores live in `progress.md`; Linear tracks whether the *habit* is running.
+- **Never record a session as a tracker issue.** Scores live in `progress.md`; the schedule is the only record of the habit (OWE workspace retired 2026-09-18).
 - **Resolve dates at runtime**, `America/Chicago`.
 
 ## Environment

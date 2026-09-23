@@ -1,6 +1,6 @@
 ---
 name: owen-voice
-description: Owen's writing voice — how he actually sounds across casual, professional, technical, and conflict registers, and the tells that make a draft read as his. Load before writing or editing anything that goes out under his name, and when he says "make this sound like me", "does this sound like me", "fix the voice", or "in my voice". Reference material, not a drafting procedure — draft-outreach, resume-build, and mail workflows own their own steps and read this for voice.
+description: "Reference for Owen's writing voice across casual, professional, technical, and conflict registers, and the tells that make a draft read as his. Load before writing anything under his name, or for \"make this sound like me\", \"in my voice\". Not a drafting procedure."
 ---
 
 # Owen's Voice
@@ -117,11 +117,12 @@ Do not imitate this. It is a speaking habit, not a style he would defend in writ
 
 ## Provenance
 
-Built 2026-09-20 from two sources:
+Built 2026-09-20 from four sources:
 
 - **Eight dictated samples** (Wispr Flow), covering explain-to-friend, explain-to-professor, disagreement, cold outreach, technical debugging, admitting lateness, complaint, and ambition. Verbatim in `samples.md`.
 - **One long-form cover letter**, [Company] [Program], September 2026 — the only sample of his high gear at length.
 - **Roughly fifteen real sent emails**, Nov 2025 – Sep 2026: reference requests to two teachers, a military officer-selection recruiter, a landlord, an HR coordinator, an industry contact, MSOE financial aid.
+- **One co-edited academic reflection**, CSC 2210 SPA 1 Q3, 2026-09-20 — `samples.md` Part 4. Owen drafted it and Claude edited it to these rules, so it is a worked example of the register, not independent evidence.
 
 ## Untested
 
@@ -130,5 +131,5 @@ Honest gaps. Fill these before trusting the file outside what it covers.
 - **Casual/peer register rests on two dictated samples.** Owen confirms he uses the same voice in Slack and Discord as everywhere else, so the risk here is lower than the sample count suggests — but no actual chat corpus was read. If a casual draft misses, that is the likeliest reason.
 - **Seven of eight samples are dictation, and dictation understates him.** Owen flagged both halves of this: "it is hard to voice dictate well," and that he writes with more complex language when he focuses. Treat `samples.md` Part 1 as his speaking voice. The written voice is in Part 2 and in the high gear described above.
 - **Wispr Flow dictation history was never read.** `~/Library/Application Support/Wispr Flow` is a protected macOS location the device tools refuse, and Wispr's cloud sync is off, so the scratchpad API returns nothing. If that history is ever exported to an accessible folder it is the best available corpus and this file should be rebuilt from it.
-- **One long-form sample, and it is a cover letter.** The high gear rests on a single document in a single genre. Application writing has its own conventions, so some of what looks like voice there may be genre. An academic paper section or an essay would separate the two.
+- **The high gear rests on one unedited long-form sample, a cover letter, plus one co-edited academic reflection.** Application writing has its own conventions, so some of what looks like voice in the letter may be genre; the reflection (Part 4) passed through these rules, so it only partly separates the two. An unedited academic paper section or essay would.
 - **Owen said "more complex language"; the evidence shows complex construction with plain words.** Reconciled above in favor of the evidence. If he meant the vocabulary genuinely elevates in some register not yet sampled, this needs revisiting.

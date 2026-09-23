@@ -1,6 +1,6 @@
 ---
 name: llm-reflection-submission
-description: "Turn a course reflection that compares Owen's code with an LLM's critique into a Canvas-ready Word document: his code with line numbers, the prompt as sent, the LLM's exact output in a labeled block, and his answers checked against the code and written in his voice. Use for \"make my reflection a doc for Canvas\", \"build the submission doc\", or \"format my LLM reflection\"."
+description: "Turn a course reflection comparing Owen's code with an LLM critique into a Canvas-ready Word document: numbered code, the prompt as sent, the LLM output verbatim, and his answers checked against the code in his voice. Use for \"build the submission doc\" or \"format my LLM reflection\"."
 ---
 
 # LLM Reflection Submission

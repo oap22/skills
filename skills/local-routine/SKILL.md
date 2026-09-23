@@ -1,6 +1,6 @@
 ---
 name: local-routine
-description: Schedule or update recurring agent work that needs local files or connected accounts. Use for "run this every morning", "set up a routine", or a recurring vault workflow. Use the current harness's native scheduler and verify its access before creating a task.
+description: "Schedule or update recurring agent work that needs local files or connected accounts, using the current harness's native scheduler after verifying its access. Use for \"run this every morning\" or \"set up a routine\". Reconcile design lives in sync-task-design."
 ---
 
 # Local Routine

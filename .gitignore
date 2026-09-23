@@ -9,6 +9,7 @@ skills/*/.DS_Store
 # Python bytecode
 __pycache__/
 *.py[cod]
+.pytest_cache/
 
 # Cooperative installer lock (created beside install.py while applying)
 .install.lock

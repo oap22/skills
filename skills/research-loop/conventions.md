@@ -143,7 +143,7 @@ Format: what was tried · why it failed · run ID · **what would make it worth 
 ## OPEN-QUESTIONS.md
 
 ```markdown
-- [ ] Does the cosine gap hold at 4× compute? — raised 2026-08-14, blocked on ROSIE access (OWE-13)
+- [ ] Does the cosine gap hold at 4× compute? — raised 2026-08-14, blocked on ROSIE access (formerly OWE-13)
 - [x] Is mathgen-v3 contaminated? — answered 2026-08-12, no: generated post-cutoff. `2026-08-12-contam-check`
 ```
 

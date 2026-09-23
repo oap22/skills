@@ -1,6 +1,6 @@
 ---
 name: feature-interview
-description: Interview the user one question at a time until a feature's behavior is pinned down with no ambiguity left — every state transition, edge case, and invariant decided — then write a spec the implementation is held to. Use when a feature request is under-specified, when a first attempt came back "not quite what I wanted", or when the user says "interview me", "let's nail down what I want", "spec this out", or "iron this out before you build it". For research questions and experiments use research-interview instead.
+description: "Interview the user one question at a time until a feature's behavior is fully pinned down, then write the spec the implementation is held to. Use for \"spec this out\", \"nail down what I want\", or an under-specified feature. Research questions go to research-interview."
 ---
 
 # Feature Interview
@@ -15,16 +15,16 @@ The trigger is usually a rebuild. A feature request like "the graphs should be d
 
 The interview is done only when *both* are true:
 
-1. **You can state the whole behavior back and the user changes nothing.** Any correction means you weren't done — absorb it and restate. Loop until the restatement survives untouched.
+1. **You can state the whole behavior back and the user changes nothing.** Any correction means you weren't done — absorb it and restate. Loop until the restatement survives untouched. Explicit approval of the concrete restatement suffices; do not require verbatim repetition or restart after a minor correction.
 2. **Every invariant the user asked for is provably unbreakable, or you know exactly where it breaks and the user chose that.** "All different colors" is not a spec until you have asked what happens when there are more runs than colors.
 
 ## The Rules That Make It Work
 
 **One question per message.** Two only when genuinely coupled — a mechanism and its immediate consequence, where answering one alone would be meaningless. Six questions in a call gets six shallow answers.
 
-**Ask through `AskUserQuestion` with concrete options.** Feature behavior is almost always enumerable: 2–4 real alternatives, each one something you would actually be willing to build. "Other" covers the rest. Never offer an option you'd argue against — that's a fake choice that wastes a turn.
+**If the harness exposes a structured question tool, use it with concrete options; otherwise ask in chat.** Feature behavior is almost always enumerable: 2–4 real alternatives, each one something you would actually be willing to build. "Other" covers the rest. Never offer an option you'd argue against — that's a fake choice that wastes a turn.
 
-**Put a state diagram in every `preview`.** This is what makes the difference. Each option's preview shows the *before → action → after* in monospace, using the app's real vocabulary:
+**Put a state diagram with every option** (in the tool's per-option preview field if it has one, inline in chat if not). This is what makes the difference. Each option shows the *before → action → after* in monospace, using the app's real vocabulary:
 
 ```
 before:  [x] auto → run-a (blue)
@@ -58,4 +58,4 @@ Run each of these against the feature. Each one that has no answer yet is a ques
 1. **Read the spec back** as numbered behavior statements, grouped by surface. Not a summary — a specification, in the app's vocabulary, that someone else could implement from.
 2. **Separate what you decided yourself.** List the routine judgment calls you made rather than asking (naming, ordering, exact pixel affordances) under a heading the user can skim and veto.
 3. **Write it to a file** before implementing — `.scratch/prd-<feature>.md` or wherever the project keeps specs. The spec outlives the conversation and the implementation gets checked against it.
-4. **Then build it**, and report against the spec's numbered points so the user can verify coverage without reading the diff.
+4. **Then hand the spec to implementation; get explicit go-ahead first unless already authorized.** Report against the spec's numbered points so the user can verify coverage without reading the diff.

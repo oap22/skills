@@ -1,22 +1,9 @@
 {
   "schema_version": 1,
   "_comment": "Maps each skill to the harnesses it should be linked into. Run ./install.py after editing.",
-  "_targets": {
-    "claude": "~/.claude/skills",
-    "cursor": "~/.cursor/skills",
-    "codex": "~/.codex/skills",
-    "gemini": "~/.gemini/skills",
-    "vault": "~/Owen's Awesome Vault/.claude/skills"
-  },
   "skills": {
     "adversarial-review": [
       "claude",
-      "cursor",
-      "codex",
-      "gemini"
-    ],
-    "agent-task-runner": [
-      "vault",
       "cursor",
       "codex",
       "gemini"
@@ -73,12 +60,6 @@
       "claude",
       "cursor",
       "vault",
-      "codex",
-      "gemini"
-    ],
-    "file-agent-issue": [
-      "vault",
-      "cursor",
       "codex",
       "gemini"
     ],
@@ -209,12 +190,6 @@
       "codex",
       "gemini"
     ],
-    "scheduled-sync-task": [
-      "claude",
-      "cursor",
-      "codex",
-      "gemini"
-    ],
     "skillify": [
       "claude",
       "cursor",
@@ -228,6 +203,12 @@
       "gemini"
     ],
     "swe2410-java-setup": [
+      "claude",
+      "cursor",
+      "codex",
+      "gemini"
+    ],
+    "sync-task-design": [
       "claude",
       "cursor",
       "codex",
@@ -252,12 +233,6 @@
       "gemini"
     ],
     "vault-lifecycle": [
-      "vault",
-      "cursor",
-      "codex",
-      "gemini"
-    ],
-    "vault-to-linear": [
       "vault",
       "cursor",
       "codex",

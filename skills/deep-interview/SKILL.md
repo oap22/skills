@@ -1,6 +1,6 @@
 ---
 name: deep-interview
-description: Interview Owen one question at a time to build or extend his profile in the vault, reading what's already known first and writing answers down as they come. Use when he says "interview me", "ask me about myself", "build my profile", "update my profile", "deep interview", or wants the vault to hold a real picture of his situation rather than fragments.
+description: "Interview Owen one question at a time to build or extend his profile in the vault, reading what is already known first and writing answers as they come. Use for \"interview me\", \"ask me about myself\", \"build my profile\", \"update my profile\"."
 ---
 
 # Deep Interview

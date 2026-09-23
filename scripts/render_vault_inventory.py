@@ -8,7 +8,6 @@ by one unique, unfenced ``## Claude Agents`` heading; the old section content is
 kept after the new managed block.
 """
 import argparse
-from contextlib import contextmanager
 import os
 from pathlib import Path
 import re
@@ -19,7 +18,7 @@ import tempfile
 SCRIPTS = Path(__file__).resolve().parent
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
-from catalog_contract import load_catalog  # noqa: E402
+from catalog_contract import install_lock, load_catalog  # noqa: E402
 
 START = "<!-- skills-inventory:start -->"
 END = "<!-- skills-inventory:end -->"
@@ -27,11 +26,6 @@ _START_LINE = re.compile(r"^[ \t]*" + re.escape(START) + r"[ \t]*(?:\n|$)", re.M
 _END_LINE = re.compile(r"^[ \t]*" + re.escape(END) + r"[ \t]*(?:\n|$)", re.M)
 _SKILLS_HEADING = re.compile(r"^[ \t]{0,3}##[ \t]+Skills[ \t]*$", re.M)
 _AGENTS_HEADING = re.compile(r"^[ \t]{0,3}##[ \t]+Claude Agents[ \t]*$", re.M)
-
-
-# Compatibility for callers that used the former private helper. New code
-# should use load_catalog().
-_catalog = load_catalog
 
 
 def render(repo):
@@ -205,30 +199,6 @@ def discard_update(plan):
         plan.temp = None
 
 
-@contextmanager
-def _local_lock(repo):
-    """Serialize direct inventory writers using the install lock."""
-    lock_path = repo / ".install.lock"
-    lock_path.parent.mkdir(parents=True, exist_ok=True)
-    with lock_path.open("a+") as handle:
-        try:
-            import fcntl
-            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
-            unlock = lambda: fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
-        except ImportError:  # pragma: no cover - exercised on Windows only.
-            import msvcrt
-            handle.seek(0)
-            handle.write("0")
-            handle.flush()
-            handle.seek(0)
-            msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
-            unlock = lambda: msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
-        try:
-            yield
-        finally:
-            unlock()
-
-
 def update_inventory(repo, vault, check=False):
     # Validate and render before creating the lock. Read-only checks should not
     # leave filesystem state behind, and invalid input must fail before any
@@ -236,7 +206,7 @@ def update_inventory(repo, vault, check=False):
     initial_plan = plan_update(repo, vault)
     if check:
         return not initial_plan.changed
-    with _local_lock(repo):
+    with install_lock(repo):
         plan = plan_update(repo, vault)
         try:
             stage_update(plan)

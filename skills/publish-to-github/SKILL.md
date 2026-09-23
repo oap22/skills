@@ -1,6 +1,6 @@
 ---
 name: publish-to-github
-description: Publish a local directory to GitHub after inspecting version control, staged content, and secrets. Use for "push this to GitHub" or "make a private repo for this". Default new repositories to private; a missing remote alone is not permission to publish.
+description: "Publish a local directory to GitHub after inspecting version control, staged content, and secrets. Use for \"push this to GitHub\" or \"make a private repo for this\". Defaults to private; a missing remote alone is not permission to publish."
 ---
 
 # Publish to GitHub

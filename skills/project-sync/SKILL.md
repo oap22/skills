@@ -1,6 +1,6 @@
 ---
 name: project-sync
-description: "Inventory local Git repositories and update their vault project notes. Use for \"sync my projects\", \"update my project notes\", or \"scan my repos\". Use vault-lifecycle to review whether tracked projects are still active, and day-check for today's priorities."
+description: "Inventory local Git repositories and update their vault project notes. Use for \"sync my projects\", \"update my project notes\", \"scan my repos\". Whether tracked projects are still alive is vault-lifecycle."
 ---
 
 # Project Sync
@@ -26,7 +26,7 @@ for root in "${repo_roots[@]}"; do
 done
 ```
 
-Run discovery once per configured root. Depth 4 catches nested groupings like `research-group-26-27/<repo>`; raise it for a named root whose repos are buried deeper. Record a missing or unreadable root as unavailable coverage. Agent tool directories (`~/.codex`, `~/.claude`) contain git repos — exclude them unless the user explicitly names one.
+Run discovery once per configured root. `-maxdepth 5` catches nested groupings like `active/school/sophomore/research/<repo>`; raise it for a named root whose repos are buried deeper. Record a missing or unreadable root as unavailable coverage. Agent tool directories (`~/.codex`, `~/.claude`) contain git repos — exclude them unless the user explicitly names one.
 
 ### 2. Collect metadata
 
