@@ -172,6 +172,12 @@
       "codex",
       "gemini"
     ],
+    "research-survey": [
+      "claude",
+      "cursor",
+      "codex",
+      "gemini"
+    ],
     "resume-build": [
       "vault",
       "cursor",
