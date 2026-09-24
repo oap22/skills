@@ -12,6 +12,7 @@ Writes the email Owen has been putting off. This workflow produces text and does
 That constraint is the reason this skill can run unattended at all. An agent that could send would need a human watching it. One that only drafts doesn't. OWE workspace retired 2026-09-18; drafts are handed over in chat and the ledger, never as tracker issues.
 
 **Vault:** `$HOME/Owen's Awesome Vault`
+**Private values:** `<personal-gmail>` and `<school-email>` are placeholders. Read the real values from `private.local.md` in this skill's folder (gitignored). If it is missing, ask Owen rather than guessing; `private.example.md` is the template.
 
 ## Why most of these emails don't get sent
 
@@ -76,18 +77,18 @@ Owen has two mailboxes. **Every draft carries a `From:` and a `Cc:` line**, so h
 
 | Account | Use it when writing to | |
 |---|---|---|
-| `pacettio@msoe.edu` | Professors, MSOE students, campus research, anything academic | Owen's word carries institutional weight here; a `.edu` address from a stranger gets opened |
-| `oap1722@gmail.com` | Industry, recruiters, alumni at companies, anything that outlives graduation | Survives graduation, when the MSOE address won't |
+| `<school-email>` | Professors, MSOE students, campus research, anything academic | Owen's word carries institutional weight here; a `.edu` address from a stranger gets opened |
+| `<personal-gmail>` | Industry, recruiters, alumni at companies, anything that outlives graduation | Survives graduation, when the MSOE address won't |
 
 **Then CC the other address, always.** Owen's rule, set 2026-08-07.
 
-This is not filing tidiness — it's what makes the outreach log work at all. The Gmail connector is authenticated on **`oap1722@gmail.com` only**. Anything Owen sends from MSOE is otherwise **invisible** to `log-outreach`'s nightly sweep, so it would sit In Review forever while the reply landed in a mailbox no agent can see. The self-CC puts a copy in the visible mailbox and the sweep finds it.
+This is not filing tidiness — it's what makes the outreach log work at all. The Gmail connector is authenticated on **`<personal-gmail>` only**. Anything Owen sends from MSOE is otherwise **invisible** to `log-outreach`'s nightly sweep, so it would sit In Review forever while the reply landed in a mailbox no agent can see. The self-CC puts a copy in the visible mailbox and the sweep finds it.
 
 Put both lines at the top of the fenced draft:
 
 ```
-From: pacettio@msoe.edu
-Cc:   oap1722@gmail.com
+From: <school-email>
+Cc:   <personal-gmail>
 Subject: ...
 ```
 

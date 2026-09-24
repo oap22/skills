@@ -12,6 +12,7 @@ This skill never touches Linear (OWE workspace retired 2026-09-18; RES remains b
 Without it the vault has a permanent blind spot: every draft is filed, and nothing says which ones became real. Two months later the only way to answer *"did I ever email him?"* is to go digging in Gmail — which is exactly the friction that makes people not follow up.
 
 **Vault:** `$HOME/Owen's Awesome Vault`
+**Private values:** `<personal-gmail>` and `<school-email>` are placeholders. Read the real values from `private.local.md` in this skill's folder (gitignored). If it is missing, ask Owen rather than guessing; `private.example.md` is the template.
 
 ## The problem this solves
 
@@ -70,17 +71,17 @@ Runs unattended. Reconciles what the vault *thinks* against what Gmail *knows*.
 
 ```
 search_threads  in:sent from:me to:<their address>
-search_threads  from:pacettio@msoe.edu to:<their address> cc:oap1722@gmail.com     # catches MSOE-sent mail via self-CC
+search_threads  from:<school-email> to:<their address> cc:<personal-gmail>     # catches MSOE-sent mail via self-CC
 ```
 
 Inspect the matched message's actual From, To, Cc, date, and body, not just a thread search hit. Confirm it matches the intended outreach and is not a draft, forward, quoted message, or bounce. A self-CC copy can be in the inbox; its verified headers supply the evidence.
 
-**Run both queries.** Owen has two mailboxes and the connector is authenticated on **`oap1722@gmail.com` only**:
+**Run both queries.** Owen has two mailboxes and the connector is authenticated on **`<personal-gmail>` only**:
 
 | | |
 |---|---|
-| `pacettio@msoe.edu` | Academic — professors, MSOE students, campus research |
-| `oap1722@gmail.com` | Industry, recruiters, alumni at companies |
+| `<school-email>` | Academic — professors, MSOE students, campus research |
+| `<personal-gmail>` | Industry, recruiters, alumni at companies |
 
 Per `draft-outreach` § 3b, every draft CCs the other address, so MSOE-sent mail still lands in the Gmail mailbox and this sweep can see it. The second query is what finds it.
 

@@ -9,7 +9,8 @@ Separate lookup from scheduling: "when am I free?" and "find me time" request ca
 
 Owen's calendar is the system of record for fixed time. Every event carries a category color so a week reads as a breakdown at a glance. This skill is the single place that knows how.
 
-**Calendar:** `oap1722@gmail.com` · timezone `America/Chicago`
+**Calendar:** `<personal-gmail>` · timezone `America/Chicago`
+**Private values:** `<personal-gmail>` and `<school-email>` are placeholders. Read the real values from `private.local.md` in this skill's folder (gitignored). If it is missing, ask Owen rather than guessing; `private.example.md` is the template.
 **Source of truth:** `$HOME/Owen's Awesome Vault/.system/calendar-conventions.md` — read it before writing anything; it may have drifted ahead of this file.
 
 ## The color scheme
