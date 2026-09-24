@@ -12,6 +12,7 @@ Writes the email Owen has been putting off. This workflow produces text and does
 That constraint is the reason this skill can run unattended at all. An agent that could send would need a human watching it. One that only drafts doesn't. OWE workspace retired 2026-09-18; drafts are handed over in chat and the ledger, never as tracker issues.
 
 **Vault:** `$HOME/Owen's Awesome Vault`
+**Private values:** `<personal-gmail>` and `<school-email>` are placeholders. Read the real values from `private.local.md` in this skill's folder (gitignored). If it is missing, ask Owen rather than guessing; `private.example.md` is the template.
 
 ## Why most of these emails don't get sent
 

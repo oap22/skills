@@ -11,6 +11,7 @@ Rosie is MSOE's cluster. Owen has already run ~2,000 GPU-hours and 3,500+ jobs o
 
 **Host:** `rosie` (`<login-node>`) · **User:** `<cluster-user>` · already in `~/.ssh/config`
 **Compute nodes:** `dh-node*`, reachable via `ProxyJump rosie`
+**Private values:** `<login-node>` and `<cluster-user>` are placeholders. Read the real values from `private.local.md` in this skill's folder (gitignored). If it is missing, ask Owen rather than guessing; `private.example.md` is the template.
 
 Read `rosie-facts.md` before the first command of any session — it is the accumulated, *verified* knowledge of how this specific cluster behaves, and it is deliberately incomplete. **When you learn something new about Rosie, write it there.**
 
