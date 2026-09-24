@@ -37,8 +37,6 @@ Builds the document for assignments where Owen gives his code to an LLM, gets a 
 
 ## Failure modes seen
 
-- **Numbered lists restarting**, for example "1" then "1, 2" after nested bullets. The docx `instance` field gave different numIds within a single list. The script now gives each list its own numbering config.
-- **Bold text containing code with `*`** (`**amount *= -1 ...**`) broke the regex-based inline parser. The script now uses a character state machine.
 - **Mostly blank pages** came from forcing every section onto a new page. Use `pageBreakBefore` only where a heading would otherwise be stranded, such as the LLM-output section.
 - **Code lines over 100 characters** can't fit on the page at a readable size. They wrap with a hanging indent under the code, not against the left margin.
 - **Section notes under each heading** ("reproduced verbatim...") were unwanted. The labeled boxes on the LLM section are the only annotation.

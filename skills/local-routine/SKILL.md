@@ -20,4 +20,4 @@ For monitors, stay quiet while state is unchanged or non-actionable; notify on m
 
 The local Claude scheduler observed in August 2026 used local-time cron and deterministic jitter; cloud routines had different access and timing semantics. A missing connector made a healthy-looking schedule unable to do its job. These are dated observations, not facts about other harnesses or their current versions.
 
-A prior local tool exposed create/update/delete/list but no run action. If the current tool still lacks one, use its supported UI path; do not change recurrence to a near-future one-shot, which previously cleared the cron and disabled the routine afterward. Verify current app-open and missed-run behavior rather than promising replay or catch-up from this old observation.
+If the scheduler has no run-now action, use its supported UI path. Do not fake a run by switching recurrence to a near-future one-shot: that can clear the cron and leave the routine disabled. Verify app-open and missed-run behavior before promising replay or catch-up.
