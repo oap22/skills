@@ -5,7 +5,7 @@ Three rungs, each used at most once per packet. The lead redoing a slice on the 
 | Rung | Who | When | Stop rule |
 |---|---|---|---|
 | 1 | `implementor` (cheap model, `--worker-effort`, usually `low`) | First attempt at every packet | Acceptance check fails twice after its own fixes: stop and report |
-| 2 | `implementor-retry` (same model, `--worker-retry-effort`, one level up) | The same packet, re-sent once, unchanged unless the report exposed a packet defect | Same two-failure rule |
+| 2 | `implementor-retry` (same model one effort level up via `--worker-retry-effort`, or a stronger model via `--worker-retry-model`) | The same packet, re-sent once, unchanged unless the report exposed a packet defect | Same two-failure rule |
 | 3 | The lead | Rung 2 stopped, or no retry rung was launched | Fix the packet (wrong entry points, wrong check, hidden dependency) or take the slice itself |
 
 ## Before climbing

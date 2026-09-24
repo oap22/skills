@@ -17,6 +17,7 @@ python3 scripts/oas.py report-runs --output /abs/workspace/.oas
 - `--packets`, `--escalated`: from the session, per `escalation.md`.
 - `--corrections`: substantive corrections Owen had to make to the delivered work. A faster wrong answer is a failure, and this column is where it shows.
 - `--lead-model`: only when `--model` was passed at launch; omitted means the harness default was inherited.
+- `--retry-model`: only when the retry rung ran on a different model (`--worker-retry-model`); it makes that a separate configuration in `report-runs`.
 
 ## Reading the report
 
