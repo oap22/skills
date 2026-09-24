@@ -80,11 +80,11 @@ Before the session ends: (1) copy every prompt file and verifier artefact from t
 
 ## Failure modes
 
-- Reviewer prompts existed only inside tool calls; when the session was archived they had to be dug out of JSONL transcripts. Write prompts to files first.
-- An accidental "stop" killed four agents ten minutes in; the fixer's partial diff was intact in its worktree and finished in a second launch — the implementer whose diff was empty was simply relaunched. Check the diff before deciding which.
-- Two tracks both edited `runner.py`; the second PR conflicted at rebase. Sequence merges of tracks that share files and rebase before opening the PR.
-- A "security" change stamped a label from configuration, not from enforcement; only the spec-conformance lens caught that the artifact could claim `tamper_resistant` for an unsandboxed run. Any change that records a guarantee gets that lens.
-- A fixer that had already done one finding was relaunched with the full list and no note; it redid the finding. Tell it what the partial diff already covers.
-- A CI job that compiles a crate for the FIRST time on a new platform fails on latent pre-existing issues, not the diff (unconditional platform-gated imports; an environment-dependent test that had only ever run on the dev box). Budget a CI-fix loop for any first-platform job; these one-line unblocks are lead work, same bucket as rebase conflicts — reproduce locally first (`LANG=C.UTF-8 cargo test` repro'd the Linux failure on Darwin).
-- The merge step can be blocked by branch policy, not CI: `require_code_owner_reviews` makes any CODEOWNERS-path PR (`.github/` above all) a cross-human gate the fleet cannot clear. Check `gh api repos/<r>/branches/main/protection` during step-1 sizing, state it in the PR's self-classified tier, and never `--admin` past a deliberate cross-human security gate on your own judgment — leave the PR ready and tell the operator plainly whose approval unblocks it.
-- Round-1 denylist patterns blocked the canonical spelling and missed every built-in alias (`rm`/`ri`/`rd`/`rmdir`/`del`/`erase` for `Remove-Item`). Security-pattern work needs the verifier explicitly told to hunt BYPASSES and FALSE POSITIVES through the real checker, not just mutation-test the tests — and the lead runs their own N-case probe before merging.
+- Write prompts to files before launching; prompts that live only in tool calls are lost when the session is archived.
+- After an interrupt, check each worktree's diff before relaunching: a partial diff can be finished, an empty one is relaunched.
+- Sequence merges of tracks that edit the same files, and rebase before opening the PR.
+- Any change that records a guarantee (a label, a flag, a claim in an artifact) gets the spec-conformance lens: check the guarantee is enforced, not just stamped from configuration.
+- When relaunching a fixer, tell it which findings its partial diff already covers.
+- A CI job running on a platform for the first time surfaces latent pre-existing failures, not just the diff. Budget a CI-fix loop, reproduce locally first, and treat the unblocks as lead work.
+- Branch policy can block the merge independently of CI: `require_code_owner_reviews` makes any CODEOWNERS-path PR a cross-human gate. Check `gh api repos/<r>/branches/main/protection` during step-1 sizing, state it in the PR's tier, and never `--admin` past it; leave the PR ready and name whose approval unblocks it.
+- For security-pattern work (denylists, validators), tell the verifier to hunt bypasses and false positives through the real checker, including built-in aliases, and run your own N-case probe before merging.

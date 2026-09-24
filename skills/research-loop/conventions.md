@@ -151,12 +151,12 @@ Answered questions stay, checked, with the run that settled them. The list is a 
 
 ## Version Control
 
-The run directories are no longer inside the repo, so the repo's history no longer carries the record automatically — and that is a real loss to compensate for, not a detail. Two rules replace the old gitignore stanza:
+Run directories live outside the repo, so git does not carry the record automatically. Two rules compensate:
 
 1. **The journal is the committed artifact.** `JOURNAL.md`, `OPEN-QUESTIONS.md`, and `DEAD-ENDS.md` live in the repo and cite run IDs. A run ID that appears in a committed entry is what makes the result findable later; a result that exists only as a directory under `~/research-results` and is named nowhere in git is one `rm -rf` from never having happened.
 2. **When a run backs a claim that matters, copy its small files into the repo** — `run.json`, `config.yaml`, `metrics.json`, `notes.md`, `stdout.log`, `trajectory.json` — to `research/records/<run-id>/`, unless the project already has a home for them, and commit them alongside the journal entry. They're small, diffable, and the entire point. If `stdout.log` is enormous, truncate the middle and say so in the file rather than dropping it.
 
-Never copy `artifacts/` into the repo — checkpoints and other large binaries stay in the results root, where they are outside git by construction. That is the one thing this layout makes easier: committing 4GB of checkpoints is now something you'd have to do on purpose.
+Never copy `artifacts/` into the repo — checkpoints and other large binaries stay in the results root, where they are outside git by construction.
 
 If Owen wants the whole results root under version control, `git init` in `~/research-results` itself is the move — one history for every project's runs — with this stanza in its `.gitignore`:
 
