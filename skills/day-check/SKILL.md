@@ -55,7 +55,7 @@ his next class is a bad answer no matter how important the issue is.
 
 ### 4. Keep it short
 
-Chat, not a document. Target **under 150 words**. Lead with the next fixed thing and how long until it starts, then the work. Use full `RES-nn` ids so he can act, skip tables unless there are more than about six items, and never render a checklist — nothing here is checkable.
+Chat, not a document: short enough to read at a glance between classes. Lead with the next fixed thing and how long until it starts, then the work. Use full `RES-nn` ids so he can act, skip tables unless there are more than about six items, and never render a checklist — nothing here is checkable.
 
 Say the time remaining explicitly (`2h10m until Physics`), because that's the number he's actually deciding against.
 
