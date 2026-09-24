@@ -244,6 +244,12 @@
       "codex",
       "gemini"
     ],
+    "vision-interview": [
+      "claude",
+      "cursor",
+      "codex",
+      "gemini"
+    ],
     "zed-language-setup": [
       "claude",
       "cursor",
