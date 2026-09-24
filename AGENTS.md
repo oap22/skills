@@ -6,6 +6,7 @@ Source of truth for Owen's agent skills. Edit skills only here; `install.py` sym
 - `skills/<name>/SKILL.md` plus bundled references, templates, and scripts, linked by relative path
 - `manifest.json` maps each skill to harnesses; `scripts/catalog_contract.py` owns validation and `TARGET_LAYOUTS`
 - `scripts/export_catalog.py` (catalog JSON), `scripts/render_vault_inventory.py` (vault MOC block), `tests/` (unittest)
+- `TODO.md` holds open catalog-wide changes; tick items as they land
 
 ## Commands
 ```
