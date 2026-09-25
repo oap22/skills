@@ -12,6 +12,7 @@ This skill never touches Linear (OWE workspace retired 2026-09-18; RES remains b
 Without it the vault has a permanent blind spot: every draft is filed, and nothing says which ones became real. Two months later the only way to answer *"did I ever email him?"* is to go digging in Gmail — which is exactly the friction that makes people not follow up.
 
 **Vault:** `$HOME/Owen's Awesome Vault`
+**Private values:** `<personal-gmail>` and `<school-email>` are placeholders. Read the real values from `private.local.md` in this skill's folder (gitignored). If it is missing, ask Owen rather than guessing; `private.example.md` is the template.
 
 ## The problem this solves
 
