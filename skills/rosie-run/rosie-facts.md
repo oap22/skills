@@ -11,7 +11,7 @@ Last full sweep: **2026-08-12** (from Owen's Mac, on MSOE VPN).
 | | |
 |---|---|
 | SSH host alias | `rosie` → `<login-node>` (already in `~/.ssh/config`) |
-| User | `<cluster-user>` |
+| User | `<cluster-user>` (real host and user: `private.local.md`, gitignored) |
 | Home | `$HOME` |
 | Login node | `dh-mgmt2` — **no GPU** (`nvidia-smi` is not installed) |
 | Compute nodes | `dh-node[1-20]`, `dh-dgx1-[1-3]`, `dh-dgxh100-[1-2]` — via `ProxyJump rosie` |
