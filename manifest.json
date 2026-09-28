@@ -129,6 +129,12 @@
       "codex",
       "gemini"
     ],
+    "project-status-doc": [
+      "claude",
+      "cursor",
+      "codex",
+      "gemini"
+    ],
     "project-sync": [
       "vault",
       "cursor",
