@@ -36,7 +36,7 @@ Before spawning anything, show the plan and **wait for approval** when the user 
 
 Follow it with one line for the review/merge flow, one for how problems hit are handled, and a **Skipped** list with the reason per issue (needs the cluster, blocked on a login, a person's decision). Keep the whole plan to a screen.
 
-Claim the approved issues in the tracker (In Progress, a comment naming the branch).
+Claim the approved issues in the tracker (In Progress, a comment naming the branch). Say in the plan who merges: if the user also merges, a PR can land while its verifier still has a P1 open.
 
 ### 2. Worktrees and environment
 
@@ -101,3 +101,10 @@ Before the session ends: (1) copy every prompt file and verifier artefact from t
 - A CI job running on a platform for the first time surfaces latent pre-existing failures, not just the diff. Budget a CI-fix loop, reproduce locally first, and treat the unblocks as lead work.
 - Branch policy can block the merge independently of CI: `require_code_owner_reviews` makes any CODEOWNERS-path PR a cross-human gate. Check `gh api repos/<r>/branches/main/protection` during step-1 sizing, state it in the PR's tier, and never `--admin` past it; leave the PR ready and name whose approval unblocks it.
 - For security-pattern work (denylists, validators), tell the verifier to hunt bypasses and false positives through the real checker, including built-in aliases, and run your own N-case probe before merging.
+- A reviewer bot on a checker or validator finds one missing case per round (one run: six rounds on one script, each a new git state). Put the full case matrix (states x modes) in the brief before the first implementer runs.
+- Run the independent verifier alongside the bot, not instead of it: in one run the verifier caught a P1 the bot passed, and the bot caught P1s the verifier missed. Merge only when both are clean.
+- Wait for the bot's finished verdict on the current head sha (for example "Reviewed commit: <sha>"), not its "running" status line.
+- Chain every step after the checks with `&&`, including the push and the review-request comment; a `;` posted a review request before a failed rebase was pushed.
+- A decision relayed by another session is not the user's decision until confirmed; ask the user in chat when two relays disagree, then tell every running agent the same rule.
+- Trackers show UTC timestamps; write dates in the user's local time zone.
+- When an implementer refuses part of a contract with a concrete reason (a binary-file skip that would let secrets pass), check the reason before insisting: the contract can be wrong.
