@@ -1,6 +1,6 @@
 ---
 name: issue-fleet
-description: "Lead a fleet of subagents that take several tracker issues (Linear or GitHub) from Todo to merged PRs in parallel: one worktree per issue, lensed review, verifier, CI, merge. Use for \"orchestrate the fleet\", \"go after the top issues and merge them\", or a batch of issues handed over at once."
+description: "Lead a fleet of subagents that take several tracker issues (Linear or GitHub) from Todo to merged PRs in parallel: a lane table approved first, one worktree per lane, review, verifier, merge. Use for \"orchestrate the fleet\", \"go after the top issues and merge them\", \"do what's assigned to me\", or a batch of issues handed over at once."
 ---
 
 # Issue Fleet
@@ -17,15 +17,26 @@ This skill composes `adversarial-review` (read it — its lens catalog and promp
 - **Prompts live in files, not only in tool calls.** Write every implementer/reviewer/fixer prompt to `<scratchpad>/prompts/<track>-<role>.md` and tell the agent "read your instructions from this file". When an agent is killed (rate limit, accidental interrupt) you relaunch it verbatim in one line instead of reconstructing the brief.
 - **A subagent's pasted green output is a claim.** Re-run tests, lint, and typecheck in your own shell before every commit and before every merge.
 - **Merge criteria are fixed up front:** ≥2 lensed reviewers, findings fixed by a fixer given a one-sentence contract, an independent verifier that tried to break the fix and could not, CI green, your own shell green. Only then merge — and then move the issue to Done yourself.
-- **Real but out-of-scope findings become issues** when issue filing is authorized, filed the moment they are triaged; otherwise report them in the handoff. Never fold them into the diff and never drop them.
+- **Real but out-of-scope findings become issues** when issue filing is authorized, filed the moment they are triaged; otherwise report them in the handoff. Never fold them into the diff and never drop them. Have every implementer return the problems it hit (wrong doc, misleading command, false-pass check) so they get filed too, then fix the agent-fixable ones in their own lane after the main lanes merge.
 
 ## Steps
 
-### 1. Pick and size the tracks
+### 1. Pick, lane, and get the plan approved
 
-Pull the issues (priority order). Read each in full. Size them against the code — a five-minute grep per issue tells you which touch shared files (those will conflict at rebase; sequence their merges) and which is smallest (that one finishes first and becomes the review pipeline's warm-up).
+Pull the issues (priority order), or the user's assigned issues filtered by their constraint (e.g. "nothing that needs the cluster"). Read each in full, check open PRs and existing branches, and size against the code: a five-minute grep per issue tells you which touch the same files and which is smallest (that one finishes first and warms up the review pipeline).
 
-Claim them in the tracker (assignee, In Progress, a comment naming the branch) before spawning anything.
+**Issues that edit the same file or section go in one lane** (one branch, one PR, `Fixes A` and `Fixes B`); separate branches there conflict at merge. An issue whose acceptance criteria need a person, hardware or access you lack goes in as partial (`Part of`, open criteria named) or is skipped.
+
+Before spawning anything, show the plan and **wait for approval** when the user asked to see it first:
+
+| Lane | Branch | Issues | Files it touches |
+|---|---|---|---|
+| A | `<owner>/<key>-<slug>` | **KEY-1**: one-line what | `path/one` |
+| B | `<owner>/<key1>-<key2>-<slug>` | **KEY-2 + KEY-3** (same section of `X`, merged to avoid conflicts) | `X` |
+
+Follow it with one line for the review/merge flow, one for how problems hit are handled, and a **Skipped** list with the reason per issue (needs the cluster, blocked on a login, a person's decision). Keep the whole plan to a screen.
+
+Claim the approved issues in the tracker (In Progress, a comment naming the branch).
 
 ### 2. Worktrees and environment
 
@@ -33,13 +44,15 @@ One worktree per track: in Claude Code, `git worktree add .claude/worktrees/<key
 
 ### 3. Implementers, all at once
 
-One agent per track, in one batch. Each prompt: the issue verbatim, the worktree path, "work ONLY inside it", the exact test/lint/typecheck commands, the definition of done, and "report anything you did NOT do — never claim success for something you did not run".
+One agent per track, in one batch. If a deterministic workflow tool is available, one script can run every lane as a pipeline (implement, then an independent read-only check against the acceptance criteria), so a finished lane is checked while others still build. Each prompt: the issue verbatim, the worktree path, "work ONLY inside it", the exact test/lint/typecheck commands, the definition of done, and "report anything you did NOT do — never claim success for something you did not run".
 
 ### 4. Don't idle-poll — block on the smallest
 
 Wait on the track most likely to finish first. When it lands: run its suite yourself, commit it, and immediately fan out its reviewers (step 5). Then block on the next track. Review of track A overlaps implementation of tracks B–E; that overlap is where the parallelism actually pays.
 
 ### 5. Review → fix → verify per track
+
+If the repo names a reviewer bot as its review step (e.g. comment `@codex review` on the ready PR), that review plus the independent verifier replaces the lensed reviewers; fix or answer each P0/P1, re-request review after fixes, and fall back to `adversarial-review` when the bot does not respond.
 
 Follow `adversarial-review` exactly, with these fleet-specific additions:
 
@@ -78,7 +91,7 @@ Every track in the first run needed **two fix→verify rounds** (RES-18 needed t
 
 Before the session ends: (1) copy every prompt file and verifier artefact from the scratchpad to a durable dir (`~/.claude/projects/<project>/handoffs/<run>/`); (2) write `HANDOFF.md` there — per track: worktree, branch, commits, gates last run, which agent was in flight and against which prompt, exact next step; (3) post the per-track state as a comment on each tracker issue when tracker comments are authorized. A running fixer's diff survives in its worktree; a running verifier's report is lost unless it lands in the tracker — say so in the handoff.
 
-## Failure modes
+## Gotchas
 
 - Write prompts to files before launching; prompts that live only in tool calls are lost when the session is archived.
 - After an interrupt, check each worktree's diff before relaunching: a partial diff can be finished, an empty one is relaunched.
