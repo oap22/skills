@@ -142,6 +142,30 @@ class ScenarioTests(unittest.TestCase):
         self.assertProblem(self.mutate(prompt='please preview this'), "no quoted trigger of 'alpha'")
         self.assertEqual(self.mutate(prompt='please review this'), [])
 
+    def test_origin_kind_of_wrong_type_is_a_problem(self):
+        for kind in (['retro'], {'a': 1}, 3, None):
+            with self.subTest(kind=kind):
+                origin = {'kind': kind, 'ref': 'retro:1', 'observed': '2026-10-01'}
+                self.assertProblem(self.mutate(origin=origin), 'origin needs')
+
+    def test_observed_must_be_a_calendar_date(self):
+        for observed in ('2026-W40-1', '20261001', '2026-10-1', '2026-02-30', 20261001):
+            with self.subTest(observed=observed):
+                origin = {'kind': 'curated', 'ref': 'note', 'observed': observed}
+                self.assertProblem(self.mutate(origin=origin), 'origin needs')
+        ok = {'kind': 'curated', 'ref': 'note', 'observed': '2026-10-02'}
+        self.assertEqual(self.mutate(origin=ok), [])
+
+    def test_retro_ref_must_be_a_url_or_retro_id(self):
+        for ref in ('httpfoo', 'http://', 'https:/x', 'retro:', 'retro:a b', 'retro-1'):
+            with self.subTest(ref=ref):
+                origin = {'kind': 'retro', 'ref': ref, 'observed': '2026-10-01'}
+                self.assertProblem(self.mutate(origin=origin), 'retro origin ref')
+        for ref in ('https://github.com/o/r/issues/1', 'http://example.com/x', 'retro:2026-10-01-a'):
+            with self.subTest(ref=ref):
+                origin = {'kind': 'retro', 'ref': ref, 'observed': '2026-10-01'}
+                self.assertEqual(self.mutate(origin=origin), [])
+
 
 if __name__ == '__main__':
     unittest.main()
