@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Offline contract check for curated skill scenarios (evals/skill-scenarios.json).
 
-Checks only what text can prove: the scenario file is well formed, every named
-skill exists, the descriptions carry the trigger and boundary cues the scenario
-relies on, quoted trigger phrases do not collide across skills, and the skill
-files state the evidence they require before claiming completion. It does not
-route a prompt through a model; live routing and trajectories need a harness run.
+Checks only text presence: the scenario file is well formed, every named skill
+exists, descriptions contain the cue strings a scenario lists, quoted trigger
+phrases do not collide across skills, and skill bodies (frontmatter excluded)
+contain the evidence strings a scenario lists. Matching is case-insensitive
+substring search; negation, comments, and example text are not interpreted.
+Prompts without literal_trigger, and no-skill scenarios, are not matched against
+anything, and not_skills is checked only for existence. It does not route a
+prompt through a model; live routing and trajectories need a harness run.
 """
 import argparse
 from datetime import date
@@ -21,6 +24,8 @@ SCHEMA_VERSION = 1
 KINDS = {"curated", "audit", "retro"}
 SCENARIO_KEYS = {"id", "prompt", "expected_skill", "not_skills", "literal_trigger",
                  "description_cues", "evidence", "origin"}
+DATE = re.compile(r"\d{4}-\d{2}-\d{2}\Z")
+RETRO_REF = re.compile(r"(?:https?://\S+|retro:\S+)\Z")
 ID = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 QUOTED = re.compile(r'"([^"]+)"')
 
@@ -31,10 +36,14 @@ def trigger_phrases(description):
 
 
 def _is_date(value):
+    """Calendar YYYY-MM-DD only; fromisoformat alone also admits ISO week dates."""
+    if not isinstance(value, str) or not DATE.fullmatch(value):
+        return False
     try:
-        return isinstance(value, str) and bool(date.fromisoformat(value)) and len(value) == 10
+        date.fromisoformat(value)
     except ValueError:
         return False
+    return True
 
 
 def _strs(value):
@@ -120,11 +129,11 @@ def check(repo, path=None):
         if expected is not None and expected in not_skills:
             problems.append(f"{label}: expected_skill also listed in not_skills")
         origin = s.get("origin")
-        if (not isinstance(origin, dict) or origin.get("kind") not in KINDS or
+        if (not isinstance(origin, dict) or not isinstance(origin.get("kind"), str) or origin["kind"] not in KINDS or
                 not isinstance(origin.get("ref"), str) or not origin["ref"].strip() or
                 not _is_date(origin.get("observed"))):
             problems.append(f"{label}: origin needs kind {sorted(KINDS)}, ref, and observed date")
-        elif origin["kind"] == "retro" and not origin["ref"].startswith(("http", "retro:")):
+        elif origin["kind"] == "retro" and not RETRO_REF.match(origin["ref"]):
             problems.append(f"{label}: retro origin ref must be a URL or retro:<id>")
         cues = s.get("description_cues", [])
         if not isinstance(cues, list):
