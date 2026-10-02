@@ -118,6 +118,25 @@ class ScenarioTests(unittest.TestCase):
         self.add('beta', 'Ship releases. Use for "review this diff" or "cut a release".')
         self.assertProblem(self.problems(self.scenario), "'review this diff' claimed by alpha, beta")
 
+    def test_malformed_shapes_return_problems_instead_of_crashing(self):
+        for key, value in [('id', ['a']), ('expected_skill', ['a']), ('not_skills', [['a']]),
+                           ('description_cues', None), ('description_cues', 5), ('evidence', None),
+                           ('evidence', 3), ('literal_trigger', 'true'), ('prompt', 7),
+                           ('description_cues', [{'skill': ['a'], 'contains': 'x'}, 'x']),
+                           ('evidence', [{'skill': ['a'], 'contains': ['x']}, 4]),
+                           ('evidence', [{'skill': 'alpha', 'file': 5, 'contains': ['x']}]),
+                           ('evidence', [{'skill': 'alpha', 'file': 'a\x00b', 'contains': ['x']}]),
+                           ('origin', {'kind': 'retro', 'ref': 'retro:1', 'observed': '2026-99-99'})]:
+            with self.subTest(key=key, value=value):
+                s = dict(self.scenario, **{key: value})
+                self.assertTrue(self.problems(s))
+
+    def test_evidence_must_be_in_the_body_not_the_description(self):
+        self.add('alpha', 'Review diffs, with an independent verifier. Use for "review this diff". Not for beta.')
+        ev = [{'skill': 'alpha', 'contains': ['independent verifier']}]
+        self.assertProblem(self.mutate(evidence=ev, description_cues=[{'skill': 'alpha', 'contains': 'Not for beta'}]),
+                           'lacks evidence contract')
+
 
 if __name__ == '__main__':
     unittest.main()

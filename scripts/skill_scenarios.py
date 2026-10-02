@@ -8,6 +8,7 @@ files state the evidence they require before claiming completion. It does not
 route a prompt through a model; live routing and trajectories need a harness run.
 """
 import argparse
+from datetime import date
 import json
 from pathlib import Path
 import re
@@ -21,6 +22,7 @@ KINDS = {"curated", "audit", "retro"}
 SCENARIO_KEYS = {"id", "prompt", "expected_skill", "not_skills", "literal_trigger",
                  "description_cues", "evidence", "origin"}
 ID = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
+_names = {}
 QUOTED = re.compile(r'"([^"]+)"')
 
 
@@ -29,16 +31,34 @@ def trigger_phrases(description):
     return [m.lower() for m in QUOTED.findall(description)]
 
 
+def _is_date(value):
+    try:
+        return isinstance(value, str) and bool(date.fromisoformat(value)) and len(value) == 10
+    except ValueError:
+        return False
+
+
 def _strs(value):
     return isinstance(value, list) and value and all(isinstance(v, str) and v.strip() for v in value)
 
 
+def _name(value):
+    return isinstance(value, str) and value in _names
+
+
 def _bundled(repo, skill, name):
-    folder = (repo / "skills" / skill).resolve()
-    path = (folder / name).resolve()
-    if folder not in path.parents or not path.is_file():
+    """Body text of a file inside the skill folder (frontmatter stripped), else None."""
+    if not isinstance(name, str):
         return None
-    return path.read_text(encoding="utf-8")
+    folder = (repo / "skills" / skill).resolve()
+    try:
+        path = (folder / name).resolve()
+        if folder not in path.parents or not path.is_file():
+            return None
+        text = path.read_text(encoding="utf-8")
+    except (OSError, ValueError):
+        return None
+    return re.sub(r"\A---\n.*?\n---(?:\n|$)", "", text, count=1, flags=re.S)
 
 
 def collisions(descriptions):
@@ -55,6 +75,8 @@ def check(repo, path=None):
     repo = Path(repo)
     path = Path(path) if path else repo / "evals" / "skill-scenarios.json"
     descriptions = {name: desc for name, desc, _ in load_catalog(repo)}
+    global _names
+    _names = descriptions
     problems = [f"trigger phrase {p!r} claimed by {', '.join(s)}"
                 for p, s in sorted(collisions(descriptions).items())]
     try:
@@ -69,7 +91,7 @@ def check(repo, path=None):
     seen = set()
     for index, s in enumerate(scenarios):
         sid = s.get("id") if isinstance(s, dict) else None
-        label = f"scenario {sid or index}"
+        label = f"scenario {sid if isinstance(sid, str) and sid else index}"
         if not isinstance(s, dict):
             problems.append(f"{label}: must be an object")
             continue
@@ -79,48 +101,59 @@ def check(repo, path=None):
             problems.append(f"{label}: id must be kebab-case")
         elif sid in seen:
             problems.append(f"{label}: duplicate id")
-        seen.add(sid)
+        else:
+            seen.add(sid)
         prompt, expected = s.get("prompt"), s.get("expected_skill")
         not_skills = s.get("not_skills", [])
         if not isinstance(prompt, str) or not prompt.strip():
             problems.append(f"{label}: prompt must be a nonempty string")
             prompt = ""
-        if expected is not None and expected not in descriptions:
+        if expected is not None and not _name(expected):
             problems.append(f"{label}: expected_skill {expected!r} is not in the catalog")
         if expected is None and not not_skills:
             problems.append(f"{label}: a no-skill scenario must name not_skills")
-        if not isinstance(not_skills, list) or any(n not in descriptions for n in not_skills):
+        if not isinstance(not_skills, list) or not all(_name(n) for n in not_skills):
             problems.append(f"{label}: not_skills must list catalog skills")
             not_skills = []
-        if expected in not_skills:
+        if expected is not None and expected in not_skills:
             problems.append(f"{label}: expected_skill also listed in not_skills")
         origin = s.get("origin")
         if (not isinstance(origin, dict) or origin.get("kind") not in KINDS or
                 not isinstance(origin.get("ref"), str) or not origin["ref"].strip() or
-                not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(origin.get("observed", "")))):
+                not _is_date(origin.get("observed"))):
             problems.append(f"{label}: origin needs kind {sorted(KINDS)}, ref, and observed date")
         elif origin["kind"] == "retro" and not origin["ref"].startswith(("http", "retro:")):
             problems.append(f"{label}: retro origin ref must be a URL or retro:<id>")
         cues = s.get("description_cues", [])
-        if expected is not None and not cues:
+        if not isinstance(cues, list):
+            problems.append(f"{label}: description_cues must be a list")
+            cues = []
+        elif expected is not None and not cues:
             problems.append(f"{label}: needs description_cues for the expected skill")
         for cue in cues:
             skill, contains = (cue.get("skill"), cue.get("contains")) if isinstance(cue, dict) else (None, None)
-            if skill not in descriptions or not isinstance(contains, str) or not contains:
+            if not _name(skill) or not isinstance(contains, str) or not contains:
                 problems.append(f"{label}: bad description cue {cue!r}")
             elif contains.lower() not in descriptions[skill].lower():
                 problems.append(f"{label}: description of {skill} lacks {contains!r}")
-        if s.get("literal_trigger") is True:
+        literal = s.get("literal_trigger", False)
+        if not isinstance(literal, bool):
+            problems.append(f"{label}: literal_trigger must be true or false")
+        elif literal:
             hits = {n for n, d in descriptions.items()
                     if any(p in prompt.lower() for p in trigger_phrases(d))}
-            if expected is None or expected not in hits:
+            if not _name(expected) or expected not in hits:
                 problems.append(f"{label}: prompt contains no quoted trigger of {expected!r}")
             for wrong in sorted(hits & set(not_skills)):
                 problems.append(f"{label}: prompt matches a trigger of excluded skill {wrong}")
-        for item in s.get("evidence", []):
+        evidence = s.get("evidence", [])
+        if not isinstance(evidence, list):
+            problems.append(f"{label}: evidence must be a list")
+            evidence = []
+        for item in evidence:
             skill = item.get("skill") if isinstance(item, dict) else None
             phrases = item.get("contains") if isinstance(item, dict) else None
-            if skill not in descriptions or not _strs(phrases):
+            if not _name(skill) or not _strs(phrases):
                 problems.append(f"{label}: bad evidence item {item!r}")
                 continue
             file = item.get("file", "SKILL.md")
