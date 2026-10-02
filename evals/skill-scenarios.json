@@ -52,7 +52,7 @@
       "description_cues": [
         {
           "skill": "issue-fleet",
-          "contains": "lane table approved first"
+          "contains": "one worktree per issue"
         },
         {
           "skill": "token-economy-run",
@@ -65,14 +65,14 @@
           "contains": [
             "independent verifier",
             "CI green",
-            "current head sha"
+            "Re-run tests"
           ]
         }
       ],
       "origin": {
-        "kind": "audit",
-        "ref": "commit d9f51d1 issue-fleet gotchas (29 Sep lane run: verifier plus bot, sha-specific waits)",
-        "observed": "2026-10-01"
+        "kind": "curated",
+        "ref": "skills/issue-fleet merge criteria on origin/main 3c127df",
+        "observed": "2026-10-02"
       }
     },
     {
@@ -194,8 +194,8 @@
       "prompt": "run the experiment and test this hypothesis across three seeds",
       "expected_skill": "research-loop",
       "not_skills": [
-        "research-survey",
-        "research-interview"
+        "research-interview",
+        "token-economy-run"
       ],
       "literal_trigger": true,
       "description_cues": [
@@ -204,8 +204,8 @@
           "contains": "Not for conceptual questions"
         },
         {
-          "skill": "research-survey",
-          "contains": "Not for experiments (research-loop)"
+          "skill": "research-interview",
+          "contains": "a new experiment does not require a new interview"
         }
       ],
       "evidence": [
@@ -218,28 +218,8 @@
       ],
       "origin": {
         "kind": "curated",
-        "ref": "skills/research-survey description boundary",
-        "observed": "2026-10-01"
-      }
-    },
-    {
-      "id": "landscape-survey",
-      "prompt": "deep research on retrieval-augmented generation tooling",
-      "expected_skill": "research-survey",
-      "not_skills": [
-        "research-loop",
-        "research-ingest"
-      ],
-      "description_cues": [
-        {
-          "skill": "research-survey",
-          "contains": "deep research on X"
-        }
-      ],
-      "origin": {
-        "kind": "curated",
-        "ref": "skills/research-survey description boundary",
-        "observed": "2026-10-01"
+        "ref": "skills/research-interview vs research-loop boundary on origin/main 3c127df",
+        "observed": "2026-10-02"
       }
     },
     {
@@ -304,7 +284,7 @@
       "prompt": "skillify this session",
       "expected_skill": "skillify",
       "not_skills": [
-        "project-status-doc"
+        "research-loop"
       ],
       "literal_trigger": true,
       "description_cues": [
