@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "limits": "Offline text contract. Proves descriptions carry the cues and skill files state the evidence each scenario relies on. Does not prove a model routes the prompt correctly or follows the skill; that needs a live harness run, not performed here. Add a scenario for an observed failure, not a hypothetical one.",
+  "scenarios": [
+    {
+      "id": "red-team-diff-not-pipeline",
+      "prompt": "try to break this change before I merge it",
+      "expected_skill": "adversarial-review",
+      "not_skills": [
+        "plan-then-ship",
+        "issue-fleet"
+      ],
+      "literal_trigger": true,
+      "description_cues": [
+        {
+          "skill": "adversarial-review",
+          "contains": "try to break this change"
+        },
+        {
+          "skill": "adversarial-review",
+          "contains": "Spec-free"
+        },
+        {
+          "skill": "plan-then-ship",
+          "contains": "Use only when explicitly invoked"
+        }
+      ],
+      "evidence": [
+        {
+          "skill": "adversarial-review",
+          "file": "lenses.md",
+          "contains": [
+            "concrete failure scenario"
+          ]
+        }
+      ],
+      "origin": {
+        "kind": "curated",
+        "ref": "skills/adversarial-review description boundary",
+        "observed": "2026-10-01"
+      }
+    },
+    {
+      "id": "fleet-batch-of-issues",
+      "prompt": "go after the top issues and merge them",
+      "expected_skill": "issue-fleet",
+      "not_skills": [
+        "plan-then-ship",
+        "token-economy-run"
+      ],
+      "literal_trigger": true,
+      "description_cues": [
+        {
+          "skill": "issue-fleet",
+          "contains": "one worktree per issue"
+        },
+        {
+          "skill": "token-economy-run",
+          "contains": "Not plan-then-ship or issue-fleet"
+        }
+      ],
+      "evidence": [
+        {
+          "skill": "issue-fleet",
+          "contains": [
+            "independent verifier",
+            "CI green",
+            "Re-run tests"
+          ]
+        }
+      ],
+      "origin": {
+        "kind": "curated",
+        "ref": "skills/issue-fleet merge criteria on origin/main 3c127df",
+        "observed": "2026-10-02"
+      }
+    },
+    {
+      "id": "cheap-worker-split",
+      "prompt": "token economy run: strong lead, cheap worker for this refactor",
+      "expected_skill": "token-economy-run",
+      "not_skills": [
+        "plan-then-ship",
+        "issue-fleet"
+      ],
+      "literal_trigger": true,
+      "description_cues": [
+        {
+          "skill": "token-economy-run",
+          "contains": "cost per completed task"
+        }
+      ],
+      "evidence": [
+        {
+          "skill": "token-economy-run",
+          "contains": [
+            "cost per completed task",
+            "escalat"
+          ]
+        }
+      ],
+      "origin": {
+        "kind": "curated",
+        "ref": "skills/token-economy-run description boundary",
+        "observed": "2026-10-01"
+      }
+    },
+    {
+      "id": "professor-owns-the-answer",
+      "prompt": "professor mode, don't write the code for question 3",
+      "expected_skill": "professor",
+      "not_skills": [
+        "python-docstrings"
+      ],
+      "literal_trigger": true,
+      "description_cues": [
+        {
+          "skill": "professor",
+          "contains": "never write, edit, or dictate"
+        }
+      ],
+      "evidence": [
+        {
+          "skill": "professor",
+          "contains": [
+            "Never produce the code that answers an assignment question"
+          ]
+        }
+      ],
+      "origin": {
+        "kind": "curated",
+        "ref": "README authoring rule 6; owner coursework instruction",
+        "observed": "2026-10-01"
+      }
+    },
+    {
+      "id": "rosie-question-vs-dispatch",
+      "prompt": "what does QoS interactive cap on Rosie, and which partition has H100s?",
+      "expected_skill": "rosie",
+      "not_skills": [
+        "rosie-run",
+        "research-loop"
+      ],
+      "description_cues": [
+        {
+          "skill": "rosie",
+          "contains": "dispatching a real run from the Mac is rosie-run"
+        },
+        {
+          "skill": "rosie-run",
+          "contains": "Dispatch work"
+        }
+      ],
+      "evidence": [
+        {
+          "skill": "rosie-run",
+          "contains": [
+            "rosie-facts.md"
+          ]
+        }
+      ],
+      "origin": {
+        "kind": "curated",
+        "ref": "skills/rosie description boundary",
+        "observed": "2026-10-01"
+      }
+    },
+    {
+      "id": "rosie-dispatch-not-question",
+      "prompt": "run this on Rosie and pull the results back",
+      "expected_skill": "rosie-run",
+      "not_skills": [
+        "rosie"
+      ],
+      "literal_trigger": true,
+      "description_cues": [
+        {
+          "skill": "rosie-run",
+          "contains": "run this on Rosie"
+        },
+        {
+          "skill": "rosie-run",
+          "contains": "research-loop"
+        }
+      ],
+      "origin": {
+        "kind": "curated",
+        "ref": "skills/rosie-run description boundary",
+        "observed": "2026-10-01"
+      }
+    },
+    {
+      "id": "experiment-not-survey",
+      "prompt": "run the experiment and test this hypothesis across three seeds",
+      "expected_skill": "research-loop",
+      "not_skills": [
+        "research-interview",
+        "token-economy-run"
+      ],
+      "literal_trigger": true,
+      "description_cues": [
+        {
+          "skill": "research-loop",
+          "contains": "Not for conceptual questions"
+        },
+        {
+          "skill": "research-interview",
+          "contains": "a new experiment does not require a new interview"
+        }
+      ],
+      "evidence": [
+        {
+          "skill": "research-loop",
+          "contains": [
+            "metrics"
+          ]
+        }
+      ],
+      "origin": {
+        "kind": "curated",
+        "ref": "skills/research-interview vs research-loop boundary on origin/main 3c127df",
+        "observed": "2026-10-02"
+      }
+    },
+    {
+      "id": "routine-vs-sync-design",
+      "prompt": "set up a routine that runs every morning",
+      "expected_skill": "local-routine",
+      "not_skills": [
+        "sync-task-design"
+      ],
+      "description_cues": [
+        {
+          "skill": "local-routine",
+          "contains": "set up a routine"
+        },
+        {
+          "skill": "local-routine",
+          "contains": "sync-task-design"
+        },
+        {
+          "skill": "sync-task-design",
+          "contains": "local-routine"
+        }
+      ],
+      "origin": {
+        "kind": "curated",
+        "ref": "skills/local-routine and sync-task-design reciprocal boundary",
+        "observed": "2026-10-01"
+      }
+    },
+    {
+      "id": "publish-defaults-private",
+      "prompt": "push this to GitHub",
+      "expected_skill": "publish-to-github",
+      "not_skills": [
+        "project-sync"
+      ],
+      "literal_trigger": true,
+      "description_cues": [
+        {
+          "skill": "publish-to-github",
+          "contains": "Defaults to private"
+        }
+      ],
+      "evidence": [
+        {
+          "skill": "publish-to-github",
+          "contains": [
+            "secrets",
+            "--private",
+            "force-push"
+          ]
+        }
+      ],
+      "origin": {
+        "kind": "curated",
+        "ref": "skills/publish-to-github safety contract",
+        "observed": "2026-10-01"
+      }
+    },
+    {
+      "id": "skillify-prefers-existing",
+      "prompt": "skillify this session",
+      "expected_skill": "skillify",
+      "not_skills": [
+        "research-loop"
+      ],
+      "literal_trigger": true,
+      "description_cues": [
+        {
+          "skill": "skillify",
+          "contains": "never edit skills at the end of unrelated work"
+        }
+      ],
+      "evidence": [
+        {
+          "skill": "skillify",
+          "contains": [
+            "improve it rather than adding a second one"
+          ]
+        },
+        {
+          "skill": "skillify",
+          "file": "regression.md",
+          "contains": [
+            "observed failure",
+            "reviewed"
+          ]
+        }
+      ],
+      "origin": {
+        "kind": "audit",
+        "ref": "skillify overlap check; retro-to-regression path added 2026-10-01",
+        "observed": "2026-10-01"
+      }
+    },
+    {
+      "id": "todays-priorities-read-only",
+      "prompt": "what's left today? am I forgetting anything",
+      "expected_skill": "day-check",
+      "not_skills": [
+        "daily-note"
+      ],
+      "literal_trigger": true,
+      "description_cues": [
+        {
+          "skill": "day-check",
+          "contains": "read-only"
+        },
+        {
+          "skill": "day-check",
+          "contains": "daily-note"
+        }
+      ],
+      "origin": {
+        "kind": "curated",
+        "ref": "skills/day-check description boundary",
+        "observed": "2026-10-01"
+      }
+    },
+    {
+      "id": "one-off-fix-is-no-skill",
+      "prompt": "explain why this Python function raises KeyError",
+      "expected_skill": null,
+      "not_skills": [
+        "skillify",
+        "research-loop",
+        "professor"
+      ],
+      "description_cues": [],
+      "origin": {
+        "kind": "curated",
+        "ref": "skillify 'The Bar': one-off exploration routes to no skill",
+        "observed": "2026-10-01"
+      }
+    }
+  ]
+}
