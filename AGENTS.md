@@ -5,12 +5,14 @@ Source of truth for Owen's agent skills. Edit skills only here; `install.py` sym
 ## Layout
 - `skills/<name>/SKILL.md` plus bundled references, templates, and scripts, linked by relative path
 - `manifest.json` maps each skill to harnesses; `scripts/catalog_contract.py` owns validation and `TARGET_LAYOUTS`
+- `evals/skill-scenarios.json` + `scripts/skill_scenarios.py`: trigger/boundary/evidence scenarios; add one per observed failure (`skills/skillify/regression.md`)
 - `scripts/export_catalog.py` (catalog JSON), `scripts/render_vault_inventory.py` (vault MOC block), `tests/` (unittest)
 
 ## Commands
 ```
 python3 install.py --check
 python3 scripts/export_catalog.py > /dev/null
+python3 scripts/skill_scenarios.py   # offline scenario contract; not a live routing test
 python3 -m unittest discover -s tests -v
 python3 install.py --dry-run   # preview; apply only from the permanent checkout, never a worktree
 ```

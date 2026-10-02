@@ -7,6 +7,7 @@ Use this for new or substantially revised skills. Fix material problems before i
 - Does the description say what the skill does and distinguish likely neighboring requests?
 - Is read-only inquiry distinguishable from a request to change something?
 - Did you compare neighboring descriptions, without trying to eliminate legitimate composition?
+- For a fix to an observed failure, is there a scenario in `evals/skill-scenarios.json` with its origin, and does `python3 scripts/skill_scenarios.py` pass?
 
 ## Useful expertise
 
