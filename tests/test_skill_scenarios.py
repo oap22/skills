@@ -137,6 +137,11 @@ class ScenarioTests(unittest.TestCase):
         self.assertProblem(self.mutate(evidence=ev, description_cues=[{'skill': 'alpha', 'contains': 'Not for beta'}]),
                            'lacks evidence contract')
 
+    def test_literal_trigger_matches_whole_words_only(self):
+        self.add('alpha', 'Review diffs. Use for "review". Not for beta.', '# A\nReport a concrete failure scenario.\n')
+        self.assertProblem(self.mutate(prompt='please preview this'), "no quoted trigger of 'alpha'")
+        self.assertEqual(self.mutate(prompt='please review this'), [])
+
 
 if __name__ == '__main__':
     unittest.main()

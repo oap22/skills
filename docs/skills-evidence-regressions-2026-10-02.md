@@ -2,17 +2,17 @@
 
 Dated snapshot. Records why `evals/skill-scenarios.json`, `scripts/skill_scenarios.py`, and `skills/skillify/regression.md` exist, what was measured, and what was only inferred. Current counts come from the commands in `AGENTS.md`.
 
-## Sources (fetched 2026-10-01 through a summarizing fetch tool; summaries, not full-text reads)
+## Sources (summarized 2026-10-01 by a fetch tool; not re-verified against full text)
 
 | Source | Status | What was taken |
 |---|---|---|
-| Cherny, "I am often wrong" (2026-09-19) | fetched | Redefine problem, approach, and goal when new evidence arrives; unclear success metrics are a common failure. |
-| Every transcript, Cherny/Cat interview (2025-10-29) | fetched | Separate review contexts, then agents that filter false positives. Already how `adversarial-review` works; no change made. |
-| Shihipar, skills post (2026-03-18, LinkedIn) | fetched | Description is a trigger; gotchas are highest signal; link files for progressive disclosure; measure skill usage. Usage hooks were not adopted (no runtime validation). |
-| Context-engineering post (claude.dev) | fetched | Slim instructions, avoid conflicting instructions, progressive disclosure. Vendor claims, not evidence for this repo. |
-| Session-management post (2026-04-15) | fetched | Subagents for conclusions only, fresh sessions for new tasks. Informs the reviewer-per-fresh-context step; no change made. |
-| "Seeing like an agent" (claude.dev) | fetched | Progressive disclosure, observe what the agent actually uses. Background only. |
-| Fable "finding your unknowns" | fetched on retry; not relied on | No change derives from it. |
+| Cherny, "I am often wrong" (2026-09-19) | summarized | Redefine problem, approach, and goal when new evidence arrives; unclear success metrics are a common failure. |
+| Every transcript, Cherny/Cat interview (2025-10-29) | summarized | Separate review contexts, then agents that filter false positives. Already how `adversarial-review` works; no change made. |
+| Shihipar, skills post (2026-03-18, LinkedIn) | summarized | Description is a trigger; gotchas are highest signal; link files for progressive disclosure; measure skill usage. Usage hooks were not adopted (no runtime validation). |
+| Context-engineering post (claude.dev) | summarized | Slim instructions, avoid conflicting instructions, progressive disclosure. Vendor claims, not evidence for this repo. |
+| Session-management post (2026-04-15) | summarized | Subagents for conclusions only, fresh sessions for new tasks. Informs the reviewer-per-fresh-context step; no change made. |
+| "Seeing like an agent" (claude.dev) | summarized | Progressive disclosure, observe what the agent actually uses. Background only. |
+| Fable "finding your unknowns" | summarized on retry; not relied on | No change derives from it. |
 | X originals | not accessible | Nothing here claims their text. |
 
 ## Source to change
@@ -26,7 +26,7 @@ Dated snapshot. Records why `evals/skill-scenarios.json`, `scripts/skill_scenari
 
 ## Measured vs inferred
 
-Measured: unit tests pass, the real catalog has no trigger collisions, each scenario passes on the real files, a scratch mutation of a real description fails the checker, and an independent reviewer's malformed-input crashes and description-satisfies-evidence hole were reproduced and fixed. Inferred: that this catches future routing regressions, and that the cited advice transfers to this repo. Neither was tested.
+Measured: unit tests pass, the real catalog has no trigger collisions, each scenario passes on the real files, a scratch mutation of a real description fails the checker, and an independent reviewer's malformed-input crashes and description-satisfies-evidence hole were reproduced in this session and fixed (reviewer reports are not stored in the repo). Inferred: that this catches future routing regressions, and that the cited advice transfers to this repo. Neither was tested.
 
 ## Limits
 

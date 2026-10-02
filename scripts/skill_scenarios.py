@@ -22,7 +22,6 @@ KINDS = {"curated", "audit", "retro"}
 SCENARIO_KEYS = {"id", "prompt", "expected_skill", "not_skills", "literal_trigger",
                  "description_cues", "evidence", "origin"}
 ID = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
-_names = {}
 QUOTED = re.compile(r'"([^"]+)"')
 
 
@@ -42,8 +41,13 @@ def _strs(value):
     return isinstance(value, list) and value and all(isinstance(v, str) and v.strip() for v in value)
 
 
-def _name(value):
-    return isinstance(value, str) and value in _names
+def _name(value, names):
+    return isinstance(value, str) and value in names
+
+
+def _contains_phrase(prompt, phrase):
+    """Whole-word match so a short trigger cannot hit inside an unrelated word."""
+    return re.search(r"(?<!\w)" + re.escape(phrase) + r"(?!\w)", prompt) is not None
 
 
 def _bundled(repo, skill, name):
@@ -75,8 +79,6 @@ def check(repo, path=None):
     repo = Path(repo)
     path = Path(path) if path else repo / "evals" / "skill-scenarios.json"
     descriptions = {name: desc for name, desc, _ in load_catalog(repo)}
-    global _names
-    _names = descriptions
     problems = [f"trigger phrase {p!r} claimed by {', '.join(s)}"
                 for p, s in sorted(collisions(descriptions).items())]
     try:
@@ -108,11 +110,11 @@ def check(repo, path=None):
         if not isinstance(prompt, str) or not prompt.strip():
             problems.append(f"{label}: prompt must be a nonempty string")
             prompt = ""
-        if expected is not None and not _name(expected):
+        if expected is not None and not _name(expected, descriptions):
             problems.append(f"{label}: expected_skill {expected!r} is not in the catalog")
         if expected is None and not not_skills:
             problems.append(f"{label}: a no-skill scenario must name not_skills")
-        if not isinstance(not_skills, list) or not all(_name(n) for n in not_skills):
+        if not isinstance(not_skills, list) or not all(_name(n, descriptions) for n in not_skills):
             problems.append(f"{label}: not_skills must list catalog skills")
             not_skills = []
         if expected is not None and expected in not_skills:
@@ -132,7 +134,7 @@ def check(repo, path=None):
             problems.append(f"{label}: needs description_cues for the expected skill")
         for cue in cues:
             skill, contains = (cue.get("skill"), cue.get("contains")) if isinstance(cue, dict) else (None, None)
-            if not _name(skill) or not isinstance(contains, str) or not contains:
+            if not _name(skill, descriptions) or not isinstance(contains, str) or not contains:
                 problems.append(f"{label}: bad description cue {cue!r}")
             elif contains.lower() not in descriptions[skill].lower():
                 problems.append(f"{label}: description of {skill} lacks {contains!r}")
@@ -141,8 +143,8 @@ def check(repo, path=None):
             problems.append(f"{label}: literal_trigger must be true or false")
         elif literal:
             hits = {n for n, d in descriptions.items()
-                    if any(p in prompt.lower() for p in trigger_phrases(d))}
-            if not _name(expected) or expected not in hits:
+                    if any(_contains_phrase(prompt.lower(), p) for p in trigger_phrases(d))}
+            if not _name(expected, descriptions) or expected not in hits:
                 problems.append(f"{label}: prompt contains no quoted trigger of {expected!r}")
             for wrong in sorted(hits & set(not_skills)):
                 problems.append(f"{label}: prompt matches a trigger of excluded skill {wrong}")
@@ -153,7 +155,7 @@ def check(repo, path=None):
         for item in evidence:
             skill = item.get("skill") if isinstance(item, dict) else None
             phrases = item.get("contains") if isinstance(item, dict) else None
-            if not _name(skill) or not _strs(phrases):
+            if not _name(skill, descriptions) or not _strs(phrases):
                 problems.append(f"{label}: bad evidence item {item!r}")
                 continue
             file = item.get("file", "SKILL.md")
