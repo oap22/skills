@@ -20,7 +20,9 @@ install.py                        creates and prunes the symlinks
 scripts/export_catalog.py         exports the portable catalog contract
 scripts/catalog_contract.py       shared catalog validator, target registry, install lock
 scripts/render_vault_inventory.py renders the managed Skills block in the vault MOC
-tests/                            unittest suites (catalog, installer, vault, regressions)
+evals/skill-scenarios.json        curated trigger/boundary/evidence scenarios (offline contract)
+scripts/skill_scenarios.py        checks those scenarios against the catalog and skill files
+tests/                            unittest suites (catalog, installer, vault, regressions, scenarios)
 docs/                             dated audit snapshots
 .github/                          CI workflow (validate-skills.yml)
 AGENTS.md                         instructions for coding agents working here
@@ -121,6 +123,7 @@ Not every skill belongs everywhere. Select by capability and useful context, not
 ```bash
 python3 install.py --check
 python3 scripts/export_catalog.py > /dev/null
+python3 scripts/skill_scenarios.py
 python3 -m unittest discover -s tests -v
 python3 install.py --dry-run
 ```
@@ -128,6 +131,8 @@ python3 install.py --dry-run
 Validation errors, target collisions, and inventory staging failures stop installation before any link changes. Applying installs serialize cooperating invocations with the checkout-local `.install.lock`, then re-read the manifest and target state after acquiring the lock. The installer preserves unmanaged files/directories and foreign symlinks, including broken ones. Only symlinks pointing into this checkout's `skills/` directory are pruned. Removing a skill from the manifest deactivates its links while preserving its source folder. Ordinary apply failures roll managed links back when their expected state is still present; if an external process changes a path during rollback, the installer refuses to remove that path and reports the rollback as incomplete. This is a bounded local rollback, not a crash-proof distributed transaction. Apply from a linked worktree is refused so temporary paths cannot become live dependencies.
 
 When a vault target is selected, a needed Skills inventory update is staged in a temporary file beside the MOC, flushed, and atomically replaced after the link plan applies. Read-only or symlinked inventory files are rejected before link changes when an update is needed. Existing inventory markers replace only their own block. A legacy MOC is migrated only when it has one unique, unfenced `## Skills` heading before one unique, unfenced `## Claude Agents` heading; the old section content is retained, and ambiguous headings or markers abort without writing.
+
+`scripts/skill_scenarios.py` is a text contract, not a router test: it proves descriptions carry the trigger and boundary cues, quoted triggers do not collide, and skill files state the evidence they require. Whether a model routes a prompt correctly or follows the skill needs a live harness run, which is not performed here. New scenarios come from observed failures; see [the regression procedure](skills/skillify/regression.md).
 
 The tests use temporary harness directories and tiny local subprocesses. They do not contact mail, Calendar, Linear, GitHub, or Rosie. Continuous integration runs the catalog, installer, and workflow regression checks on Ubuntu and macOS across the supported Python versions (3.12 and 3.14). Structural checks cannot prove a skill's reasoning or a live workflow; see [the September audit](docs/skills-audit-2026-09-04.md) and [the September 5 adversarial follow-up](docs/skills-adversarial-review-2026-09-05.md) for findings and validation limits. Both audits are dated historical snapshots;
 their counts (34 skills, 103 mappings, 21/47 tests) are stale, and current

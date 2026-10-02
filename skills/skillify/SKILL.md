@@ -48,6 +48,8 @@ If an existing skill covers this ground, **improve it rather than adding a secon
 
 If the session shows the user *redoing* work an existing skill should have handled, that skill's `description` is the likely culprit. Fix the description.
 
+If the trigger is an observed failure (a retro, a correction, a wrong route, a claim without evidence), read [regression.md](regression.md): fix the cause, then pin it as a scenario in `evals/skill-scenarios.json`.
+
 ### 3. Extract the procedure
 
 Work out what was actually done, then separate the reusable shape from this session's specifics:
@@ -117,7 +119,7 @@ Read `compliance.md` (bundled with this skill) and walk the draft through every 
 2. Add to `manifest.json` under `skills`, mapping the name to its harnesses:
    - `claude`, `cursor`, `codex` — general coding and workflow skills
    - `vault` — **only** for skills specific to the Obsidian vault. Global Claude Code skills already resolve inside the vault, so adding both `claude` and `vault` registers it twice.
-3. Run `python3 install.py --check` and `python3 install.py --dry-run` in the reviewed checkout. Install only from the permanent checkout (`~/Developer/active/personal/skills`) after integrating any branch or worktree changes; never point live harness links at a temporary worktree. Confirm links before claiming installation.
+3. Run `python3 install.py --check`, `python3 scripts/skill_scenarios.py`, and `python3 install.py --dry-run` in the reviewed checkout. Install only from the permanent checkout (`~/Developer/active/personal/skills`) after integrating any branch or worktree changes; never point live harness links at a temporary worktree. Confirm links before claiming installation.
 4. Commit: `skillify: add <name>`.
 
 ### 9. Report
