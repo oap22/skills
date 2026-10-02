@@ -28,6 +28,7 @@
       "evidence": [
         {
           "skill": "adversarial-review",
+          "file": "lenses.md",
           "contains": [
             "concrete failure scenario"
           ]
