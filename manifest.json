@@ -214,6 +214,12 @@
       "codex",
       "gemini"
     ],
+    "team-deck": [
+      "claude",
+      "cursor",
+      "codex",
+      "gemini"
+    ],
     "token-economy-run": [
       "claude",
       "cursor",
