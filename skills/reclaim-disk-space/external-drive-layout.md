@@ -27,8 +27,10 @@ A drive with no README becomes an undifferentiated dumping ground within a term.
 ## Format check — do this before archiving anything
 
 ```bash
-diskutil info "$DRIVE" | grep -Ei "file system|read-only"
+diskutil info "$DRIVE" | grep -Ei "file system|read-only|device location|free space"
 ```
+
+Set `DRIVE` from `diskutil list external`; never default it. Stop if the output says `Could not find disk` (not mounted: ask the user to connect it), says `Device Location: Internal`, or shows less free space than the archive needs.
 
 **exFAT cannot safely hold git repos.** No symlinks, no Unix permissions, and
 case-insensitive in a way that silently collides filenames. It corrupts
@@ -89,19 +91,23 @@ when the mapping lives on a slow external.
 
 1. Confirm it is pushed. Unpushed commits exist only in that working tree:
    ```bash
-   git -C <repo> status
-   git -C <repo> log origin/HEAD..HEAD
+   git -C <repo> status --porcelain
+   git -C <repo> log --branches --not --remotes --oneline
+   git -C <repo> stash list
    ```
-   Any output from the second command means local-only history. Stop and tell
-   the user.
+   Any output means work that exists only here. Stop and tell the user. Do not
+   use `origin/HEAD..HEAD`: it errors when `origin/HEAD` is unset and checks one
+   branch (observed 2026-10-05).
 
 2. Move whole repos including `.git`. An extract without history is not an
    archive.
 
-3. Use `rsync` over `mv` for large trees so an interrupted transfer resumes:
+3. Copy, never `mv`, so the source survives until verification:
    ```bash
-   rsync -a <repo>/ "$DRIVE/Archive/Developer/<name>/"
+   ditto <repo> "$DRIVE/Archive/Developer/<name>"   # keeps xattrs, ACLs, hard links
    ```
+   macOS `/usr/bin/rsync` is openrsync (since 15.4): plain `rsync -a` drops
+   xattrs and hard links, and `-X` is rejected.
 
 4. Verify the destination before removing the source:
    ```bash
@@ -114,9 +120,8 @@ when the mapping lives on a slow external.
 Sort by last commit date rather than guessing from names:
 
 ```bash
-for d in ~/Developer/*/; do
-  [ -d "$d/.git" ] && printf "%s\t%s\n" \
-    "$(git -C "$d" log -1 --format=%cs 2>/dev/null)" "$d"
+find ~/Developer -maxdepth 4 -name .git -prune 2>/dev/null | while read -r g; do
+  r=${g%/.git}; printf "%s\t%s\n" "$(git -C "$r" log -1 --format=%cs 2>/dev/null)" "$r"
 done | sort
 ```
 

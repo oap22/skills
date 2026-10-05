@@ -1,13 +1,13 @@
 ---
 name: owen-voice
-description: "Reference for Owen's writing voice across casual, professional, technical, and conflict registers, and the tells that make a draft read as his. Load before writing anything under his name, or for \"make this sound like me\", \"in my voice\". Not a drafting procedure."
+description: "Reference for Owen's writing voice across casual, professional, technical, and conflict registers, and the tells that make a draft read as his. Load before writing anything under his name, or for \"make this sound like me\", \"in my voice\", or restyling text he wrote. Not a drafting procedure: researching and drafting a message is draft-outreach."
 ---
 
 # Owen's Voice
 
-What Owen sounds like, derived from dictated samples and his real sent mail. Read this, then write. It does not tell you what to say — only how he says it.
+What Owen sounds like, derived from dictated samples and his real sent mail. Read this, then write. It does not tell you what to say — only how he says it. Graded coursework stays Owen's: restyle or draft it only after he explicitly leaves tutoring mode (for example through `llm-reflection-submission`).
 
-Raw evidence lives in `samples.md` (same directory). Read it when a draft is long, high-stakes, or a judgment call isn't covered below.
+Raw evidence lives in `samples.md` (same directory). Read the part that matches the register before any draft longer than a one-line acknowledgment; examples steer voice more reliably than the rules below, and casual text is where imitation fails most. If the vault voice note is unreachable, this file and `samples.md` are enough.
 
 ## The register dial
 
@@ -22,6 +22,7 @@ This is the single thing to get right. His register does not move on a formal/in
 | He's correcting someone | **no** | — | the verdict, flat | restates the ask |
 | Formal outbound (professor, sponsor, stranger) | **no** | named, undefined | one line of pleasantry, never two | "Thank you." or "Best," |
 | Short reply inside a formal thread | yes | — | — | warm, exclamation point |
+| Peer message that flags a problem in their *work* and asks for a fix (teammate, equal footing; a problem with their *conduct or decision* is the correcting row; provisional) | yes | named cold | "Just wanted to let you know...", then credit ("I do appreciate...") before the problem | "Thanks!" (exclamation) |
 
 **Formality is not what suppresses his contractions — authority is.** He writes "I'm running into some blockers" to a teammate he's failing, and "I do think that next time you should reach out to me" to a teammate he's correcting. Getting this backwards is the most likely way a draft stops sounding like him.
 
@@ -71,7 +72,7 @@ Reach for these. They recur across independent samples and real sent mail.
 - **"Essentially, ..."** — his explain-mode connector.
 - **"Right now, ..."** — anchors a status paragraph; often opens two or three in a row.
 - **"as well as"** where most people write a second "and".
-- **Emphatic *do*** — "I **do** appreciate", "I **do** think". Conflict register only. Do not sprinkle it elsewhere.
+- **Emphatic *do*** — "I **do** appreciate", "I **do** think". Only when he corrects someone or flags a problem to a peer. Do not sprinkle it elsewhere.
 - **Trailing vague third item** — "or something like that", "or something to do with helping people with diseases". His lists come in threes and the third one goes soft.
 
 ## Intensifiers
@@ -82,7 +83,9 @@ When he's annoyed he **repeats the word rather than escalating it** — frustrat
 
 ## Structure habits
 
-- **Paragraph = one job.** One to three sentences, blank line between. Pleasantry / ask / justification / logistics / thanks each get their own.
+- **Paragraph = one job.** One to three sentences, blank line between. Pleasantry / ask / justification / logistics / thanks each get their own. A sentence that announces a list ("That causes two problems.") ends its paragraph; the "First... Second..." items start the next one. A greeting line gets its own blank line.
+- **Short sentences for asks.** Two asks to a peer are two sentences ("Could you take a look at that when you have time? Also, ... Can you let me know...?"), not one joined with "so".
+- **Past tense for what he already did.** "In addBee I wrapped loud first and armored second", not "I wrap".
 - **Verdict first.** No throat-clearing, no warm-up paragraph. In formal mail the pleasantry is exactly one sentence and then he's into the ask.
 - **Credit before correction.** "I do appreciate your initiative there; however..." / "I have a MacBook that is great, but..." Even mid-rant.
 - **Bad news → plan → ask → short apology.** He never just reports a problem. Date, mechanism, who he needs, then two words of sorry at the very end.
@@ -90,32 +93,37 @@ When he's annoyed he **repeats the word rather than escalating it** — frustrat
 - **Hedge the claim, not the delivery.** Delivery is direct; claims are heavily qualified — "could potentially solve this", "I'm guessing it will be done by Friday, probably by end of day". Both hedges stay. Do not clean them up into false confidence.
 - **"We", not "I".** For research, for group work, and even for work he did alone with agents. He switches to "I" only for his own goals and his own asks.
 - **Plain word first, label second** — for non-experts: describe it, then name it ("...sometimes the galaxies overlap each other. This is called blending."). For experts, drop the glossing entirely and name tools cold. The register change is *specificity*, not formality.
-- **Fixed signature block:** name / MSOE University / phone / LinkedIn / Github — copy it from any prior sent email rather than retyping it.
+- **No signature block.** His mail client appends name, school, phone, and links automatically. End on the sign-off line and stop.
 
 ## What he does not do
 
 - **Sell himself — in conversation and email.** No "led", "architected", "spearheaded", "drove". He describes what the work is, not what he contributed. This reverses completely in application writing; see the section above.
 - **Argue the merits in a disagreement.** He states the objection flatly and pivots to *process* — how the decision should have been made, not why it was wrong.
 - **Pad replies.** "Perfect thank you!" and "Sounds good, thank you!" are complete emails he actually sent. Do not inflate an acknowledgment into a paragraph.
-- **Write literary prose.** No rhetorical questions, no "Moreover"/"Furthermore"/"It is worth noting", no essayistic em-dash asides, no tricolon flourishes.
+- **Write literary prose.** No rhetorical questions, no "Moreover"/"Furthermore"/"It is worth noting", no em dashes (use a period, comma, colon, or parentheses), no tricolon flourishes, no "not X, but Y". No LLM-register words he would not say ("robust", "crucial", "showcase", "considered and rejected"), and no term he could not explain if asked; he cut "call sites" and "structural claims" for plain descriptions (samples.md Part 4).
 - **Use two sentences of pleasantry.** One, or none.
 
-## The trap
+## Gotchas
 
 **Narrating finished work, he compresses to the outcome and deletes the mechanism.** Asked how he solved a hard config problem, the entire debugging story came out as "eventually we found issues and were able to update the configs and get it working."
 
 Do not imitate this. It is a speaking habit, not a style he would defend in writing. When drafting a retro, project writeup, resume bullet, paper section, or anything where the mechanism *is* the value, go get the details from him instead of reproducing the compression. Ask what specifically was wrong and what specifically fixed it.
 
+**2026-10-04: a peer draft put a cost on a teammate's fix.** A draft said "I'm guessing it's about twenty minutes of work"; he cut it. Describe the fix and leave the cost to them. Hedged guesses about his own timing stay.
+
 ## Before handing him a draft
 
 1. Check the register dial — is authority pointing the way you assumed? Contractions right?
-2. Any word stronger than his intensifier set? Cut it.
+2. Any word stronger than his intensifier set? Cut it. Any em dash? Replace it.
 3. Any self-promotional verb? Cut it (resumes excepted).
 4. More than one sentence of pleasantry? Cut it.
 5. Did you resolve a hedge into confidence he didn't express? Put it back.
 6. Is it longer than it needs to be? His real emails are three to five short paragraphs, most are two.
 
 ## Provenance
+
+Update 2026-10-04: Part 5 of `samples.md` adds one co-edited peer message (draft to a teammate about a graphics bug in a shared lab). One sample, so the peer-problem row, the new Structure habits, and the 2026-10-04 gotcha are provisional until a second one confirms them. In a co-edited sample only Owen's changes are evidence; phrasing he left in Claude's draft is not, because edited LLM text stays closer to the draft than to the writer.
+
 
 Built 2026-09-20 from four sources:
 

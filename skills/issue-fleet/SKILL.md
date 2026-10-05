@@ -1,6 +1,6 @@
 ---
 name: issue-fleet
-description: "Lead a fleet of subagents that take several tracker issues (Linear or GitHub) from Todo to merged PRs in parallel: a lane table approved first, one worktree per lane, review, verifier, merge. Use for \"orchestrate the fleet\", \"go after the top issues and merge them\", \"do what's assigned to me\", or a batch of issues handed over at once."
+description: "Lead a fleet of subagents that take several tracker issues (Linear or GitHub) from Todo to merged PRs in parallel: a lane table approved first, one worktree per lane, review, verifier, merge. Use for \"orchestrate the fleet\", \"go after the top issues and merge them\", \"do what's assigned to me\", or a batch of issues handed over at once. Not for one task with a cheap worker (token-economy-run), one planned change (plan-then-ship), or sprint planning (linear-sprint-cycles)."
 ---
 
 # Issue Fleet
@@ -16,18 +16,18 @@ This skill composes `adversarial-review` (read it — its lens catalog and promp
 - **One worktree per issue, the orchestrator's own tree stays clean.** Parallel agents writing to one tree read each other's half-finished edits.
 - **Prompts live in files, not only in tool calls.** Write every implementer/reviewer/fixer prompt to `<scratchpad>/prompts/<track>-<role>.md` and tell the agent "read your instructions from this file". When an agent is killed (rate limit, accidental interrupt) you relaunch it verbatim in one line instead of reconstructing the brief.
 - **A subagent's pasted green output is a claim.** Re-run tests, lint, and typecheck in your own shell before every commit and before every merge.
-- **Merge criteria are fixed up front:** ≥2 lensed reviewers, findings fixed by a fixer given a one-sentence contract, an independent verifier that tried to break the fix and could not, CI green, your own shell green. Only then merge — and then move the issue to Done yourself.
+- **Merge criteria are fixed up front:** ≥2 lensed reviewers (or the repo's reviewer bot, step 5), findings fixed by a fixer given a one-sentence contract, an independent verifier that tried to break the fix and could not, CI green, your own shell green. Only then merge — and then confirm the issue reached Done.
 - **Real but out-of-scope findings become issues** when issue filing is authorized, filed the moment they are triaged; otherwise report them in the handoff. Never fold them into the diff and never drop them. Have every implementer return the problems it hit (wrong doc, misleading command, false-pass check) so they get filed too, then fix the agent-fixable ones in their own lane after the main lanes merge.
 
 ## Steps
 
 ### 1. Pick, lane, and get the plan approved
 
-Pull the issues (priority order), or the user's assigned issues filtered by their constraint (e.g. "nothing that needs the cluster"). Read each in full, check open PRs and existing branches, and size against the code: a five-minute grep per issue tells you which touch the same files and which is smallest (that one finishes first and warms up the review pipeline).
+Confirm which tracker and workspace the connected tool reaches, who "me" is there, and which repo each issue belongs to; ask if any is ambiguous. Then pull the issues (priority order), or the user's assigned issues filtered by their constraint (e.g. "nothing that needs the cluster"). Read each in full, check open PRs and existing branches, and size against the code: a five-minute grep per issue tells you which touch the same files and which is smallest (that one finishes first and warms up the review pipeline).
 
-**Issues that edit the same file or section go in one lane** (one branch, one PR, `Fixes A` and `Fixes B`); separate branches there conflict at merge. An issue whose acceptance criteria need a person, hardware or access you lack goes in as partial (`Part of`, open criteria named) or is skipped.
+**Issues that edit the same file or section go in one lane** (one branch, one PR, `Fixes A` and `Fixes B`); separate branches there conflict at merge. An issue that builds on another's unmerged code shares its lane or waits for that lane to merge. If the repo has no CI, say so in the plan; own-shell green then stands in for CI, never a claimed pass. An issue whose acceptance criteria need a person, hardware or access you lack goes in as partial (`Part of`, open criteria named) or is skipped.
 
-Before spawning anything, show the plan and **wait for approval** when the user asked to see it first:
+Before spawning anything, show the plan, including who merges, and **wait for approval**; skip the wait only when the user already approved this exact issue set and merge scope:
 
 | Lane | Branch | Issues | Files it touches |
 |---|---|---|---|
@@ -36,15 +36,15 @@ Before spawning anything, show the plan and **wait for approval** when the user 
 
 Follow it with one line for the review/merge flow, one for how problems hit are handled, and a **Skipped** list with the reason per issue (needs the cluster, blocked on a login, a person's decision). Keep the whole plan to a screen.
 
-Claim the approved issues in the tracker (In Progress, a comment naming the branch). Say in the plan who merges: if the user also merges, a PR can land while its verifier still has a P1 open.
+Claim the approved issues in the tracker (In Progress; a comment naming the branch when tracker comments are authorized).
 
 ### 2. Worktrees and environment
 
-One worktree per track: in Claude Code, `git worktree add .claude/worktrees/<key> -b <owner>/<key>-<slug> origin/main`; otherwise use the harness's equivalent worktree location. Verify the test command actually works from inside a worktree (path prefixes, node_modules, venv location) and put the exact working command in every prompt — "run the tests" is how agents burn twenty minutes on a wrong `PYTHONPATH`.
+One worktree per track: in Claude Code, `git worktree add .claude/worktrees/<key> -b <owner>/<key>-<slug> origin/main`; otherwise use the harness's equivalent worktree location. Verify the test command actually works from inside a worktree (path prefixes, node_modules, venv location, gitignored env/config files the harness does not copy in) and put the exact working command in every prompt — "run the tests" is how agents burn twenty minutes on a wrong `PYTHONPATH`.
 
 ### 3. Implementers, all at once
 
-One agent per track, in one batch. If a deterministic workflow tool is available, one script can run every lane as a pipeline (implement, then an independent read-only check against the acceptance criteria), so a finished lane is checked while others still build. Each prompt: the issue verbatim, the worktree path, "work ONLY inside it", the exact test/lint/typecheck commands, the definition of done, and "report anything you did NOT do — never claim success for something you did not run".
+One agent per track, in one batch up to any concurrency cap in the operator's instructions; queue the rest smallest first. If a deterministic workflow tool is available, one script can run every lane as a pipeline (implement, then an independent read-only check against the acceptance criteria), so a finished lane is checked while others still build. Each prompt: the issue verbatim, the worktree path, "work ONLY inside it", the exact test/lint/typecheck commands, the definition of done, and "report anything you did NOT do — never claim success for something you did not run".
 
 ### 4. Don't idle-poll — block on the smallest
 
@@ -52,22 +52,22 @@ Wait on the track most likely to finish first. When it lands: run its suite your
 
 ### 5. Review → fix → verify per track
 
-If the repo names a reviewer bot as its review step (e.g. comment `@codex review` on the ready PR), that review plus the independent verifier replaces the lensed reviewers; fix or answer each P0/P1, re-request review after fixes, and fall back to `adversarial-review` when the bot does not respond.
+Never spawn unlensed reviewers. If the repo names a reviewer bot as its review step (e.g. comment `@codex review` on the ready PR), that review plus the independent verifier replaces the lensed reviewers; fix or answer each P0/P1, re-request review after fixes, and fall back to `adversarial-review` when the bot does not respond.
 
 Follow `adversarial-review` exactly, with these fleet-specific additions:
 
 - **Lenses by what the change touches:** persisted state → Correctness & data loss; process lifecycle → Concurrency & lifecycle; UI → Interaction & UX; a security claim → Security *and* Spec conformance & completeness (does every prose claim match the code; does the artifact say what was enforced or what was configured?), plus Test honesty if existing tests changed. A large diff gets four lenses, a small one two.
 - **The fixer gets a one-sentence contract** you write, plus the findings ranked, convergent ones marked, and an explicit "do not touch <other tracks' areas>". Fixers must confirm fail-first in a disposable worktree or scratch copy, never by stashing shared changes.
 - **The verifier is fresh** and mutation-tests each fix on a scratch copy: "for each finding, name the guarding test and revert just that piece — does it fail?"
-- **Then you**: run everything in your own shell, commit, push, open the PR, watch CI.
+- **Then you**: run everything in your own shell, commit, push, open the PR, and wait with `gh pr checks <N> --watch --required --fail-fast` (exit 8 = still pending).
 
 ### 6. Merge and close
 
-CI green + verifier clean + own-shell green → merge (squash, delete branch), move the issue to Done with a comment naming the PR, and remove the worktree. Rebase tracks that share files onto the new main before their PR; expect conflicts in the shared file and resolve them yourself, then re-run that track's suite.
+CI green + verifier clean + own-shell green → merge from the repo's main checkout, by PR number, pinned to the verified sha (`gh pr merge <N> --squash --delete-branch --match-head-commit <sha>`); confirm the issue reached Done (a closing word such as `Fixes KEY` moves it on merge when the tracker's GitHub integration is on; set it yourself only if it did not), comment the PR, and remove the worktree. Rebase tracks that share files onto the new main before their PR; expect conflicts in the shared file and resolve them yourself, then re-run that track's suite.
 
 ### 7. Recover, don't restart
 
-Agents die: rate limits, accidental interrupts, API errors. Nothing they wrote to a worktree is lost — only their context.
+Agents die: rate limits, accidental interrupts, API errors. Nothing they wrote to a worktree is lost — only their context. If a rate limit hits, stop launching; when it lifts, relaunch from the prompt files, never from memory.
 
 - `git status`/`git diff` in the worktree shows how far a killed fixer/implementer got. Relaunch with the same prompt file plus one sentence: "a previous agent was interrupted; its PARTIAL, UNCOMMITTED edits are in the working tree — read the diff first and build on it, verify each finding is actually addressed."
 - If the whole session is gone (archived after a rate limit), the prompts are recoverable from the subagent transcripts (in Claude Code, `~/.claude/projects/<project>/<session>/subagents/agent-*.jsonl`; otherwise the harness's equivalent transcript store) — the first `user` message of each is the prompt. Extract them to files and relaunch. Reviewer scratch tests survive under the old session's scratch dir; point new fixers at them.
@@ -77,29 +77,22 @@ Agents die: rate limits, accidental interrupts, API errors. Nothing they wrote t
 
 At the end: per track — what each lens found, what converged, what was fixed, what was filed elsewhere, PR number, merged or not and why. If a strategy in this run was new and worked, suggest skillifying it; edit the skills repo only when that work is requested.
 
-## Rules
-
-- The Non-negotiables above are the rules; also never spawn unlensed reviewers (`adversarial-review`).
-- Keep the tracker current: claim on start, comment the branch, Done only after merge.
-- If a rate limit hits, stop launching; when it lifts, relaunch from the prompt files — do not rewrite prompts from memory.
-
 ## Budget honestly
 
-Every track in the first run needed **two fix→verify rounds** (RES-18 needed three verify passes). The verifier is not a formality — it found a HIGH regression the fixer introduced, a blocker the reviewers missed (`--yes` always refused), and a real symlink escape. Budget ~2 rounds per track and stop launching new agents when the operator asks to save credits: write the handoff (below) instead.
+Every track in the first run (2026-08-16) needed **two fix→verify rounds** (RES-18 needed three verify passes). The verifier is not a formality — it found a HIGH regression the fixer introduced, a blocker the reviewers missed (`--yes` always refused), and a real symlink escape. Budget ~2 rounds per track and stop launching new agents when the operator asks to save credits: write the handoff (below) instead.
 
 ## Handoff when stopping early
 
-Before the session ends: (1) copy every prompt file and verifier artefact from the scratchpad to a durable dir (`~/.claude/projects/<project>/handoffs/<run>/`); (2) write `HANDOFF.md` there — per track: worktree, branch, commits, gates last run, which agent was in flight and against which prompt, exact next step; (3) post the per-track state as a comment on each tracker issue when tracker comments are authorized. A running fixer's diff survives in its worktree; a running verifier's report is lost unless it lands in the tracker — say so in the handoff.
+Before the session ends: (1) copy every prompt file and verifier artefact from the scratchpad to a durable directory outside the scratchpad (for example a `handoffs/<run>/` folder beside the harness's session transcripts); (2) write `HANDOFF.md` there — per track: worktree, branch, commits, gates last run, which agent was in flight and against which prompt, exact next step; (3) post the per-track state as a comment on each tracker issue when tracker comments are authorized. A running fixer's diff survives in its worktree; a running verifier's report is lost unless it lands in the tracker — say so in the handoff.
 
 ## Gotchas
 
-- Write prompts to files before launching; prompts that live only in tool calls are lost when the session is archived.
 - After an interrupt, check each worktree's diff before relaunching: a partial diff can be finished, an empty one is relaunched.
-- Sequence merges of tracks that edit the same files, and rebase before opening the PR.
+- If the user also merges, a PR can land while its verifier still has a P1 open.
 - Any change that records a guarantee (a label, a flag, a claim in an artifact) gets the spec-conformance lens: check the guarantee is enforced, not just stamped from configuration.
 - When relaunching a fixer, tell it which findings its partial diff already covers.
 - A CI job running on a platform for the first time surfaces latent pre-existing failures, not just the diff. Budget a CI-fix loop, reproduce locally first, and treat the unblocks as lead work.
-- Branch policy can block the merge independently of CI: `require_code_owner_reviews` makes any CODEOWNERS-path PR a cross-human gate. Check `gh api repos/<r>/branches/main/protection` during step-1 sizing, state it in the PR's tier, and never `--admin` past it; leave the PR ready and name whose approval unblocks it.
+- Branch policy can block the merge independently of CI: `require_code_owner_reviews` makes any CODEOWNERS-path PR a cross-human gate. Check `gh api repos/<r>/rules/branches/main` (rulesets, readable with read access) and `gh api repos/<r>/branches/main/protection` (classic; a 404 can mean no admin access, not no protection) during step-1 sizing, state it in the PR's tier, and never `--admin` past it; leave the PR ready and name whose approval unblocks it.
 - For security-pattern work (denylists, validators), tell the verifier to hunt bypasses and false positives through the real checker, including built-in aliases, and run your own N-case probe before merging.
 - A reviewer bot on a checker or validator finds one missing case per round (one run: six rounds on one script, each a new git state). Put the full case matrix (states x modes) in the brief before the first implementer runs.
 - Run the independent verifier alongside the bot, not instead of it: in one run the verifier caught a P1 the bot passed, and the bot caught P1s the verifier missed. Merge only when both are clean.

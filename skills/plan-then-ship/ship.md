@@ -19,7 +19,7 @@ git rev-parse --abbrev-ref origin/HEAD 2>/dev/null || true
 
 ## After a cloud or isolated implementer
 
-The spec is gitignored, so that agent worked from the prompt copy. Bring its branch here before review:
+The spec is untracked, so that agent worked from the prompt copy. Bring its branch here before review:
 
 ```bash
 git fetch origin "<branch>"
@@ -27,6 +27,10 @@ git checkout "<branch>"
 ```
 
 If fetch fails, the isolated run did not push — stop and report. Do not review an empty local tree and call it their work. Repair loops spawn again onto **that same branch**.
+
+## Local-only or non-GitHub origin
+
+If `origin` is missing or is not GitHub, or workspace instructions finish this repo locally, skip the `gh` steps below. Commit the named files on the feature branch and finish per those instructions (GitLab: `glab mr create`). Never push the default branch.
 
 ## Permission check — before commit/push
 
@@ -48,7 +52,7 @@ If the cloud implementer already committed the Touch/Tests files on the feature 
 
 Otherwise: named files only. Never `git add -A`. Never commit `.plan-then-ship/`. Never commit secrets. Never skip hooks. Never force-push.
 
-Allowed named files: the spec's Touch list, the spec's Tests paths, and `.gitignore` if this run added `.plan-then-ship/` to it.
+Allowed named files: the spec's Touch list and the spec's Tests paths.
 
 ## PR
 
@@ -76,7 +80,3 @@ gh pr checks --watch
 Then, only if eligible **and** merging is authorized and permitted by the current repository rules: merge. Prefer squash when the repo allows it (`gh pr merge --squash`).
 
 If GitHub refuses because reviews are required, branch protection, or a collaborator must approve: **stop with the PR URL**. That is the multi-person workflow working. Do not override, do not `--admin` merge.
-
-## `.gitignore`
-
-Adding `.plan-then-ship/` to `.gitignore` is planner work, not implementer work. It is exempt from spec-fidelity "extra file" criticals. If it changed, it ships in the named-files commit above. The spec itself stays untracked — cloud agents get the spec in the prompt instead.

@@ -56,7 +56,7 @@ checkout before citing it. These checks validate field shape and presence only:
 they do not prove that the Git object exists locally or that the dataset digest
 matches the scientific data.
 
-**A run with a non-zero exit code is never cited as a result.** It gets logged — failures are data — but it is not evidence for a claim.
+**A run with a non-zero exit code is never cited as a result.** It gets logged — failures are data — but it is not evidence for a claim. Rerun a crashed cell with the same config and seed as a new run and cite the rerun; if only one arm crashes, changing or dropping it changes the comparison, so take it to the Surprise gate.
 
 ## metrics.json
 
@@ -127,7 +127,7 @@ Newest entry at the top, immediately under the header. Never edit or delete a pa
 **Raised:** Does the gap hold at 4× budget? → OPEN-QUESTIONS.
 ```
 
-Entries for **negative results are written with the same care as positive ones**, and additionally get a line in `DEAD-ENDS.md`. This is the highest-value habit in the whole skill: nobody publishes what didn't work, so everybody re-runs it.
+Entries for **negative results are written with the same care as positive ones**, and are classified by the brief's decision rule as confirmed, refuted, or inconclusive. Only a refuted result gets a line in `DEAD-ENDS.md`; an effect inside the seed band at the planned seeds is inconclusive and goes to `OPEN-QUESTIONS.md` with the seeds or effect size that would settle it. This is the highest-value habit in the whole skill: nobody publishes what didn't work, so everybody re-runs it.
 
 ## DEAD-ENDS.md
 
@@ -143,7 +143,7 @@ Format: what was tried · why it failed · run ID · **what would make it worth 
 ## OPEN-QUESTIONS.md
 
 ```markdown
-- [ ] Does the cosine gap hold at 4× compute? — raised 2026-08-14, blocked on ROSIE access (formerly OWE-13)
+- [ ] Does the cosine gap hold at 4× compute? — raised 2026-08-14, blocked on cluster access
 - [x] Is mathgen-v3 contaminated? — answered 2026-08-12, no: generated post-cutoff. `2026-08-12-contam-check`
 ```
 

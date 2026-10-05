@@ -1,6 +1,6 @@
 ---
 name: day-check
-description: "Answer \"what do I need to do today?\" in chat, read-only, from Calendar, research Linear (RES), and today's note, weighted to the time actually left. Use for \"what should I work on\", \"what's left today\", \"am I forgetting anything\". Building the note is daily-note."
+description: "Answer \"what do I need to do today?\" in chat, read-only, from Calendar, research Linear (RES), and today's note, weighted to the time actually left. Use for \"what should I work on now\", \"what's left today\", \"am I forgetting anything today\". Building the note is daily-note; inbox questions are mail-digest; whether a project is still alive is vault-lifecycle."
 ---
 
 # Day Check
@@ -13,7 +13,7 @@ A question, not a routine. Owen asked what's on his plate — answer it in chat,
 
 **Not this skill:** if he asks to build or refresh the daily note, that's `daily-note`. If it's the 6:30 routine or he wants to be interviewed, that's `morning-interview`. If the question is about mail, that's `mail-digest`. Hand off rather than doing a partial version.
 
-**Vault:** `/Users/owenpacetti/Owen's Awesome Vault` · **Linear:** team **Research Group 26/27** (`RES`), research work only. School and personal deadlines arrive through Calendar (Canvas all-day events) and `## Captured`, not a tracker.
+**Vault:** `~/Owen's Awesome Vault`. School and personal deadlines arrive through Calendar (Canvas all-day events) and `## Captured`, not a tracker.
 
 ## Steps
 
@@ -29,8 +29,8 @@ TZ=America/Chicago date "+%Y-%m-%d %H:%M %A"
 
 In parallel where possible; none depends on another.
 
-- **Calendar** — today's events, `orderBy: startTime`, `timeZone: America/Chicago`. Drop `WORKING_LOCATION` and `BIRTHDAY`. Keep all-day events (a due date shows up this way) and count them as occupied time when explicitly busy. Note which are `🎯 RES-nn` focus blocks — those are self-assigned and moveable, unlike a class or a meeting.
-- **Linear (RES)** — `assignee: "me"`, `fields: ["id","title","project","priority","status","dueDate","url"]`, Todo + In Progress + Urgent/High Backlog. Priority is **1 = Urgent … 4 = Low, 0 = None** — never sort naively.
+- **Calendar** — events from now until local midnight (set the upper bound; an open-ended query can return a week), `orderBy: startTime`, `timeZone: America/Chicago`. The lower bound filters on an event's end, so "now" keeps what is in progress. Drop `WORKING_LOCATION` and `BIRTHDAY`. Keep all-day events (a due date shows up this way) and count them as occupied time only when marked Busy (transparency `opaque`); all-day events default to Free, so a Canvas due date is a deadline, not a blocked day. Note which are `🎯 RES-nn` focus blocks — those are self-assigned and moveable, unlike a class or a meeting.
+- **Linear (RES)** — `assignee: "me"`, `fields: ["id","title","project","priority","status","statusType","dueDate","updatedAt","url"]`. The filter takes one state per call, so query by team and assignee, then keep the Unstarted and Started categories (Todo, In Progress, In Review) plus Backlog at priority 1 or 2. Priority is **1 = Urgent … 4 = Low, 0 = None** — never sort naively.
 - **Today's note** — `School/Daily TODO/YYYY-MM-DD.md` if it exists. Read the `## Chosen outcome` section first, then the legacy `## Top 3` and `## Captured` sections. A nonempty Chosen outcome is Owen's current decision; use the legacy Top 3 when Chosen outcome is missing, empty, or still a template placeholder. Captured holds things that exist nowhere else yet.
 
 If a source is unreachable, say which one and answer from the rest. A partial answer now beats a complete one after a reconnect.
@@ -46,7 +46,7 @@ Three shapes, and they get different answers:
 | "Anything coming up / am I forgetting something?" | Only the surprising: something starting soon, a due date today, an item that's been sitting. Silence is a valid answer. |
 
 Start with a nonempty, user-chosen `## Chosen outcome`; otherwise use Owen's
-nonempty legacy `## Top 3`. Ignore empty headings and template placeholders. Treat either as his decision and report what changed around
+nonempty legacy `## Top 3`. Ignore empty headings and template placeholders: an empty `**Outcome:**` line and its instructional template sentence are not a decision. Treat either as his decision and report what changed around
 it rather than silently reranking it. Only when neither contains a decision use this
 weighting for a recommendation: due today or overdue → Urgent → blocks
 something else → fits the gap that actually exists before the next fixed event
@@ -55,20 +55,23 @@ his next class is a bad answer no matter how important the issue is.
 
 ### 4. Keep it short
 
-Chat, not a document: short enough to read at a glance between classes. Lead with the next fixed thing and how long until it starts, then the work. Use full `RES-nn` ids so he can act, skip tables unless there are more than about six items, and never render a checklist — nothing here is checkable.
+Chat, not a document: under about 150 words, readable at a glance between classes. Lead with the next fixed thing and how long until it starts, then the work. Use full `RES-nn` ids so he can act, skip tables unless there are more than about six items, and never render a checklist — nothing here is checkable.
 
 Say the time remaining explicitly (`2h10m until Physics`), because that's the number he's actually deciding against.
-
-If there is genuinely nothing — no events left, no open urgent work — **say so plainly**. Manufacturing a suggestion to seem useful is the main way this skill goes wrong.
 
 ## Rules
 
 - **Never write anything.** Vault, Linear, Calendar — all read-only, every time. Offer, don't act.
 - **Filter to what's ahead.** Past events appear only if he asked what he already did.
-- **A Chosen outcome wins, then a hand-written Top 3.** If he already decided this morning, report his decision plus what's changed since — do not create a fresh ranking that quietly overrides it.
 - **Don't re-derive the day on a follow-up.** Within one conversation, reuse what was already pulled; re-pull only if he says something changed or enough time has passed to matter.
 - **Don't promote Captured items anywhere here.** Mention them; promotion is Owen's decision at triage (`vault-triage`).
 - **Focus blocks are suggestions, not commitments.** A `🎯 RES-nn` block he's blown past is fine — mention it, don't scold, and don't reschedule it unasked.
+
+- **Nothing is a valid answer.** If no events are left and no urgent work is open, say so plainly; do not manufacture a suggestion.
+
+## Gotchas
+
+None recorded yet. Add one here when a run fails a new way.
 
 ## Untested
 

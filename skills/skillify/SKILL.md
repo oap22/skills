@@ -1,6 +1,6 @@
 ---
 name: skillify
-description: "Distill a completed workflow into a portable skill, or improve an overlapping one, then register and validate it in the skills repo. Use for \"skillify\", \"make this a skill\", or \"save this workflow\". Suggest it when useful; never edit skills at the end of unrelated work."
+description: "Distill a completed workflow into a portable skill, or improve an overlapping one, then register and validate it in the skills repo. Use for \"skillify\", \"make this a skill\", or \"save this workflow\". Not for skill evals, benchmarks, or description-optimization runs (skill-creator, auto-research). Suggest it when useful; never edit skills at the end of unrelated work."
 ---
 
 # Skillify
@@ -10,7 +10,7 @@ Follow the repository's current worktree rules before editing. Session transcrip
 Distill a session into a skill so the same work never gets rebuilt from scratch.
 
 **Repo:** `~/Developer/active/personal/skills` — the source of truth for every harness.
-**Never** write a skill directly into `~/.claude/skills`, `~/.cursor/skills`, `~/.codex/skills`, or a vault `.claude/skills`. Those are installation targets; the installer preserves unmanaged real directories and foreign symlinks.
+**Never** write a skill directly into a harness skills directory (every path in `TARGET_LAYOUTS`, `scripts/catalog_contract.py`). Those are installation targets; the installer preserves unmanaged real directories and foreign symlinks.
 
 ## The Bar
 
@@ -55,14 +55,14 @@ Work out what was actually done, then separate the reusable shape from this sess
 - **Inputs** — what varied, and what would vary next time. These become the skill's parameters.
 - **Steps** — the ordered actions, with the judgment calls that made them work.
 - **Rules** — constraints discovered the hard way. These are the most valuable part; they're what a fresh agent won't know.
-- **Failure modes** — anything that went wrong and how it was resolved. Include these; they're why the skill beats improvising.
+- **Failure modes** — anything that went wrong and how it was resolved. These go under `## Gotchas`; they're why the skill beats improvising.
 
 Strip session specifics. A concrete path from this session becomes an input, not a constant — unless the skill is genuinely bound to one location, which is legitimate for vault skills.
 
 **Keep the skill specific; keep the sensitive values out.** Specific is the goal: name Owen's real tools, hosts by alias, accounts by role, folder layout, and the exact commands that worked. Do not water a skill down into generic advice to avoid personal detail. Sensitive values never go into a committed file, because this repo is public. That covers email addresses, usernames, fully qualified hostnames, home paths that contain a username, IDs, tokens, and real third-party names. For each such value:
 
 1. Replace it in the skill with a `<placeholder>` that names its role, for example `<personal-gmail>`, `<cluster-user>`, or `<login-node>`.
-2. Put the real value in `private.local.md` beside `SKILL.md`. `*.local.md` is gitignored.
+2. Put the real value in `private.local.md` beside `SKILL.md` in the permanent checkout. `*.local.md` is gitignored, so a copy in a worktree is lost at merge.
 3. Commit a `private.example.md` template that lists each placeholder and where to find its value.
 4. Add one `**Private values:**` line under the title. It tells the agent to read `private.local.md` and to ask Owen if that file is missing. `calendar-block` and `rosie-run` are worked examples.
 
@@ -78,6 +78,8 @@ This is the whole routing mechanism. Every harness matches requests against it. 
 - Trigger lists are 2–4 representative phrases plus one boundary sentence naming what the skill is *not* for. Catch-all lists hurt routing (README rule 1).
 
 Pattern: `<What it does>. Use when the user says "<phrase>", "<phrase>", or <situation>. Not for <neighbor>.`
+
+Test it before install: three realistic prompts that should trigger it (one that does not name the domain) and three near-misses from the neighbors' ground. In a fresh context with only the skill list loaded, check which skill each selects, more than once. Fix a failure in the boundary sentence, not by pasting the failed prompt's keywords. With no fresh context available, record the test under `## Untested`.
 
 ### 5. Draft SKILL.md
 
@@ -97,10 +99,14 @@ description: <see step 4>
 
 ## Rules
 
-- <Constraints, gotchas, things learned the hard way.>
+- <Constraints the procedure must respect.>
+
+## Gotchas
+
+<Failure modes from this session, one bullet each; if none, exactly: "None recorded yet. Add one here when a run fails a new way.">
 ```
 
-Keep it short. Push long reference material into sibling `.md` files in the same directory and point at them by relative path — they get read on demand rather than every time the skill loads.
+Keep the body well under 500 lines. Move long reference material into sibling `.md` files linked directly from SKILL.md by relative path; a reference file should not send the agent on to another file, because nested files may be only partly read. Start any reference file over 100 lines with a short contents list.
 
 ### 6. Check portability
 
@@ -118,16 +124,16 @@ Also: relative paths for bundled files, never absolute. Absolute vault paths are
 
 ### 7. Run the compliance checklist
 
-Read `compliance.md` (bundled with this skill) and walk the draft through every section of it, especially the Discovery collision check, plus the repo rules. Failures involving trust or prompt injection, secrets, destructive writes, or an unresolved trigger collision block install and must be fixed before proceeding. A non-safety check may be recorded in the skill's `## Untested` section only when it is genuinely inapplicable or its required tool or input is unavailable; name the missing evidence and do not claim the check passed. Never use `## Untested` to waive a safety failure. The two checks most often failed are the Discovery collision check against existing descriptions and the Scope-and-trust posture toward external content for skills that read it.
+Read `compliance.md` (bundled with this skill) and walk the draft through every section of it, especially the Discovery collision check, plus the repo rules. Failures involving trust or prompt injection, secrets, destructive writes, or an unresolved trigger collision block install and must be fixed before proceeding. A non-safety check may be recorded in the skill's `## Untested` section only when it is genuinely inapplicable or its required tool or input is unavailable; name the missing evidence and do not claim the check passed. Never use `## Untested` to waive a safety failure. For a substantial revision, run two or three real prompts against the old and new versions in fresh contexts and compare; use a skill-evaluation tool if one is available.
 
 ### 8. Install
 
 1. Write to `skills/<name>/SKILL.md` in the skills repo, in whatever branch or worktree the session's instructions require.
 2. Add to `manifest.json` under `skills`, mapping the name to its harnesses:
-   - `claude`, `cursor`, `codex` — general coding and workflow skills
+   - `claude`, `cursor`, `codex`, `gemini` — general coding and workflow skills (valid names are the keys of `TARGET_LAYOUTS`)
    - `vault` — **only** for skills specific to the Obsidian vault. Global Claude Code skills already resolve inside the vault, so adding both `claude` and `vault` registers it twice.
-3. Run `python3 install.py --check` and `python3 install.py --dry-run` in the reviewed checkout. Install only from the permanent checkout (`~/Developer/active/personal/skills`) after integrating any branch or worktree changes; never point live harness links at a temporary worktree. Confirm links before claiming installation.
-4. Commit: `skillify: add <name>`.
+3. In the checkout you edited, run `python3 install.py --check`, `python3 scripts/export_catalog.py > /dev/null`, and `python3 -m unittest discover -s tests`. Do not run `--dry-run` in a linked worktree: every existing link reads as foreign there and it exits 1. After integrating into the permanent checkout (`~/Developer/active/personal/skills`), run `python3 install.py --dry-run`, confirm the new skill's links are planned (report other planned changes as existing drift), apply with `python3 install.py`, and confirm the links. Never point live harness links at a temporary worktree.
+4. Stage only this skill's directory and its own `manifest.json` hunk (`git add -p`); unrelated edits are often present. Commit per the session's finishing rules, with `skillify: add <name>`, or `skillify: <name> <change>` when improving one.
 
 ### 9. Report
 
@@ -149,4 +155,5 @@ Read `compliance.md` (bundled with this skill) and walk the draft through every 
 
 ## Gotchas
 
-- Owen's own identifiers leaked into public history. Through 2026-09, a rule let "Owen's own account identifiers" stay in skills. As a result, both email addresses, the Rosie username, and the login host were committed across many skills and had to be removed by a full history rewrite and a repo re-create on 2026-10-04. Before committing, run `git grep -nE '@|/home/'` and a search for any username or hostname from the session over the new skill. A hit needs a placeholder, not an exception.
+- Owen's own identifiers leaked into public history. Through 2026-09, a rule let "Owen's own account identifiers" stay in skills. As a result, both email addresses, the Rosie username, and the login host were committed across many skills and had to be removed by a full history rewrite and a repo re-create on 2026-10-04. Before committing, run `git grep --untracked -nE '@|/home/|/Users/' -- skills/<name>` and a search for any username or hostname from the session over the new skill. A hit needs a placeholder, not an exception.
+- The two checks most often failed are the Discovery collision check against existing descriptions and the Scope-and-trust posture toward external content for skills that read it.

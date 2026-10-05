@@ -1,6 +1,6 @@
 ---
 name: zed-language-setup
-description: "Configure Zed on macOS for Java/JavaFX (JDTLS) and C/C++ (clangd): debug configs, tasks, and translating a Windows/IntelliJ course spec to Zed. Use for \"set up Zed for Java\", \"Zed can't resolve JavaFX\", or moving coursework from IntelliJ to Zed."
+description: "Configure Zed on macOS for Java/JavaFX (JDTLS) and C/C++ (clangd): debug configs, tasks, and translating a Windows/IntelliJ course spec to Zed. Use for \"set up Zed for Java\", \"Zed can't resolve JavaFX\", moving coursework from IntelliJ to Zed, or a JavaFX/JDK check on a Mac. Windows/IntelliJ is swe2410-java-setup; bugs in the lab code are professor."
 ---
 
 # Zed language setup (macOS)
@@ -29,7 +29,7 @@ not as a list of commands to paste one at a time. Have the script announce each 
 a verification report.
 
 Config files are reachable by requesting folder access to `~/.config/zed`. Note that
-`~/Library/Application Support/Zed` is **not** grantable — plan around it (see Rules).
+`~/Library/Application Support/Zed` is **not** grantable — plan around it (see Gotchas).
 
 ## Step 1 — Read the required versions from the course, never hardcode
 
@@ -42,7 +42,7 @@ Those pages are typically **Windows-only**. Translate rather than follow literal
 | Course page (Windows) | macOS aarch64 equivalent |
 |---|---|
 | `jdk-<VER>_windows-x64_bin.msi` | existing Temurin/Oracle JDK, or `brew install --cask temurin@<MAJOR>` |
-| `openjfx-<VER>_windows-x64_bin-sdk.zip` | `https://download2.gluonhq.com/openjfx/<VER>/openjfx-<VER>_osx-aarch64_bin-sdk.zip` |
+| `openjfx-<VER>_windows-x64_bin-sdk.zip` | `https://download2.gluonhq.com/openjfx/<VER>/openjfx-<VER>_osx-<ARCH>_bin-sdk.zip`, where `<ARCH>` is `aarch64` or `x64` per `uname -m` (both served, checked 2026-10-05) |
 | `C:\Program Files\Java\javafx-sdk-<VER>` | `~/Library/Java/javafx-sdk-<VER>` (no sudo) |
 | IntelliJ run-config VM options | `vmArgs` in `.zed/debug.json` |
 | IntelliJ Project SDK | `java.configuration.runtimes` |
@@ -70,11 +70,10 @@ If the project came from IntelliJ, read `.idea/runConfigurations/*.xml` and the 
 
 - `auto_install_extensions` — `java` (C/C++ are first-party and need no extension)
 - `lsp.jdtls.settings` — `java_home` pointing at a JDK **21+** (JDTLS needs it to run itself,
-  separate from the JDK your code targets) and `jdk_auto_download: false`, or the extension
-  quietly downloads a second Corretto JDK
+  separate from the JDK your code targets) (leave `jdk_auto_download` at its default `false` so a missing JDK 21+ fails visibly)
 - `lsp.jdtls.initialization_options.settings.java` — `configuration.runtimes` and,
   for non-Maven/Gradle projects, `project.referencedLibraries`
-- `lsp.clangd.arguments`
+- `lsp.clangd.binary.arguments` (Zed has no `lsp.clangd.arguments`; it is ignored silently)
 - `languages` — tab size and format-on-save per language
 
 Only configure languages the user actually wants in Zed. Ask if unclear; a formatter configured
@@ -82,7 +81,7 @@ for a language they edit elsewhere causes cross-editor fights.
 
 ## Step 4 — Per-project `.zed/`
 
-Running needs nothing per-project once the global runner (see Rules) is installed. Add
+Running needs nothing per-project once the global runner (see Gotchas) is installed. Add
 `.zed/debug.json` for breakpoints, and `.zed/tasks.json` only when the global runner guesses
 wrong. Get the debug adapter name from the
 extension's own `extension.toml` (`[debug_adapters.<Name>]`) — for `zed-extensions/java` it is
@@ -101,19 +100,18 @@ Config that parses is not config that works.
    `⏵ Task <label>` line names the task that actually ran. Running a task's args yourself in
    bash is not verification, because it skips Zed's variable substitution.
 
-## Rules
+## Gotchas
 
 - **Plain IntelliJ projects have no build file**, so JDTLS builds an "invisible project" and
   sees only jars in `java.project.referencedLibraries`. This is the single most common cause of
-  unresolved `javafx.*` imports. Fallback if it doesn't take: a `lib/` folder of symlinks in the
+  unresolved `javafx.*` imports. If a change doesn't take, run the extension task "Clear default JDTLS cache" and restart the language server. Last resort: a `lib/` folder of symlinks in the
   project, which the default `lib/**/*.jar` glob already covers.
 - **Install the global Java runner once** (`java-run.sh` plus a `java-main`-tagged task in
   `~/.config/zed/tasks.json`, both in `zed-config-reference.md`). The Java extension's own ▶
   task runs `javac` with no JavaFX and drops `.fxml`, so it can never run a course lab. With the
   global runner in place, a new project needs no per-project run config.
-- **No shell variables in `tasks.json` `command`/`args`.** Zed substitutes `$NAME` itself and
-  blanks names it doesn't know, which turned `--module-path "$JFX"` into
-  `--module-path ""` and caused `module not found: javafx.fxml`. Put logic in a script.
+- **No shell variables in `tasks.json` `command`/`args`.** Zed expands `$ZED_*` names itself (an unknown one with no `${VAR:}` default breaks the task), and an inline
+  `JFX=...; javac --module-path "$JFX"` task still ended up as `--module-path ""` and caused `module not found: javafx.fxml`. Put logic in a script.
 - **The ▶ binding is cached per open file.** After changing `tasks.json`, tell the user to
   reopen the file or restart Zed before testing, or the old task keeps running.
 - **Debug `vmArgs` are not shell-parsed.** Never quote paths inside them. Put the JavaFX path in
@@ -126,8 +124,8 @@ Config that parses is not config that works.
   which agents generally cannot be granted. Put debug configs in the project's `.zed/` instead.
 - **clangd needs compile flags.** Without `compile_commands.json` (CMake with
   `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`) or a `compile_flags.txt` beside the source, it reports
-  phantom errors on perfectly valid single-file code.
-- **Zed cannot render or run `.ipynb`.** Its extension API has no custom-editor hook, so no
+  phantom errors on perfectly valid single-file code. clangd looks only in parent directories and their `build/` subdirectories, so CLion's `cmake-build-debug/` needs a symlink or a reconfigure into `build/`.
+- **Zed cannot render or run `.ipynb`.** Its extension API has no custom-editor hook (checked 2026-09), so no
   extension can add it either. The supported path is the REPL over `# %%` cells in a `.py` file,
   optionally paired to a notebook with jupytext. If the user wants real notebooks, tell them to
   stay in VS Code or JupyterLab rather than configuring around it.

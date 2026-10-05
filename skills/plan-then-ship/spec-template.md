@@ -2,7 +2,7 @@
 
 The planner writes this file to `.plan-then-ship/SPEC.md` in the **target repo**, not in the skills repo. Every section is required. If a section has nothing to say, write `None` and why — omitting it is how the implementer starts designing.
 
-The implementer is forbidden to outthink this document. If a decision is not in here, it does not happen. The parent always pastes this whole file into the implementer prompt so a cloud or worktree agent can run without reading the gitignored path.
+The implementer is forbidden to outthink this document. If a decision is not in here, it does not happen. The parent always pastes this whole file into the implementer prompt so a cloud or worktree agent can run without reading the untracked path.
 
 ```markdown
 # Spec
@@ -19,7 +19,7 @@ Bullet list. Explicitly out of scope. These prevent the implementer from "while 
 
 ### Touch
 
-Exact paths, one per line. The implementer may only write these files (and test files listed under Tests). `.gitignore` is planner work, not a Touch path — see `ship.md`.
+Exact paths, one per line. The implementer may only write these files (and test files listed under Tests).
 
 ### Do not touch
 

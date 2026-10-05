@@ -23,7 +23,7 @@ Fill the bracketed parts. Keep every unbracketed sentence — each one is load-b
 > Think hard. You are an ADVERSARIAL code reviewer. Your job is to BREAK this change, not to praise it. Assume it is wrong until you have proven otherwise by reading the code. Do not trust the author's summary — prose claims are exactly what needs checking against the code.
 >
 > Repo: `[absolute path]`
-> See the change with: `git -C <repo> diff` and `git -C <repo> status` (do not miss untracked files).
+> See the change with: `[the scope command from step 1]`, plus `git status` for untracked files when reviewing the working tree.
 >
 > ## Context: what was asked for
 > [The intended behavior, stated as a contract. Include agreed design decisions so the reviewer can tell "wrong" from "deliberate".]
@@ -35,7 +35,7 @@ Fill the bracketed parts. Keep every unbracketed sentence — each one is load-b
 > [Pre-existing bugs, unrelated files, accepted debt. Be explicit; anything not listed will get reported.]
 >
 > ## The bar
-> For every candidate finding, WRITE THE CONCRETE FAILURE SCENARIO: exact starting state, exact action, exact wrong result. If you cannot construct one, DISCARD the finding — do not report speculation.
+> For every candidate finding, WRITE THE CONCRETE FAILURE SCENARIO: exact starting state, exact action, exact wrong result. If you cannot construct one, DISCARD the finding — do not report speculation. Also skip what the linter or typecheck already reports, style nitpicks, and anything deliberately suppressed in the code.
 >
 > Verify claims by reading code, and where cheap by running the test suite or writing a throwaway test under `[scratch dir]`. Test the REAL exported code path, not an isolated helper and not your own re-implementation.
 >
@@ -47,7 +47,7 @@ For step 7. Different in kind from a lens reviewer: it gets the claimed contract
 
 > Think hard. You are an ADVERSARIAL verifier. A previous agent claimed to fix review findings. Your job is to prove the fixes are WRONG or INCOMPLETE. Do not trust the claim.
 >
-> Repo: `[path]`. Read `git -C <repo> diff` in full first.
+> Repo: `[path]`. Read `[the scope command from step 1]` in full first.
 >
 > ## The claimed contract
 > [Verbatim, one sentence if possible.]

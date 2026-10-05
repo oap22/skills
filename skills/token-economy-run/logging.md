@@ -10,9 +10,11 @@ python3 scripts/oas.py log-run --output /abs/workspace/.oas \
 python3 scripts/oas.py report-runs --output /abs/workspace/.oas
 ```
 
+For a model rung, pass `--retry-model <alias>` in place of `--retry-effort`.
+
 ## Where each number comes from
 
-- `--cost-usd`: what the harness reports for the session, subagents included. In Claude Code interactive sessions the figure is under `/usage`; `--max-budget-usd` counts subagent spend but applies to print mode only. Omit the flag when no figure is available; do not estimate.
+- `--cost-usd`: what the harness reports for the session, subagents included. In Claude Code interactive sessions the figure is under `/usage`: a list-price estimate that includes subagents and resets on `/clear`, so read it before any `/clear` and add the parts. In print mode use `total_cost_usd` (includes subagents), not `usage` (excludes them); `--max-budget-usd` applies to print mode only. Codex reports tokens, not dollars, so omit the flag there. Omit the flag when no figure is available; do not estimate.
 - `--minutes`: wall clock from launch to result, if known.
 - `--packets`, `--escalated`: from the session, per `escalation.md`.
 - `--corrections`: substantive corrections Owen had to make to the delivered work. A faster wrong answer is a failure, and this column is where it shows.

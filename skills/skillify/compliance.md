@@ -10,7 +10,7 @@ Use this for new or substantially revised skills. Fix material problems before i
 
 ## Useful expertise
 
-- Does the skill retain specific operational lessons, ownership rules, and known failure modes?
+- Does the skill retain specific operational lessons, ownership rules, and known failure modes, with the failure modes under its `## Gotchas` section?
 - Are dated observations separated from current facts and proposed behavior?
 - Are unsupported absolutes, repetitive advice, and invented experience removed?
 

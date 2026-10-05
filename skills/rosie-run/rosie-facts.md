@@ -83,10 +83,10 @@ matlab/current (L)    matlab/R2022a      matlab/R2024b (D)
 | Test | Result |
 |---|---|
 | `curl -sI https://api.github.com` | **OK** — general outbound HTTPS works |
-| `ssh -T git@github.com` | **OK** — authenticates as `oap22` |
-| `git ls-remote https://github.com/oap22/agent-skills.git` | **FAILED** — private repo over HTTPS has no credential |
+| `ssh -T git@github.com` | **OK** — authenticates as `<github-user>` |
+| `git ls-remote https://github.com/<github-user>/<private-repo>.git` | **FAILED** — private repo over HTTPS has no credential |
 
-**Use SSH remotes on Rosie, not HTTPS.** A GitHub SSH key for `oap22` is already registered from Rosie, so `git@github.com:` clones and pulls work today with no setup. HTTPS fails on private repos because there's no stored token, and the error looks like a missing repo rather than an auth problem.
+**Use SSH remotes on Rosie, not HTTPS.** A GitHub SSH key for `<github-user>` is already registered from Rosie, so `git@github.com:` clones and pulls work today with no setup. HTTPS fails on private repos because there's no stored token, and the error looks like a missing repo rather than an auth problem.
 
 **GitLab is a separate story.** The Revit-to-Robot repos are on GitLab, and the `gitlab-rosie` PAT expired around 2026-04-26 (formerly tracked as OWE-12; that workspace was retired 2026-09-18, so the reissue is untracked). GitLab access from Rosie is presumed broken until that's reissued — **not yet re-tested.**
 

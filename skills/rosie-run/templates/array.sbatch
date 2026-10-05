@@ -46,7 +46,7 @@ python3 log_run.py run \
     -- <the actual command> --seed "$SEED"
 
 # After the array finishes:
-#   1. sacct -j <arrayjobid> --format=JobID,State,ExitCode,Elapsed -P
+#   1. sacct -j <arrayjobid> -X --format=JobID,State,ExitCode,Elapsed -P
 #      -> count failures. A sweep reported complete with 12 of 64 tasks dead
 #         is a false result. Say how many were dropped.
 #   2. rsync results back to the Mac

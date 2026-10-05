@@ -4,7 +4,7 @@ Use the current capable parent for planning and review. For implementation, choo
 
 If named-model delegation is available, state the selected roles and pass the implementer the complete spec, its absolute worktree path, branch, allowed files, tests, and explicit ownership. Tell it other agents may be working and to preserve their changes. Keep concurrent writers in separate worktrees. Reviewers are read-only and use scratch space.
 
-If delegation is unavailable, explain that limitation and perform implementation followed by a separate review pass locally unless the user specifically requires a different-model handoff. Do not call sequential passes independent review. For a required handoff, finish the spec and provide the exact continuation prompt before yielding.
+If delegation is unavailable, explain that limitation and perform implementation followed by a separate review pass locally unless the user specifically requires a different-model handoff. Do not call sequential passes independent review. In this fallback, the SKILL.md step 6 escalation pass is one fresh parent pass under that investigation mandate, not a re-spawn. For a required handoff, finish the spec and provide the exact continuation prompt before yielding.
 
 A cloud or standalone user-visible task is created only when the user asks for one. Tool availability alone is not permission to create new sidebar tasks or send work to another service.
 

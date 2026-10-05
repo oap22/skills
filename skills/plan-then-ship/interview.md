@@ -4,7 +4,7 @@ Read the relevant repository code, tests, and current guidance before asking que
 
 Ask one question at a time only when an unresolved choice materially changes user-visible behavior, scope, compatibility, cost, or acceptance criteria. Answered questions stay answered. A short request can be sufficient when its behavior is clear from the code and context.
 
-Draft `.plan-then-ship/SPEC.md` as the decisions become concrete. Include observable acceptance criteria, ownership, and relevant tests. Mark a section `None` with a reason when it does not apply. Do not invent tests for wording-only or otherwise low-impact edits.
+Draft `.plan-then-ship/SPEC.md` as the decisions become concrete. Include observable acceptance criteria, ownership, and relevant tests. Record the approaches you weighed: the chosen one, and each real alternative with its pros and cons, for the plan page in `SKILL.md` step 3. Mark a section `None` with a reason when it does not apply. Do not invent tests for wording-only or otherwise low-impact edits.
 
 Present the completed spec with the remaining consequential assumptions in one concise summary. Obtain approval of that concrete plan unless the user has already authorized it or explicitly delegated the plan decisions. An explicit "go ahead" on the presented plan counts; do not require a second section-by-section recital. Incorporate corrections and re-present only material changes needing a decision.
 

@@ -225,3 +225,35 @@ Note: no contractions (graded writing to a professor). Verdict first, echoing th
 Owen rejected an earlier wording of the second paragraph, "it considered a `FluidRecord` struct but rejected it," as sounding like an LLM. His own phrasing for the idea was "the two things that the LLM suggested and that I did not implement." Plain verbs like "brought up" and "decided not to add" beat "considered and rejected."
 
 A second pass (same day) replaced the remaining jargon and LLM-sounding phrases with plainer ones at Owen's request: "structural claims" became "what it said about how the code was structured", "call sites" became "where they are written", "confidence is not a reliable signal" became "an LLM sounding sure of itself does not mean it is right". He does not use terms he cannot explain, and said so about the struct: "I didn't really know exactly what the struct was."
+
+
+## Part 5 — Peer message flagging a teammate's bug (co-edited, 2026-10-04)
+
+**Provenance, read before using as evidence.** Claude drafted this from the rules in `SKILL.md`; Owen then edited it by hand and pasted back his version. The edits are the evidence: they show what the draft got wrong. One sample only.
+
+Context: a lab group project. Owen's loud bee decorator and a teammate's armored bee decorator both set a border on the same JavaFX node, so the last one hides the other. Owen asks the teammate to fix the armor graphics and to say which second flower decorator they will build.
+
+Owen's final text:
+
+> Hey [Firstname],
+>
+> Just wanted to let you know about an issue with the armored bee's graphics that I'm running into while stacking it with my loud bee. I do appreciate that the armor logic works. The problem is only how it draws.
+>
+> Right now, the armor sets a silver border once on whatever node getGraphics() returns, and it never removes it. That causes two problems.
+>
+> First, when a bee has both decorators, the silver style replaces my red one, so you can only ever see one. Second, when the armor runs out, the silver border stays, so there is no way to tell that the armor is gone and that the loud bee should now be buzzing on harmful flowers. I'm also fairly sure that it will style my whole pane, because I return a pane that holds the bee and a red frame.
+>
+> What I think would fix it is the same thing I did: have the armor override getGraphics() and return its own pane with the wrapped node and its own frame, and hide the frame when the armor reaches zero. In addBee I wrapped loud first and armored second, so the armor is the outer layer.
+>
+> Could you take a look at that when you have time? Also, I'm doing the super flower as my second decorator. Can you let me know what your second flower decorator is going to be? The lab needs two per type.
+>
+> Thanks!
+
+What Owen changed from the draft:
+
+- **Cut** "I'm guessing it's about twenty minutes of work." He does not put a cost on a teammate's work.
+- **Split** "That causes two problems." into its own paragraph, with "First... Second..." starting the next one. Also added a blank line after the greeting.
+- **Split** one long ask ("Also, I'm doing the super flower, so can you let me know...") into three short sentences, and added that the super flower is his own second decorator.
+- **Tense:** "I wrap" became "I wrapped" for what he already did.
+- **Closing:** "Thanks." became "Thanks!"
+- **Kept as drafted:** "Just wanted to let you know", "I do appreciate", "I'm also fairly sure" (the hedge), contractions throughout, credit before the problem, no signature block.

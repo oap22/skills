@@ -1,6 +1,6 @@
 ---
 name: daily-note
-description: "Build or refresh the daily note in the Obsidian vault from research Linear (RES) and Calendar; the single render contract other skills call. Use for \"refresh my daily note\", \"build today's note\", \"plan my day\" when a rendered note is wanted. Read-only quick answers are day-check."
+description: "Build or refresh the daily note in the Obsidian vault from research Linear (RES) and Calendar; the single render contract other skills call. On request, books one focus block for the chosen RES outcome. Use for \"refresh my daily note\", \"build today's note\", \"block time for RES-nn\". Read-only \"what should I do today\" is day-check; the morning check-in is morning-interview."
 ---
 
 # Daily Note
@@ -11,7 +11,7 @@ Default mode is render-only: no Calendar or Linear mutations. Time blocking (ste
 
 Today's note is a **rendered view**, not a task list. Linear owns research issue state, Calendar owns fixed time, the vault owns context and whatever gets captured during the day.
 
-**Vault:** `/Users/owenpacetti/Owen's Awesome Vault`
+**Vault:** `~/Owen's Awesome Vault`
 **Note path:** `School/Daily TODO/YYYY-MM-DD.md`
 **Template:** `Templates/Daily Note.md`
 **Linear:** one workspace — `research-group-2627`, team **Research Group 26/27** (`RES`), via the `linear-research` server. OWE workspace retired 2026-09-18; RES remains. Never call the default `linear` server or the account-level Linear connector; they point at the retired workspace. Any other workspace Owen later connects is out of scope until this file names it.
@@ -40,10 +40,10 @@ If `School/Daily TODO/<date>.md` exists, you are **refreshing** — preserve eve
 
 ### 2. Pull Linear — RES only
 
-`linear-research` server, `assignee: "me"`, `fields: ["id","title","project","priority","status","dueDate","url","updatedAt"]`. Query the **team**, not a project — several RES issues carry no project and vanish under a project filter. Group by project; issues without one go under "No project".
+`linear-research` server, `assignee: "me"`, `fields: ["id","title","project","priority","status","dueDate","url","updatedAt","statusType"]`. Query the **team**, not a project — several RES issues carry no project and vanish under a project filter. Group by project; issues without one go under "No project".
 
-- **Include Todo and In Progress, plus Backlog when priority is Urgent or High.** RES keeps its real queue in Backlog, so a Todo-only query renders empty on a day with urgent work in it. Medium/Low Backlog stays out.
-- **Report what moved.** If the note has a `linear-res-last-success` cursor, list any issue whose `updatedAt` is newer, Done included, as one line under the tables:
+- **Include every status in the Unstarted and Started categories (Todo, In Progress, In Review, any custom status there), plus Backlog at Urgent or High.** RES keeps its real queue in Backlog, so a Todo-only query renders empty on a day with urgent work in it. Medium/Low Backlog stays out.
+- **Report what moved.** If the most recent earlier daily note (or today's, on a same-day refresh) has a non-empty `linear-res-last-success`, query the team for issues with `updatedAt` after it (all statuses, Done included, every page) and list them as one line under the tables. `updatedAt` also moves on edits that are not status changes, so use the arrow only when the status differs from the last render; otherwise write `RES-nn (updated)`:
 
   `*Moved since the last render: RES-14 → In Progress · RES-19 → Done.*`
 
@@ -57,7 +57,7 @@ If RES is unreachable, write plainly inside the block which source failed and wh
 
 ### 3. Pull Calendar
 
-List events for today, `orderBy: startTime`, `timeZone: America/Chicago`. On initial creation, fill the template's empty `## Schedule` table with `HH:MM – HH:MM`, the event summary, and `📆 [Calendar](htmlLink)`. On refresh, preserve every existing Schedule row, including interview and handwritten rows; put the refreshed Calendar table in a labeled subsection inside `linear:*`. If current vault conventions define a dedicated calendar marker, use that instead.
+List events from today 00:00 to tomorrow 00:00 America/Chicago; set both bounds, because connectors can default to "now" and a multi-day window. Expand recurring events into instances, `orderBy: startTime`. On initial creation, fill the template's empty `## Schedule` table with `HH:MM – HH:MM`, the event summary, and `📆 [Calendar](htmlLink)`. On refresh, preserve every existing Schedule row, including interview and handwritten rows; put the refreshed Calendar table in a labeled subsection inside `linear:*`. If Calendar is unreachable, say so in that subsection, as for Linear; an empty schedule reads as a free day.
 
 Do **not** turn events into tasks. Skip `WORKING_LOCATION` and `BIRTHDAY` event types.
 
@@ -67,43 +67,11 @@ Use `## Chosen outcome`. If Owen already wrote one, preserve it verbatim. If a l
 
 ### 5. Block time for the chosen outcome when requested
 
-Only on explicit request. This is the one step that **writes outside the vault** — treat it conservatively.
-
-**Find the gaps.** Working window **08:00–20:00** America/Chicago. Respect busy all-day events and `OUT_OF_OFFICE`; ignore only events explicitly marked free. Leave a **15-minute buffer** each side of an existing event.
-
-**Size the outcome first.** Use an explicit duration when present. Story points are not hours; convert only with a team-provided mapping, otherwise estimate from scope and label it:
-
-| Size | Looks like | Examples |
-|---|---|---|
-| **30 min** | one bounded action, obvious done state | send an email, reissue a token, add a git remote |
-| **60 min** | bounded but multi-step, or writing something short | a literature note, inbox triage |
-| **90 min** | real focus, edges not fully known | benchmark two models, build out a workflow |
-| **open-ended** | cannot finish in a day | train a model, reverse-engineer a repo |
-
-**Open-ended work gets one 90-minute block to *start*** — title it `🎯 RES-nn — start: <title>` so the block promises what it can deliver.
-
-**Fit it** in the earliest viable gap. Full size or shrink by at most 30 minutes; below that skip rather than cram. Never overlap an existing event, never run past 20:00. Put the estimate in the chosen-outcome line (`— ~30m`) so Owen can correct it; repeated corrections are the cue to set a real `estimate` in Linear.
-
-**Create with an idempotency marker.** Summary `🎯 RES-nn — <short title>`; the `🎯 RES-nn` prefix is what the next run keys on.
-
-```
-summary:     🎯 RES-5 — Reproduce the baseline on ImageNette
-startTime / endTime / timeZone: America/Chicago
-description: <one-line reason from the chosen outcome> + the Linear URL
-eventType:   DEFAULT
-availability: AVAILABILITY_BUSY
-colorId:     <from .system/calendar-conventions.md>
-```
-
-Color comes from `.system/calendar-conventions.md` (focus blocks inherit their category; RES issues are Research → Tangerine `6`, not Lavender — that is reserved for AI Club meetings). Never leave `colorId` unset; the default renders as School. Use `DEFAULT`, not `FOCUS_TIME`, which can auto-decline real invitations.
-
-**Before creating anything, re-list today's events and skip any `RES-nn` that already has a `🎯 RES-nn` block.** The routine has jitter and gets run by hand too.
-
-If nothing fits, create nothing and say so. A day with no room is a real answer.
+Only on explicit request, and only for an outcome Owen chose or named; a suggestion is not a choice. The one write outside the vault. Follow [time-blocking.md](time-blocking.md).
 
 ### 6. Stamp and write
 
-`python3 .system/scripts/daily-note.py --vault . --date <date> --region linear --body-file <rendered-region>` from the vault root. Pass `--linear-state <json-file>` only with the `linear` region; mail and interview writes never carry Linear state. Stamp `linear-rendered-at` even when the connector is unavailable; set `linear-coverage` to exactly one of `full`, `partial`, `unavailable`, `not-checked`. Advance `linear-res-last-success` only after the RES read completed, and `linear-last-success` only on full coverage. Leave any legacy `linear-owe-last-success` or `linear-synced` value untouched as history; neither is a movement cursor.
+`python3 .system/scripts/daily-note.py --vault . --date <date> --region linear --body-file <rendered-region>` from the vault root. Pass `--linear-state <json-file>` only with the `linear` region; mail and interview writes never carry Linear state. Always pass the state file, even when RES failed: `{"rendered_at": "<ISO-8601 with offset>", "owe": "not-checked", "res": "success|failure"}` (both keys required; the helper rejects a missing one). The helper derives `linear-coverage` and the cursors from it. With OWE retired it stamps a good RES read as `partial` and never advances `linear-last-success`; report RES coverage from the read itself, not from that stamp. Leave any legacy `linear-owe-last-success` or `linear-synced` value untouched as history; neither is a movement cursor.
 
 ### 7. Handle Captured
 
@@ -116,7 +84,7 @@ On refresh, **read it** and mention open items in the report. Render-only refres
 Report the chosen outcome, obligations, actual connector coverage, and how many blocks landed. Send one short notification only when the saved routine or user explicitly requests it, using whatever push/desktop mechanism this harness provides; if none, say so. Under 200 characters, one line, no markdown:
 
 ```
-Outcome: Reproduce baseline (RES-5) — one block on your calendar; Linear coverage full.
+Outcome: Reproduce baseline (RES-5) — one block on your calendar; RES read ok.
 ```
 
 Abbreviate titles hard; the RES id carries the precision. If nothing could be scheduled, say that instead of padding.
@@ -125,7 +93,6 @@ Abbreviate titles hard; the RES id carries the precision. If nothing could be sc
 
 - **Only the marked region is regenerated.** Never clobber Chosen outcome, a legacy Top 3, Schedule notes, Captured, or Notes.
 - **Never check off a rendered issue in the vault.** State changes go to Linear. The rendered tables have no checkboxes on purpose.
-- **Priority 0 means "None", not "highest".**
 - **Resolve the date at runtime.** Never trust a stale date from earlier in the conversation.
 - **Don't create tomorrow's note ahead of time** unless asked.
 - **Never delete vault content** to reconcile with Linear. Ask first, always.
@@ -133,7 +100,11 @@ Abbreviate titles hard; the RES id carries the precision. If nothing could be sc
 
 ## Scheduling this
 
-Use the current harness's native scheduler with verified access to the vault and required accounts — see `local-routine`. A cloud agent cannot reach the vault or the connectors. The live routine is **`morning-interview`** (`30 6 * * *` America/Chicago), which performs this render and then interviews Owen. The old `daily-note-render` task is disabled; do not re-enable it. This skill is still the right thing to invoke for an on-demand render with no interview.
+Use the current harness's native scheduler with verified access to the vault and required accounts — see `local-routine`. A cloud agent cannot reach the vault or the connectors. The routine that performs this render and then interviews Owen is **`morning-interview`** (`30 6 * * *` America/Chicago; found disabled 2026-10-05). The old `daily-note-render` task is disabled; do not re-enable it. This skill is still the right thing to invoke for an on-demand render with no interview.
+
+## Gotchas
+
+- **Priority 0 means "None", not "highest".**
 
 ## Untested
 

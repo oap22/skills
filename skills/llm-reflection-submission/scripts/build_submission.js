@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 let docx;
 try { docx = require('docx'); } catch (e) {
-  console.error('The "docx" npm package is not installed. Run: npm install docx (in a scratch folder, then run this script from there or set NODE_PATH).');
+  console.error('The "docx" npm package is not installed. Run: npm install docx in a scratch folder, then rerun with NODE_PATH=<that folder>/node_modules.');
   process.exit(2);
 }
 const {
@@ -19,6 +19,7 @@ const BODY = 'Calibri';
 let LIST_INSTANCE = 0;
 const LIST_CONFIGS = [];
 const MONO = 'Consolas';
+let RAW = false;               // LLM output: keep == and single * as literal text
 
 // ---------- inline markdown (state machine) ----------
 function inline(text, base = {}) {
@@ -40,10 +41,10 @@ function inline(text, base = {}) {
     if (c === '`') { flush(); st.code = !st.code; continue; }
     if (st.code) { buf += c; continue; }
     if (c === '*' && n === '*') { flush(); st.bold = !st.bold; i++; continue; }
-    if (c === '=' && n === '=') { flush(); st.hl = !st.hl; i++; continue; }
+    if (!RAW && c === '=' && n === '=') { flush(); st.hl = !st.hl; i++; continue; }
     if (c === '<' && text.startsWith('http', i + 1)) { flush(); st.url = true; continue; }
     if (c === '>' && st.url) { flush(); st.url = false; continue; }
-    if (c === '*') {
+    if (!RAW && c === '*') {
       // italic toggle only when it looks like emphasis, not math like "x * y"
       const opening = !st.italics && n && n !== ' ';
       const closing = st.italics && text[i - 1] && text[i - 1] !== ' ';
@@ -144,7 +145,7 @@ function md(src, headingShift = 0) {
           children: inline(text), spacing: { after: 80 },
         }));
         // allow blank lines between numbered items
-        if (i < lines.length && !lines[i].trim() && i + 1 < lines.length && lines[i + 1].match(/^(\s*)([-*]|\d+\.)\s+/) && topNumbered) i++;
+        if (i < lines.length && !lines[i].trim() && i + 1 < lines.length && lines[i + 1].match(/^(\s+[-*]|\s*\d+\.)\s+/) && topNumbered) i++;
       }
       continue;
     }
@@ -211,7 +212,7 @@ for (const sec of spec.sections) {
   } else if (sec.type === 'llm-output') {
     const who = sec.llm || spec.llm || 'the LLM';
     children.push(...labelBox(sec.startLabel || `Written entirely by ${who}. Everything between this box and the "End of LLM output" line is the LLM's exact output, copied and pasted without edits. None of it is my writing.`));
-    children.push(...md(read(sec.file), sec.headingShift || 0));
+    RAW = true; children.push(...md(read(sec.file), sec.headingShift || 0)); RAW = false;
     children.push(...labelBox(sec.endLabel || 'End of LLM output.'));
   } else {
     console.error(`Unknown section type "${sec.type}" (use code, markdown, or llm-output)`); process.exit(1);

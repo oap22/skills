@@ -1,6 +1,6 @@
 ---
 name: calendar-block
-description: "Create or recolor Google Calendar events with Owen's category colors, padding real commitments into blocks that protect the time, and fit undated tasks into actual free time. Use for \"block out\", \"put X on my calendar\", \"when am I free\", \"fit this in\"."
+description: "Create or recolor Google Calendar events with Owen's category colors, padding real commitments into blocks that protect the time, and find or book free time for an undated task. Use for \"put X on my calendar\", \"block out the game\", \"fit this in\", \"when am I free\" (windows only unless booking is asked). What is left today is day-check; focus blocks for RES issues are daily-note."
 ---
 
 # Calendar Block
@@ -11,12 +11,10 @@ Separate lookup from scheduling: "when am I free?" and "find me time" request ca
 
 Owen's calendar is the system of record for fixed time. Every event carries a category color so a week reads as a breakdown at a glance. This skill is the single place that knows how.
 
-**Calendar:** `<personal-gmail>` · timezone `America/Chicago`
-**Source of truth:** `/Users/owenpacetti/Owen's Awesome Vault/.system/calendar-conventions.md` — read it before writing anything; it may have drifted ahead of this file.
+**Calendar:** `<personal-gmail>` · timezone `America/Chicago`. Pass it as the calendar ID on every list and write; if the connected account is not this one, stop and say so.
+**Source of truth:** `~/Owen's Awesome Vault/.system/calendar-conventions.md` — read it before writing anything; it may have drifted ahead of this file. If it is unreachable, use the table below and say so.
 
 ## The color scheme
-
-Rows below mirror `.system/calendar-conventions.md`; that file wins on any disagreement.
 
 | Category | `colorId` | Color |
 |---|---|---|
@@ -32,7 +30,7 @@ Rows below mirror `.system/calendar-conventions.md`; that file wins on any disag
 | Deadlines — due dates, exams | `11` | Tomato |
 | Travel / unavailable — transit, walls | `7` | Peacock |
 
-**Never omit `colorId`.** Google's default is Blueberry, which is indistinguishable from School. An uncolored event is a bug.
+**Never omit `colorId`.** An uncolored event shows the calendar's own color and the API returns no `colorId`, so it reads as uncategorized. An uncolored event is a bug.
 
 When two fit, pick the one that would make Owen decline the other. Soccer beats Fitness. Deadlines beat everything.
 
@@ -62,13 +60,13 @@ Owen states the event. You state the wall.
 
 - "Game around 6:30" → block **6:00–8:30**. Travel, warmup, and the thing running long are all real.
 - Put his stated time in the `description` so the padding is visible and correctable: `"Game around 6:30 — block covers travel/warmup on either side."`
-- Err toward more padding for anything with travel, and less for anything at home.
+- Default 30 min on each side; more for anything with travel, less for anything at home.
 
 ### 5. A constraint is an event
 
 "Nothing before 9:45", "I'm out until noon", "don't schedule me Friday afternoon" — these are not notes, they are events. A constraint that lives only in conversation gets scheduled over by the next run of `daily-note`.
 
-Create a real block, `00:00` to the stated time for a wake-up constraint, colored `7`, titled for what it is (`Unavailable — sleeping in`).
+When the request authorizes writing, create a real block; in a lookup-only request, treat the constraint as a wall for the gap math and offer to block it. Use `00:00` to the stated time for a wake-up constraint, colored `7`, titled for what it is (`Unavailable — sleeping in`).
 
 ### 6. Create
 
@@ -83,7 +81,7 @@ eventType:    DEFAULT
 
 `AVAILABILITY_BUSY` always. A block that doesn't block is decoration.
 
-Use `DEFAULT`, never `FOCUS_TIME` — focus-time events can auto-decline real invitations.
+Use `DEFAULT`, never `FOCUS_TIME`: focus time needs a Workspace account and can be set to auto-decline real invitations.
 
 ### 7. Report
 
@@ -91,59 +89,17 @@ Say what landed, what it conflicts with, and what the remaining free window is. 
 
 ## Fit mode — "find me time for this"
 
-The steps above assume Owen states a time. Often he doesn't: *"can you fit in the LinkedIn post"*, *"find me time for the résumé"*, *"when am I free this week?"*. The task is real, the time is the agent's problem. Same creation rules apply — only the scheduling decision changes.
-
-### 1. Estimate the duration before looking at the calendar
-
-Decide how long the task takes **first**, otherwise you'll shrink it to fit the first gap you see. Rough defaults:
-
-| Shape of task | Block |
-|---|---|
-| Write-and-send something short (post, email, form) | 45 min |
-| Review something already drafted | 30 min |
-| Real focused work (résumé pass, reading, debugging) | 90 min |
-| Anything with an unknown | Round **up**, don't split |
-
-If the draft already exists, say so in the description — a 45-minute block for a task that's 80% done is a different psychological ask than a blank page.
-
-### 2. List the day (or the range) and compute the gaps
-
-`list_events` with `orderBy: startTime`. Then walk the sorted events and take the holes between them. Two things that are easy to get wrong:
-
-- **`AVAILABILITY_FREE` events are not obstacles.** A block marked free is a note, not a wall.
-- **A gap is not usable until you subtract transitions.** Don't start a block the same minute a soccer game ends. Leave ~15 min on either side of anything physical or off-campus.
-
-### 3. Place it against Owen's actual shape of day
-
-Not just "the first hole that fits."
-
-- **Honor the wake-up wall.** The `Unavailable — sleeping in` event (`7`) is a hard floor. Nothing before it, ever.
-- **Business-hours work goes in business hours.** Anything that involves another human seeing it that day — email, a call, a form with a deadline — cannot go in the 9 PM slot.
-- **After the last hard commitment is a real slot,** and often the best one for low-stakes solo work. Post-game, post-practice, post-class evenings are usable if the task is light.
-- **Don't wedge a 90-minute task into a 90-minute gap.** If the only fitting hole is exactly the size of the task, take the next day instead and say why.
-- **Protect soccer and school.** Never place discretionary work over either, and never against a `11` (Deadlines) block.
-
-### 4. Offer the runner-up
-
-When booking is authorized, create **one** event and name an alternative in the report. For an availability question, return the windows without creating anything:
-
-> "Put it at 8:45–9:30 PM, after the game. The other free window today was 4:30–6:00 PM if you'd rather not end the day on it."
-
-This is the whole value of fit mode: he sees the shape of his own day without opening the calendar, and correcting a placed event is one click.
-
-### 5. If nothing fits
-
-Say the day is full and name what would have to move — don't quietly place it at 11 PM, and don't silently push it a week. "Tomorrow's first real hole is 10:15 AM; today is solid from 9:45 to 8:30 PM" is the useful answer.
+When Owen names a task but no time ("fit this in", "find me time", "when am I free"), read [fit-mode.md](fit-mode.md): estimate the duration first, compute the real gaps, place the block against his shape of day, and offer the runner-up. Creation rules above still apply.
 
 ## Recoloring existing events
 
-When asked to bring old events in line: list them, group by summary, propose the mapping, **and get a yes before writing.** Determine whether the tool targets an instance or the series master; do not assume either. Preserve previous colors so an authorized bulk recolor can be reversed.
+When asked to bring old events in line: list them, group by summary, propose the mapping, **and get a yes before writing.** In the Calendar API an instance ID recolors one occurrence (an exception) and the master ID (the instance's `recurringEventId`) recolors the series; recolor a series through the master, never instance by instance. Send updates with no attendee notification. List each event's previous `colorId` in the report so an authorized bulk recolor can be reversed.
 
 Never recolor an event Owen didn't create (Gmail-derived events, invitations from others).
 
 ## For other skills
 
-Only `daily-note` creates focus blocks, and only when time-blocking is explicitly requested; `morning-interview` never creates events. A focus block inherits the category of the work, per `.system/calendar-conventions.md` § Rules — a RES issue is Research (`6`). OWE workspace retired 2026-09-18; RES remains.
+Only `daily-note` creates Linear-issue focus blocks (the `🎯 RES-nn` marker), and only when time-blocking is explicitly requested; fit mode here books one block for a task Owen names; `morning-interview` never creates events. A focus block inherits the category of the work, per `.system/calendar-conventions.md` § Rules — a RES issue is Research (`6`).
 
 ## Rules
 
@@ -153,14 +109,14 @@ Only `daily-note` creates focus blocks, and only when time-blocking is explicitl
 - **Pad, then say you padded.** Silent padding trains him to distrust the block.
 - **Re-list before creating** — the same request twice should not produce two events.
 
-## Known state
+## Gotchas
 
 - **Cognex ended August 2026.** The recurring `In-Person Work` / `Remote Work` events (Banana) are stale leftovers. Banana stays reserved for future employment; don't reassign it.
 - Pre-2026-08-07 events were never colored systematically. Don't infer the scheme from calendar history.
 
 ## Untested
 
-- **Recoloring recurring events has never been run.** Whether `update_event` on a recurrence instance ID colors the single instance or the whole series is unverified — check on a low-stakes series first.
+- **Recoloring recurring events has never been run.** Google documents the instance-vs-master semantics (above); whether the connected calendar tool passes IDs through unchanged is unverified — check on a low-stakes series first.
 - **The Deadlines (`11`) and Social (`3`) categories have no events yet.** They're allocated, not exercised.
 - **Padding heuristics are judgment, not measured.** The 30-minutes-each-side default came from one soccer game on 2026-08-07.
 - **Fit mode has one run behind it** (LinkedIn Cognex post, 2026-08-07). The duration table is estimates, not observation — if a block consistently runs long or short, correct the table rather than the individual event.

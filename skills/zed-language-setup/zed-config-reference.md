@@ -3,6 +3,8 @@
 Substitute `<JDK_HOME>`, `<JFX_DIR>`, `<MainClass>`. Verified against Zed's docs and
 `zed-extensions/java` v6.8.x in September 2026.
 
+Contents: Paths · settings.json · .zed/debug.json (JavaFX, C/C++) · C/C++ build and run · Running Java (rules, global runner, per-project override) · Validating JSONC · Install-script skeleton · Known-good versions
+
 ## Paths
 
 | File | Location |
@@ -31,7 +33,7 @@ Substitute `<JDK_HOME>`, `<JFX_DIR>`, `<MainClass>`. Verified against Zed's docs
     "jdtls": {
       "settings": {
         "java_home": "<JDK_HOME>",        // JDK 21+ to RUN jdtls itself
-        "jdk_auto_download": false,        // else it pulls its own Corretto
+        "jdk_auto_download": false,        // default; true would download Corretto
         "min_memory": "1G",
         "max_memory": "2G",
         "lombok_support": false
@@ -42,6 +44,7 @@ Substitute `<JDK_HOME>`, `<JFX_DIR>`, `<MainClass>`. Verified against Zed's docs
             // IntelliJ "Global Library" equivalent. Required for projects
             // with no pom.xml/build.gradle, or javafx.* will not resolve.
             "project": {
+              "sourcePaths": ["src"],
               "referencedLibraries": ["lib/**/*.jar", "<JFX_DIR>/lib/*.jar"]
             },
             // IntelliJ "Project SDK" equivalent.
@@ -60,12 +63,14 @@ Substitute `<JDK_HOME>`, `<JFX_DIR>`, `<MainClass>`. Verified against Zed's docs
       }
     },
     "clangd": {
-      "arguments": [
-        "--background-index",
-        "--clang-tidy",
-        "--header-insertion=never",
-        "--completion-style=detailed"
-      ]
+      "binary": {
+        "arguments": [
+          "--background-index",
+          "--clang-tidy",
+          "--header-insertion=never",
+          "--completion-style=detailed"
+        ]
+      }
     }
   }
 }
@@ -117,19 +122,26 @@ C/C++ uses the built-in `CodeLLDB` adapter:
     "label": "Debug current binary",
     "adapter": "CodeLLDB",
     "request": "launch",
+    "build": { "command": "cmake", "args": ["--build", "build"], "cwd": "$ZED_WORKTREE_ROOT" },
     "program": "$ZED_WORKTREE_ROOT/build/<binary>",
     "cwd": "$ZED_WORKTREE_ROOT"
   }
 ]
 ```
 
+Compile with `-g`. For stdin from a file, CodeLLDB takes `"stdio": ["<input>", null, null]` (untested in Zed).
+
+### C/C++ build and run
+
+Configure into `build/` with `cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON` (clangd finds `build/compile_commands.json`, not CLion's `cmake-build-debug/`). A run task with literal paths:
+`{"label": "<lab>: run with <input>", "command": "bash", "args": ["-c", "cmake --build build && build/<binary> < <input>"], "cwd": "$ZED_WORKTREE_ROOT"}`.
+
 ## Running Java: the gutter ▶ and tasks
 
 ### Rules learned the hard way
 
-- **Zed expands `$NAME` in task `command`/`args` itself**, before any shell runs. A shell
-  variable Zed doesn't know (`JFX=...; javac --module-path "$JFX"`) becomes an empty
-  string, and `javac --module-path ""` fails with `error: module not found: javafx.fxml`.
+- **Zed expands `$ZED_*` names in task `command`/`args` itself**, before any shell runs; inline shell logic is fragile. An inline shell
+  variable (`JFX=...; javac --module-path "$JFX"`) reached javac empty, and `javac --module-path ""` fails with `error: module not found: javafx.fxml`.
   Put the logic in a script and pass the script only `$ZED_*` variables. Running a task's
   args by hand in bash skips this substitution, so a passing bash test does not prove the
   task works. Only a run from inside Zed does.
@@ -195,7 +207,7 @@ echo "--- running $main ---"
 exec java ${fxrun[@]+"${fxrun[@]}"} -cp out "$main"
 ```
 
-The script picks the newest SDK itself, so a new JavaFX version needs no config change.
+The script picks the newest SDK itself, so the runner needs no change for a new JavaFX version; `referencedLibraries` and `modulePaths` still name the old SDK and must be updated.
 The `rsync` step copies `.fxml`, `.css`, and images next to the classes. `javac` does not
 move resources, and a missing `.fxml` surfaces as a confusing `LoadException` at runtime.
 
@@ -285,6 +297,8 @@ curl -fL -o /tmp/javafx.zip \
 unzip -q -o /tmp/javafx.zip -d "$HOME/Library/Java"
 xattr -dr com.apple.quarantine "$JFX_DIR"     # REQUIRED or natives won't load
 
+# 0. prerequisites: /usr/libexec/java_home -v <MAJOR> || brew install --cask temurin@<MAJOR>
+#    [ -d /Applications/Zed.app ] || brew install --cask zed
 # 2. zed CLI (user-owned dir, no sudo)
 ln -sf /Applications/Zed.app/Contents/MacOS/cli /opt/homebrew/bin/zed
 
@@ -297,7 +311,7 @@ ln -sf /Applications/Zed.app/Contents/MacOS/cli /opt/homebrew/bin/zed
 
 Make it idempotent and re-runnable; the user will run it more than once.
 
-## Known-good versions observed
+## Known-good versions observed (2026-09-18)
 
 | Component | Value |
 |---|---|

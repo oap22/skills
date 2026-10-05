@@ -6,7 +6,7 @@ Attack the change. The job is to find reasons not to ship, then only ship if tho
 
 ## Pass 0 — evidence
 
-Run the relevant commands in the spec's Tests section and retain their output. Summarize outcomes and any unavailable checks; do not claim unrun tests passed. Documentation-only changes can use inspection rather than invented execution tests.
+Run the relevant commands in the spec's Tests section and retain their output. Summarize outcomes and any unavailable checks; do not claim unrun tests passed. Documentation-only changes can use inspection rather than invented execution tests. For a user-visible UI change, when the harness can drive a browser or simulator, also run the app and check each UI acceptance criterion in it; record what was observed.
 
 Redact secrets in the paste — tokens, passwords, API keys, `Authorization` headers, private keys, and URLs that embed credentials — replace the value with `REDACTED`. Never paste raw secrets. Concise outcome summaries are sufficient when full logs add no value.
 
@@ -19,7 +19,7 @@ If tests are red, that is already a critical. Repair starts; do not skip the res
 Score every finding **critical** (blocks ship, starts a repair loop) or **suggestion** (does not block, does not loop).
 
 **Spec fidelity (this file owns it).**
-1. Diff the working tree against `.plan-then-ship/SPEC.md`. Files not in Touch (except listed tests, and `.gitignore` if it only gained a `.plan-then-ship/` ignore) are critical. Missing edits from Per-file edits are critical. "Improvements" the spec did not ask for are critical — revert them. `.gitignore` is planner work; see `ship.md`. Do not fail the implementer for it.
+1. Diff the working tree against `.plan-then-ship/SPEC.md`. Files not in Touch (except listed tests) are critical. Missing edits from Per-file edits are critical. "Improvements" the spec did not ask for are critical — revert them.
 2. Any edit in the Do-not-touch list is critical.
 3. Walk the spec's acceptance-criteria checklist. Any item that is not observably true is critical.
 
@@ -29,35 +29,27 @@ Cursor: if `bugbot` or `security-review` agents exist, launch them here as well.
 
 ## Output
 
-```markdown
-# Review — round N
+Each round writes `.plan-then-ship/review-round-N.json` and renders it for Owen with the review renderer bundled in `adversarial-review` (resolve that skill's directory; from this one it is `../adversarial-review/render_review.py`):
 
-## Tests
-command:
-<paste>
-result: green | red
-
-## Critical
-- [file:line] claim. Why it violates the spec or will fail in production.
-
-## Suggestions
-- [file:line] claim. Not a blocker.
-
-## Spec fidelity
-touched extra: none | <paths>
-missing spec edits: none | <list>
-freelance "improvements": none | <list>
-
-## Progress (round 2+)
-criticals last round: N
-criticals this round: N
-closed: <ids or one-liners>
-survived unchanged: <ids>
-reintroduced: <ids>
-stuck rule fired: none | no-progress | same-finding | oscillation | spec-is-wrong
+```bash
+python3 <adversarial-review-dir>/render_review.py .plan-then-ship/review-round-N.json --out .plan-then-ship/review-round-N.html
 ```
 
-Round 1 has no Progress block. Rounds 2+ must fill it — that is how the loop knows whether to continue.
+The record uses the renderer's fields. Severity here is only `critical` or `suggestion`:
+
+```json
+{
+  "title": "Review — round N",
+  "tests": [{"command": "<spec test command>", "result": "green", "excerpt": "<redacted tail>"}],
+  "findings": [{"severity": "critical", "location": "file:line", "claim": "Why it violates the spec or will fail in production.", "lens": "spec conformance", "status": "open"}],
+  "sections": [
+    {"heading": "Spec fidelity", "items": ["touched extra: none", "missing spec edits: none", "freelance improvements: none"]},
+    {"heading": "Progress", "items": ["criticals last round: N", "criticals this round: N", "closed: …", "survived unchanged: …", "reintroduced: …", "stuck rule fired: none"]}
+  ]
+}
+```
+
+Round 1 has no Progress section. Rounds 2+ must fill it — that is how the loop knows whether to continue. The JSON is what the repair loop reads; the HTML is what Owen reads. Give him the HTML path and a short chat summary (tests, open criticals, stuck rule).
 
 ## Stuck rules
 

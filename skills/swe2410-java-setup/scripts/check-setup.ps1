@@ -39,7 +39,7 @@ if (-not $found) { Write-Output '!! no JavaFX SDK found' }
 
 Section 'IntelliJ configuration'
 $cfgRoot = Get-ChildItem "$env:APPDATA\JetBrains" -Directory |
-           Where-Object { $_.Name -match '^IntelliJIdea' } | Sort-Object Name -Descending | Select-Object -First 1
+           Where-Object { $_.Name -match '^(IntelliJIdea|IdeaIC)' } | Sort-Object Name -Descending | Select-Object -First 1
 if (-not $cfgRoot) {
   Write-Output '(no IntelliJ config found)'
 } else {

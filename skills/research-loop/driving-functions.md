@@ -94,7 +94,7 @@ Every round is a logged run under the normal `conventions.md` layout, plus a tra
 {
   "round": 3,
   "run_id": "2026-08-14-loop-verifiable-r03",
-  "run_dir": "/Users/owenpacetti/research-results/2026-08-14-loop-verifiable-r03",
+  "run_dir": "~/research-results/2026-08-14-loop-verifiable-r03",
   "parent_round": 2,
   "parent_run_id": "2026-08-14-loop-verifiable-r02",
   "primary": 0.641,
