@@ -59,6 +59,15 @@ Work out what was actually done, then separate the reusable shape from this sess
 
 Strip session specifics. A concrete path from this session becomes an input, not a constant — unless the skill is genuinely bound to one location, which is legitimate for vault skills.
 
+**Keep the skill specific; keep the sensitive values out.** Specific is the goal: name Owen's real tools, hosts by alias, accounts by role, folder layout, and the exact commands that worked. Do not water a skill down into generic advice to avoid personal detail. Sensitive values never go into a committed file, because this repo is public. That covers email addresses, usernames, fully qualified hostnames, home paths that contain a username, IDs, tokens, and real third-party names. For each such value:
+
+1. Replace it in the skill with a `<placeholder>` that names its role, for example `<personal-gmail>`, `<cluster-user>`, or `<login-node>`.
+2. Put the real value in `private.local.md` beside `SKILL.md`. `*.local.md` is gitignored.
+3. Commit a `private.example.md` template that lists each placeholder and where to find its value.
+4. Add one `**Private values:**` line under the title. It tells the agent to read `private.local.md` and to ask Owen if that file is missing. `calendar-block` and `rosie-run` are worked examples.
+
+Use fictional stand-ins (`Dr. Vance`, `jordanm@example-corp.com`) for third parties in examples. Their real values come from Gmail or the vault at runtime, not from `private.local.md`.
+
 ### 4. Write the description
 
 This is the whole routing mechanism. Every harness matches requests against it. Get it wrong and the skill never fires.
@@ -133,6 +142,11 @@ Read `compliance.md` (bundled with this skill) and walk the draft through every 
 - **One skill per procedure.** If the session contained two unrelated procedures, make two skills or ask which to build.
 - **Keep the repository authoritative.** Unmanaged copies are preserved by the installer but can shadow or drift from the source.
 - **Prefer improving an existing skill** over adding an overlapping one.
+- **Specific, never sensitive.** Concrete detail makes a skill useful. A literal email, username, or full hostname makes it a leak. Use placeholders and `private.local.md` (step 3), not vaguer wording.
 - **Include the failure modes.** The mistakes are the value; a procedure without them is just a summary.
 - **Don't invent steps that weren't taken.** The skill records what actually worked, not an idealized version. If a gap needs filling, mark it explicitly as untested.
 - **Edit existing skills within the authorized scope without asking again.** Preserve useful constraints and unrelated changes. Ask only when a material ambiguity or destructive replacement remains.
+
+## Gotchas
+
+- Owen's own identifiers leaked into public history. Through 2026-09, a rule let "Owen's own account identifiers" stay in skills. As a result, both email addresses, the Rosie username, and the login host were committed across many skills and had to be removed by a full history rewrite and a repo re-create on 2026-10-04. Before committing, run `git grep -nE '@|/home/'` and a search for any username or hostname from the session over the new skill. A hit needs a placeholder, not an exception.

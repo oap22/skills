@@ -5,6 +5,8 @@ description: "Find the people Owen has actually worked with by reading commit hi
 
 # Collaborator Sweep
 
+**Private values:** `<personal-gmail>` and `<school-email>` are placeholders. Read the real values from `private.local.md` in this skill's folder (gitignored). If it is missing, ask Owen rather than guessing; `private.example.md` is the template.
+
 **Vault:** `/Users/owenpacetti/Owen's Awesome Vault`
 Read `.system/agent-conventions.md` § Brain Rules and `.system/frontmatter-schema.md` before writing anything.
 
@@ -61,9 +63,9 @@ If `isFork` is true, **only** authors who committed after Owen's first commit ar
 **Bots.** Drop anything matching `[bot]`, `dependabot`, `github-actions`, `github-classroom`, `noreply@anthropic.com`, or a `Claude` author name.
 
 **Owen's own aliases.** He commits under at least four identities:
-- `oap22 <<personal-gmail>>`
+- `oap22 <personal-gmail>`
 - `oap22 <156708491+oap22@users.noreply.github.com>`
-- `Owen Pacetti <<personal-gmail>>`
+- `Owen Pacetti <personal-gmail>`
 - possibly `<school-email>` on school machines
 
 **Noise floor.** One or two commits is usually a drive-by, not a collaboration. Report them in a "marginal" list rather than writing notes, and let Owen promote any that matter.

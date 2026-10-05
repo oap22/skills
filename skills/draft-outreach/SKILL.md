@@ -5,6 +5,8 @@ description: "Draft an email or message on Owen's behalf, researched, specific, 
 
 # Draft Outreach
 
+**Private values:** `<personal-gmail>` and `<school-email>` are placeholders. Read the real values from `private.local.md` in this skill's folder (gitignored). If it is missing, ask Owen rather than guessing; `private.example.md` is the template.
+
 Deliver the text in the conversation using the harness's native writing format when available. Update vault records only when this request includes them. A later explicit instruction to send or save an account draft is a separate authorized action; use the appropriate tool without treating this drafting skill as a veto.
 
 Writes the email Owen has been putting off. This workflow produces text and does not send or save an account draft by default. An issue asking for outreach is not permission to send.

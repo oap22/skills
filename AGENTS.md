@@ -19,5 +19,5 @@ python3 install.py --dry-run   # preview; apply only from the permanent checkout
 ## Rules
 - Frontmatter: only one-line `name` (matches the directory, kebab-case) and `description`.
 - New or changed skills follow the README "Authoring rules" and `skills/skillify/compliance.md`.
-- No secrets or private third-party identifiers; timestamp cluster and tool facts that drift.
+- No secrets, private third-party identifiers, or Owen's own emails, usernames, or full hostnames in committed files; use `<placeholder>`s backed by gitignored `private.local.md` (README rule 7). Timestamp cluster and tool facts that drift.
 - Do not edit plugin skills (anthropic-skills:*, obsidian:*, gitnexus-*); they are not managed here.
