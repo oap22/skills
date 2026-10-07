@@ -1,6 +1,6 @@
 # skills
 
-Source of truth for Owen's agent skills. Edit skills only here; `install.py` symlinks them into ~/.claude, ~/.cursor, ~/.codex, ~/.gemini and the Obsidian vault.
+Source of truth for Owen's agent skills. Edit skills only here; `install.py` symlinks them into ~/.claude, ~/.cursor, ~/.codex, ~/.gemini, ~/.pi/agent and the Obsidian vault.
 
 ## Layout
 - `skills/<name>/SKILL.md` plus bundled references, templates, and scripts, linked by relative path

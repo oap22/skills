@@ -117,6 +117,43 @@ class InventoryIntegrityTests(Fixture):
 
 
 class InstallerIntegrityTests(Fixture):
+    def use_pi(self):
+        agent = self.root / ".pi" / "agent"
+        self.manifest.write_text(json.dumps({"skills": {"demo": ["pi"]}}))
+        self.installer.TARGETS = {"pi": (agent, "skills")}
+        return agent
+
+    def test_pi_install_creates_skills_links_and_is_idempotent(self):
+        agent = self.use_pi()
+        agent.mkdir(parents=True)
+        foreign = agent / "skills" / "foreign"
+        foreign.parent.mkdir()
+        foreign.symlink_to(self.root / "missing-foreign-source")
+        self.assertEqual(self.run_installer("--target", "pi"), 0)
+        link = agent / "skills" / "demo"
+        self.assertTrue(link.is_symlink())
+        self.assertEqual(link.resolve(), self.skill.resolve())
+        self.assertEqual(self.run_installer("--target", "pi"), 0)
+        self.assertTrue(foreign.is_symlink())
+        self.manifest.write_text(json.dumps({"skills": {"demo": ["codex"]}}))
+        self.assertEqual(self.run_installer("--target", "pi"), 0)
+        self.assertFalse(link.is_symlink())
+        self.assertTrue(foreign.is_symlink())
+
+    def test_pi_absent_agent_directory_is_skipped(self):
+        agent = self.use_pi()
+        self.assertEqual(self.run_installer("--target", "pi"), 0)
+        self.assertFalse(agent.exists())
+
+    def test_pi_collision_preserves_unmanaged_skill(self):
+        agent = self.use_pi()
+        collision = agent / "skills" / "demo"
+        collision.mkdir(parents=True)
+        marker = collision / "SKILL.md"
+        marker.write_text("Unmanaged skill")
+        self.assertEqual(self.run_installer("--target", "pi"), 1)
+        self.assertEqual(marker.read_text(), "Unmanaged skill")
+
     def test_read_only_inventory_is_rejected_before_link_changes(self):
         vault, moc = self.use_vault()
         moc.chmod(0o444)

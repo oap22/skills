@@ -1,6 +1,6 @@
 # skills
 
-Source of truth for Owen's agent skills across every harness — Claude Code, Cursor, Codex, Gemini, and the Obsidian vault.
+Source of truth for Owen's agent skills across every harness — Claude Code, Cursor, Codex, Gemini, pi, and the Obsidian vault.
 
 Established 2026-08-06 after clearing 74 accumulated skills down to nothing. See `.system/skills-audit-2026-08-06.md` in the vault for what was removed and why.
 
@@ -32,15 +32,36 @@ AGENTS.md                         instructions for coding agents working here
 ./install.py --dry-run    # preview
 ./install.py              # apply
 ./install.py --target vault  # apply one harness only
+./install.py --target pi     # install skills for pi
 ```
 
 Idempotent. Removing a skill from `manifest.json` and re-running unlinks it everywhere — the repo stays the only place a skill is ever edited or deleted.
 
-A harness that isn't installed on the current machine is skipped rather than conjured into being — a laptop without the vault synced still gets its Claude Code, Cursor, Codex, and Gemini links, and re-running after the vault lands fills in the rest.
+A harness that isn't installed on the current machine is skipped rather than conjured into being — a laptop without the vault synced still gets its Claude Code, Cursor, Codex, Gemini, and pi links, and re-running after the vault lands fills in the rest.
 
 Add a harness by adding a `"name": (root, subpath)` row to `TARGET_LAYOUTS`
 in `scripts/catalog_contract.py`. `root` is the home-relative directory that
 must already exist for the harness to count as present here.
+
+## Pi
+
+The `pi` target links into `~/.pi/agent/skills`. The installer considers pi
+present when `~/.pi/agent` exists and preserves unrelated skills and foreign
+symlinks. The full catalog is mapped to pi, as it is to Codex; skills that need
+vault access or external connectors still require those capabilities at runtime.
+Pi does not provide every other harness's scheduler or subagent tool by default:
+inspect available capabilities and use each skill's documented fallback.
+
+Run `./install.py --target pi`, then `/reload` inside pi (or restart it).
+Invoke a skill explicitly with `/skill:<name>`, for example `/skill:professor`.
+Pi also discovers `~/.agents/skills`; if a skill with the same name is loaded
+there, pi keeps the first discovered copy and reports a collision. Resolve
+which source to use explicitly rather than overwriting foreign skills.
+
+If you set `PI_CODING_AGENT_DIR`, the installer still uses the conventional
+`~/.pi/agent` location. Configure the custom agent directory's `skills` setting
+to include this repo's `skills/` directory, or deliberately extend the target
+registry for your local layout.
 
 ## Gemini
 
@@ -74,7 +95,7 @@ guessed at.
 Target rule: vault-workflow skills are mapped to `vault` (the vault's
 `.claude/skills`) rather than `claude` (`~/.claude/skills`), so Claude Code
 sees them only when launched inside the vault, while `cursor`, `codex`, and
-`gemini` get them everywhere.
+`gemini`, and `pi` get them everywhere.
 
 ## Catalog integration
 

@@ -3,60 +3,70 @@
   "_comment": "Maps each skill to the harnesses it should be linked into. Run ./install.py after editing.",
   "skills": {
     "adversarial-review": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "brain-mail-ingest": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "calendar-block": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "clion-run-input": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "collaborator-sweep": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "daily-note": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "day-check": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "deep-interview": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "draft-outreach": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "feature-interview": [
+      "pi",
       "claude",
       "cursor",
       "vault",
@@ -64,120 +74,140 @@
       "gemini"
     ],
     "home-layout": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "issue-fleet": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "linear-project-setup": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "linear-sprint-cycles": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "llm-reflection-submission": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "local-routine": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "log-outreach": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "mail-digest": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "morning-interview": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "owen-voice": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "plan-then-ship": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "port-lab-forward": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "professor": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "project-status-doc": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "project-sync": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "publish-to-github": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "python-docstrings": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "reclaim-disk-space": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "research-ingest": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "research-interview": [
+      "pi",
       "claude",
       "cursor",
       "vault",
@@ -185,96 +215,112 @@
       "gemini"
     ],
     "research-loop": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "research-survey": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "resume-build": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "rosie": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "rosie-run": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "skillify": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "spaced-recall": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "swe2410-java-setup": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "sync-task-design": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "token-economy-run": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "turing": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "vault-librarian": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "vault-lifecycle": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "vault-triage": [
+      "pi",
       "vault",
       "cursor",
       "codex",
       "gemini"
     ],
     "vision-interview": [
+      "pi",
       "claude",
       "cursor",
       "codex",
       "gemini"
     ],
     "zed-language-setup": [
+      "pi",
       "claude",
       "cursor",
       "codex",
