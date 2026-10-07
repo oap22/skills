@@ -50,7 +50,7 @@ The `gemini` target links into `~/.gemini/skills`, which Gemini CLI reads
 The Gemini macOS app is sandboxed and can only read folders you choose, so it
 may not follow symlinks that point outside `~/.gemini/skills`. Point it at this
 repo instead: Settings → Skills → Manage skills folders → add
-`~/Developer/active/personal/skills/skills`. The app then reads the source
+`~/code/me/skills/skills`. The app then reads the source
 files directly and picks up edits with no install step. That folder holds every
 skill regardless of `manifest.json`.
 

@@ -31,8 +31,8 @@ This skill runs the retrieval half: it asks, scores, logs, and decides what come
 
 Look for existing generated material before writing new questions. For the cosmology track:
 
-- Quizzes and keys: `~/Developer/active/school/sophomore/research/galaxy-cluster-research/daily-lessons/YYYY-MM-DD-{lesson,quiz,answers}.md`
-- Score log: `~/Developer/active/school/sophomore/research/galaxy-cluster-research/daily-lessons/progress.md`
+- Quizzes and keys: `~/code/res/galaxy-cluster-research/daily-lessons/YYYY-MM-DD-{lesson,quiz,answers}.md`
+- Score log: `~/code/res/galaxy-cluster-research/daily-lessons/progress.md`
 - Distilled concepts: `Personal/Research/Cosmology/` indexed by `01-Maps/MOC - Galaxy Cluster Cosmology`
 
 Read `progress.md` first. Blank Score cells mean the quiz exists and was never taken; finish those before generating anything new. A session holds at most seven questions: due or overdue Re-queue rows first, oldest first, then the oldest quiz with a blank Score. After a lapse, overdue rows are simply due today; do not stack the missed sessions. Coverage rows wait for their reading block.

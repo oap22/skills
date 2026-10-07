@@ -9,7 +9,7 @@ Follow the repository's current worktree rules before editing. Session transcrip
 
 Distill a session into a skill so the same work never gets rebuilt from scratch.
 
-**Repo:** `~/Developer/active/personal/skills` — the source of truth for every harness.
+**Repo:** `~/code/me/skills` — the source of truth for every harness.
 **Never** write a skill directly into a harness skills directory (every path in `TARGET_LAYOUTS`, `scripts/catalog_contract.py`). Those are installation targets; the installer preserves unmanaged real directories and foreign symlinks.
 
 ## The Bar
@@ -42,7 +42,7 @@ In order of preference:
 
 ### 2. Check for overlap first
 
-Read `~/Developer/active/personal/skills/manifest.json` and the `description` line of each existing skill in `~/Developer/active/personal/skills/skills/*/SKILL.md`.
+Read `~/code/me/skills/manifest.json` and the `description` line of each existing skill in `~/code/me/skills/skills/*/SKILL.md`.
 
 If an existing skill covers this ground, **improve it rather than adding a second one**. Two skills with overlapping descriptions compete for the same requests and both fire unreliably — this is the single most common way a skill library rots.
 
@@ -132,7 +132,7 @@ Read `compliance.md` (bundled with this skill) and walk the draft through every 
 2. Add to `manifest.json` under `skills`, mapping the name to its harnesses:
    - `claude`, `cursor`, `codex`, `gemini` — general coding and workflow skills (valid names are the keys of `TARGET_LAYOUTS`)
    - `vault` — **only** for skills specific to the Obsidian vault. Global Claude Code skills already resolve inside the vault, so adding both `claude` and `vault` registers it twice.
-3. In the checkout you edited, run `python3 install.py --check`, `python3 scripts/export_catalog.py > /dev/null`, and `python3 -m unittest discover -s tests`. Do not run `--dry-run` in a linked worktree: every existing link reads as foreign there and it exits 1. After integrating into the permanent checkout (`~/Developer/active/personal/skills`), run `python3 install.py --dry-run`, confirm the new skill's links are planned (report other planned changes as existing drift), apply with `python3 install.py`, and confirm the links. Never point live harness links at a temporary worktree.
+3. In the checkout you edited, run `python3 install.py --check`, `python3 scripts/export_catalog.py > /dev/null`, and `python3 -m unittest discover -s tests`. Do not run `--dry-run` in a linked worktree: every existing link reads as foreign there and it exits 1. After integrating into the permanent checkout (`~/code/me/skills`), run `python3 install.py --dry-run`, confirm the new skill's links are planned (report other planned changes as existing drift), apply with `python3 install.py`, and confirm the links. Never point live harness links at a temporary worktree.
 4. Stage only this skill's directory and its own `manifest.json` hunk (`git add -p`); unrelated edits are often present. Commit per the session's finishing rules, with `skillify: add <name>`, or `skillify: <name> <change>` when improving one.
 
 ### 9. Report

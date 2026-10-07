@@ -11,7 +11,7 @@ Read `escalation.md` before the first packet fails. Read `logging.md` before rec
 
 ## Inputs
 
-- The agent-system checkout (default `~/Developer/active/personal/owens-agent-system`; the launcher is `scripts/oas.py` inside it; run every command from there). If the checkout is missing, there is no launch, packet template, or run log: say so and do not run the task as a split.
+- The agent-system checkout (default `~/code/me/owens-agent-system`; the launcher is `scripts/oas.py` inside it; run every command from there). If the checkout is missing, there is no launch, packet template, or run log: say so and do not run the task as a split.
 - The workspace to work in (an absolute path; development mode expects an isolated worktree).
 - The task, or a task record under the workspace's `.oas/`.
 - Harness: `claude` or `codex`. Other adapters refuse the worker flags. If `preview --help` lacks a flag named here, update the checkout first.
