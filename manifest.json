@@ -63,6 +63,12 @@
       "codex",
       "gemini"
     ],
+    "home-layout": [
+      "claude",
+      "cursor",
+      "codex",
+      "gemini"
+    ],
     "issue-fleet": [
       "claude",
       "cursor",

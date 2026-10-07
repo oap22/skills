@@ -21,3 +21,6 @@ python3 install.py --dry-run   # preview; apply only from the permanent checkout
 - New or changed skills follow the README "Authoring rules" and `skills/skillify/compliance.md`.
 - No secrets, private third-party identifiers, or Owen's own emails, usernames, or full hostnames in committed files; use `<placeholder>`s backed by gitignored `private.local.md` (README rule 7). Timestamp cluster and tool facts that drift.
 - Do not edit plugin skills (anthropic-skills:*, obsidian:*, gitnexus-*); they are not managed here.
+
+## Finishing work
+- Solo project. Commit on `main` and push to origin. Do not open a PR.
