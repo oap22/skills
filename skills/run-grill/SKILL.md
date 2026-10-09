@@ -10,7 +10,7 @@ Remove every ambiguity from a planned training run before any compute is spent.
 ## Steps
 
 1. **Read first.** Read the repo (config, train script, data loader), `research/`, past runs in the results root, and any brief in `research/briefs/`. Open with what you already believe and ask what is wrong.
-2. **Grill.** One question per message; use the structured question tool with 2–4 options when the answers are enumerable. Each question follows from the last answer. Pull every hedge ("probably", "should be fine"). Attack weak baselines, gameable metrics, and leaks now. Do not stop while any "Must be pinned" item, any answer that could mean two things, or any hedge is open; Owen's fatigue or a long interview is not a reason to stop. Before closing, re-scan the whole brief for one more ambiguity and ask about it.
+2. **Grill.** One question per message; use the structured question tool with 2–4 options when the answers are enumerable. Every question carries your recommendation: put it first, label it "(Recommended)", and give the one-line reason in its description, so Owen can weigh it against the others. With no structured options, state the recommendation and its reason before asking. Each question follows from the last answer. Pull every hedge ("probably", "should be fine"). Attack weak baselines, gameable metrics, and leaks now. Do not stop while any "Must be pinned" item, any answer that could mean two things, or any hedge is open; Owen's fatigue or a long interview is not a reason to stop. Before closing, re-scan the whole brief for one more ambiguity and ask about it.
 3. **Write as you go** to `research/briefs/YYYY-MM-DD-<slug>.md` with `status: draft`.
 4. **Close.** Restate the whole run. If Owen changes nothing, hand off to `run-viz`.
 
@@ -31,7 +31,7 @@ Each item gets a value or a path. An open question is allowed only when no answe
 
 - Never ask what the repo or past runs answer.
 - No load-bearing word stays undefined: "better", "the baseline", and "the model" each get a number, name, or path.
-- The design is Owen's. Propose and challenge; do not substitute.
+- The design is Owen's. Propose and challenge; do not substitute. A recommendation is a proposal: record in the brief only the option Owen picks.
 
 ## Gotchas
 
