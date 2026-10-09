@@ -1,6 +1,6 @@
 ---
 name: plan-then-ship
-description: "Plan a code change in exhaustive detail with a strong model, hand the spec to a weaker model to implement, then adversarially review, test, and ship. Use only when explicitly invoked: \"pipeline this\", \"plan then ship\", \"strong plan weak impl\". Not for ordinary coding, a spec with no handoff (feature-interview), packet delegation (token-economy-run), several issues (issue-fleet), or research."
+description: "Plan a code change in exhaustive detail with a strong model, hand the spec to a weaker model to implement, then adversarially review, test, and ship. Use only when explicitly invoked: \"pipeline this\", \"plan then ship\", \"strong plan weak impl\". Not for ordinary coding, a spec with no handoff (code-grill), packet delegation (token-economy-run), several issues (issue-fleet), or research."
 ---
 
 # Plan Then Ship

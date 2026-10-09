@@ -1,6 +1,6 @@
 ---
 name: vision-interview
-description: "Interview Owen in rounds about why a project, channel, club, or venture exists (purpose, audience, positioning, success), then write a purpose doc. Use for \"interview me on the purpose of X\", \"what is this project for\", \"define the vision\", \"write a mission statement\". Not for his personal profile (deep-interview), a current-state doc (project-status-doc), feature specs (feature-interview), or training-run design (run-grill)."
+description: "Interview Owen in rounds about why a project, channel, club, or venture exists (purpose, audience, positioning, success), then write a purpose doc. Use for \"interview me on the purpose of X\", \"what is this project for\", \"define the vision\", \"write a mission statement\". Not for his personal profile (deep-interview), a current-state doc (project-status-doc), code specs (code-grill), or training-run design (run-grill)."
 ---
 
 # Vision Interview
@@ -36,4 +36,4 @@ First run: 2026-09-23, CS Made Clear (YouTube channel). Four rounds, about 15 qu
 
 ## Untested
 
-- The first run batched up to 4 related questions per round in a structured multiple-choice tool. That differs from the one-question-per-message rule in deep-interview and feature-interview. A one-at-a-time variant hasn't been tried for purpose interviews. Without a structured question tool, ask the round's questions in chat as a short numbered list with options.
+- The first run batched up to 4 related questions per round in a structured multiple-choice tool. That differs from the one-question-per-message rule in deep-interview. A one-at-a-time variant hasn't been tried for purpose interviews. Without a structured question tool, ask the round's questions in chat as a short numbered list with options.

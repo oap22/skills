@@ -30,6 +30,14 @@
       "codex",
       "gemini"
     ],
+    "code-grill": [
+      "pi",
+      "claude",
+      "cursor",
+      "vault",
+      "codex",
+      "gemini"
+    ],
     "collaborator-sweep": [
       "pi",
       "vault",
@@ -62,14 +70,6 @@
       "pi",
       "vault",
       "cursor",
-      "codex",
-      "gemini"
-    ],
-    "feature-interview": [
-      "pi",
-      "claude",
-      "cursor",
-      "vault",
       "codex",
       "gemini"
     ],
