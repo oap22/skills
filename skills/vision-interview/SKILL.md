@@ -1,6 +1,6 @@
 ---
 name: vision-interview
-description: "Interview Owen in rounds about why a project, channel, club, or venture exists (purpose, audience, positioning, success), then write a purpose doc. Use for \"interview me on the purpose of X\", \"what is this project for\", \"define the vision\", \"write a mission statement\". Not for his personal profile (deep-interview), a current-state doc (project-status-doc), feature specs (feature-interview), or research briefs (research-interview)."
+description: "Interview Owen in rounds about why a project, channel, club, or venture exists (purpose, audience, positioning, success), then write a purpose doc. Use for \"interview me on the purpose of X\", \"what is this project for\", \"define the vision\", \"write a mission statement\". Not for his personal profile (deep-interview), a current-state doc (project-status-doc), feature specs (feature-interview), or training-run design (run-grill)."
 ---
 
 # Vision Interview

@@ -1,6 +1,6 @@
 ---
 name: deep-interview
-description: "Interview Owen one question at a time to build or extend his profile in the vault, reading what is already known first and writing answers as they come. Use for \"interview me about myself\", \"ask me about myself\", \"build my profile\", \"update my profile\". Project purpose is vision-interview; feature specs are feature-interview; research briefs are research-interview; the daily check-in is morning-interview."
+description: "Interview Owen one question at a time to build or extend his profile in the vault, reading what is already known first and writing answers as they come. Use for \"interview me about myself\", \"ask me about myself\", \"build my profile\", \"update my profile\". Project purpose is vision-interview; feature specs are feature-interview; training-run design is run-grill; the daily check-in is morning-interview."
 ---
 
 # Deep Interview

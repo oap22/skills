@@ -206,14 +206,6 @@
       "codex",
       "gemini"
     ],
-    "research-interview": [
-      "pi",
-      "claude",
-      "cursor",
-      "vault",
-      "codex",
-      "gemini"
-    ],
     "research-loop": [
       "pi",
       "claude",
@@ -246,6 +238,30 @@
       "pi",
       "claude",
       "cursor",
+      "codex",
+      "gemini"
+    ],
+    "run-grill": [
+      "pi",
+      "claude",
+      "cursor",
+      "vault",
+      "codex",
+      "gemini"
+    ],
+    "run-spec": [
+      "pi",
+      "claude",
+      "cursor",
+      "vault",
+      "codex",
+      "gemini"
+    ],
+    "run-viz": [
+      "pi",
+      "claude",
+      "cursor",
+      "vault",
       "codex",
       "gemini"
     ],

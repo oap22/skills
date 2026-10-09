@@ -1,6 +1,6 @@
 ---
 name: feature-interview
-description: "Interview the user one question at a time until a feature's behavior is fully pinned down, then write the spec the implementation is held to. Use for \"spec this out\", \"nail down what I want\", or a user-facing feature whose states and edge cases are still open. Research questions go to research-interview; project purpose to vision-interview; plan-then-ship runs its own spec step."
+description: "Interview the user one question at a time until a feature's behavior is fully pinned down, then write the spec the implementation is held to. Use for \"spec this out\", \"nail down what I want\", or a user-facing feature whose states and edge cases are still open. ML training runs go to run-grill; project purpose to vision-interview; plan-then-ship runs its own spec step."
 ---
 
 # Feature Interview
@@ -9,7 +9,7 @@ Reach complete shared understanding of a feature's **behavior** before writing c
 
 The trigger is usually a rebuild. A feature request like "the graphs should be different colors and not duplicate" sounds complete and isn't: it doesn't say what a line represents, what happens on the 9th one, whether a color follows a run or a slot, or what "clear" clears. Building on that guess costs a round trip. This skill spends five minutes to avoid it.
 
-**Not for research.** Experiments, hypotheses, and success criteria go to `research-interview`. This skill is for behavior a user will click on.
+**Not for research.** Experiments, hypotheses, and success criteria go to `run-grill`. This skill is for behavior a user will click on.
 
 ## The Standard
 

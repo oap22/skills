@@ -1,6 +1,6 @@
 ---
 name: research-loop
-description: "Design, execute, verify, and log reproducible research experiments, benchmarks, ablations, or self-improvement loops. Use for \"run the experiment\", \"test this hypothesis\", \"log this run\", or a sweep, from an agreed brief or plan. Not for an unsettled research question (research-interview), a web survey (research-survey), cluster dispatch (rosie-run), conceptual questions, routine debugging, or product changes."
+description: "Design, execute, verify, and log reproducible research experiments, benchmarks, ablations, or self-improvement loops. Use for \"run the experiment\", \"test this hypothesis\", \"log this run\", or a sweep, from an agreed brief or plan. Not for designing a training run (run-grill, run-viz, run-spec), a web survey (research-survey), cluster dispatch (rosie-run), conceptual questions, routine debugging, or product changes."
 ---
 
 # Research Loop
@@ -61,7 +61,7 @@ At the start of **every** session, before proposing anything:
 cat research/JOURNAL.md | head -100      # what happened recently
 cat research/OPEN-QUESTIONS.md            # what we don't know
 cat research/DEAD-ENDS.md                 # what's already been ruled out
-ls -t research/briefs/ 2>/dev/null       # agreed briefs from research-interview
+ls -t research/briefs/ 2>/dev/null       # agreed briefs from run-spec
 ls -t "${RESEARCH_RESULTS_ROOT:-$HOME/research-results}" | head -20   # what's been run — shared root
 git log --oneline -15
 ```
@@ -94,7 +94,7 @@ Write the design down before writing code. It goes in the journal entry either w
 
 The **falsifier is mandatory.** A hypothesis you can't imagine disproving isn't an experiment, it's a demo. If you can't write the falsifier line, the design isn't ready — say so.
 
-**→ Design checkpoint.** If an agreed brief in `research/briefs/` covers this question, fill the block from it and cite its path (its Success Criteria fix seeds per arm and the decision rule); record any departure in the brief's `## Deviations`, and label later results exploratory. A `status: draft` brief, or no brief and no writable Control or Falsifier, goes to research-interview, not into a run. Otherwise present the design; proceed if this plan is already authorized, otherwise resolve the material open decision.
+**→ Design checkpoint.** If an agreed brief in `research/briefs/` covers this question, fill the block from it and cite its path (its Success Criteria fix seeds per arm and the decision rule); record any departure in the brief's `## Deviations`, and label later results exploratory. A `status: draft` brief, or no brief and no writable Control or Falsifier, goes to run-grill, not into a run. Otherwise present the design; proceed if this plan is already authorized, otherwise resolve the material open decision.
 
 ### 3. Estimate — the cost gate
 

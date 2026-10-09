@@ -1,6 +1,6 @@
 ---
 name: turing
-description: "Working context for the Turing repo and its desktop app, plus the file contract (metrics.jsonl, trajectory.json, plots, .viewer.json) that makes a run from any project render live in the desktop's panes. Use for \"working in Turing\", \"show this run in the desktop\", \"look at the current run\", or when the Turing desktop is open. Experiment discipline stays in research-loop, briefs in research-interview, cluster dispatch in rosie-run."
+description: "Working context for the Turing repo and its desktop app, plus the file contract (metrics.jsonl, trajectory.json, plots, .viewer.json) that makes a run from any project render live in the desktop's panes. Use for \"working in Turing\", \"show this run in the desktop\", \"look at the current run\", or when the Turing desktop is open. Experiment discipline stays in research-loop, run design in run-grill, cluster dispatch in rosie-run."
 ---
 
 # Turing
@@ -13,7 +13,7 @@ Turing (`~/code/res/Turing`; its GitHub remote is `origin`) is Owen's autonomous
 
 Turing is where Owen does research development. If the session is research-shaped — an experiment, a training run, a benchmark, an ablation, a flywheel round, "let's test whether X" — then:
 
-- **No current brief?** First check the current conversation and authorized handoff for an already agreed question, method, falsifier, constraints, and budget. If those are complete, materialize that approved design as `research/briefs/YYYY-MM-DD-<slug>.md` with `status: agreed` and continue without a new interview. Run `/research-interview` only for consequential unresolved choices; do not start experiment code from a vibe.
+- **No current brief?** First check the current conversation and authorized handoff for an already agreed question, method, falsifier, constraints, and budget. If those are complete, materialize that approved design as `research/briefs/YYYY-MM-DD-<slug>.md` with `status: agreed` and continue without a new interview. Run `run-grill` only for consequential unresolved choices; do not start experiment code from a vibe.
 - **Every experiment runs under `/research-loop`.** Ground → design gate → cost gate → run → falsify → log. Its `conventions.md` owns the results-directory format, `JOURNAL.md`, and `DEAD-ENDS.md`.
 - **Heavy jobs go to ROSIE via `rosie-run`.** The Mac orchestrates; the cluster computes.
 

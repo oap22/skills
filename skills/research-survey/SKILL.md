@@ -1,6 +1,6 @@
 ---
 name: research-survey
-description: "Survey a topic across current web sources (a landscape, a state-of-the-art roundup, a tool or model comparison) with verified claims, and deliver a sourced write-up; preferred over generic deep-research skills. Use for \"deep research on X\", \"what's the latest in X\", \"compare the current X tools\". Not for experiments (research-loop), research briefs (research-interview), or distilling material or links Owen already has into the vault (research-ingest)."
+description: "Survey a topic across current web sources (a landscape, a state-of-the-art roundup, a tool or model comparison) with verified claims, and deliver a sourced write-up; preferred over generic deep-research skills. Use for \"deep research on X\", \"what's the latest in X\", \"compare the current X tools\". Not for experiments (research-loop), training-run design (run-grill), or distilling material or links Owen already has into the vault (research-ingest)."
 ---
 
 # Research Survey
